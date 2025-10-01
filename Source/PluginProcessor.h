@@ -12,51 +12,66 @@
 
 //==============================================================================
 /**
-*/
-class MultieffectpluginAudioProcessor  : public juce::AudioProcessor
-                            #if JucePlugin_Enable_ARA
-                             , public juce::AudioProcessorARAExtension
-                            #endif
+ */
+class MultieffectpluginAudioProcessor : public juce::AudioProcessor
+#if JucePlugin_Enable_ARA
+    ,
+                                        public juce::AudioProcessorARAExtension
+#endif
 {
 public:
-    //==============================================================================
-    MultieffectpluginAudioProcessor();
-    ~MultieffectpluginAudioProcessor() override;
+  //==============================================================================
+  MultieffectpluginAudioProcessor();
+  ~MultieffectpluginAudioProcessor() override;
 
-    //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
-    void releaseResources() override;
+  //==============================================================================
+  void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+  void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+  bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
+#endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+  void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
-    //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
+  //==============================================================================
+  juce::AudioProcessorEditor *createEditor() override;
+  bool hasEditor() const override;
 
-    //==============================================================================
-    const juce::String getName() const override;
+  //==============================================================================
+  const juce::String getName() const override;
 
-    bool acceptsMidi() const override;
-    bool producesMidi() const override;
-    bool isMidiEffect() const override;
-    double getTailLengthSeconds() const override;
+  bool acceptsMidi() const override;
+  bool producesMidi() const override;
+  bool isMidiEffect() const override;
+  double getTailLengthSeconds() const override;
 
-    //==============================================================================
-    int getNumPrograms() override;
-    int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
+  //==============================================================================
+  int getNumPrograms() override;
+  int getCurrentProgram() override;
+  void setCurrentProgram(int index) override;
+  const juce::String getProgramName(int index) override;
+  void changeProgramName(int index, const juce::String &newName) override;
 
-    //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+  //==============================================================================
+  void getStateInformation(juce::MemoryBlock &destData) override;
+  void setStateInformation(const void *data, int sizeInBytes) override;
 
-private:
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultieffectpluginAudioProcessor)
+  enum class DSP_Option {
+    Phase,
+    Chorus,
+    Overdrive,
+    LadderFilter,
+    END_OF_LIST
+  };
+
+  private :
+    juce::dsp::Phase<float> phaser;
+    juce::dsp::Chorus<float> chorus;
+    juce::dsp::LadderFilter<float> overdrive, ladderFilter;
+
+
+      //==============================================================================
+      JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
+          MultieffectpluginAudioProcessor)
 };
