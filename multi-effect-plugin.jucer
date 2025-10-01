@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="W3KonX" name="multi-effect-plugin" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" cppLanguageStandard="20">
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
       <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -18,8 +18,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="multi-effect-plugin"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="multi-effect-plugin"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="multi-effect-plugin" extraCompilerFlags="-std=c++2a"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="multi-effect-plugin" extraCompilerFlags="-std=c++2a"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="JUCE/modules"/>
