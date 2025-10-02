@@ -5,6 +5,9 @@
               jucerFormatVersion="1" cppLanguageStandard="20">
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
+      <GROUP id="{CA67A969-AB50-51B3-E954-CB5A5DFB4DAA}" name="DSP">
+        <FILE id="lXYWh3" name="Fifo.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/DSP/Fifo.h"/>
+      </GROUP>
       <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="d8q84h" name="PluginProcessor.h" compile="0" resource="0"
@@ -18,8 +21,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="multi-effect-plugin"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="multi-effect-plugin"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="multi-effect-plugin" headerPath="../../SimpleMultiBandComp/Source/&#10;../../SimpleMultiBandComp/Source//GUI&#10;../../SimpleMultiBandComp/Source/DSP"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="multi-effect-plugin" headerPath="../../SimpleMultiBandComp/Source/&#10;../../SimpleMultiBandComp/Source//GUI&#10;../../SimpleMultiBandComp/Source/DSP"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="JUCE/modules"/>
