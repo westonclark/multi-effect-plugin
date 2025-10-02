@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <JuceHeader.h>
 #include <Fifo.h>
+#include <JuceHeader.h>
 
 //==============================================================================
 /**
@@ -58,7 +58,7 @@ public:
   void getStateInformation(juce::MemoryBlock &destData) override;
   void setStateInformation(const void *data, int sizeInBytes) override;
 
-  enum class DSP_Option { Phase, Chorus, Overdrive, LadderFilter, END_OF_LIST };
+  enum class DSP_Option { Phase, Chorus, OverDrive, LadderFilter, END_OF_LIST };
 
   using DSP_Order =
       std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
@@ -71,21 +71,21 @@ private:
     void prepare(const juce::dsp::ProcessSpec &spec) override {
       dsp.prepare(spec);
     }
-    void process(const juce::dsp::ProcessContextReplacing<float> &context) override {
+    void
+    process(const juce::dsp::ProcessContextReplacing<float> &context) override {
       dsp.process(context);
     }
-    void reset() override {
-      dsp.reset();
-    }
+    void reset() override { dsp.reset(); }
     DSP dsp;
   };
-  
+
   DSP_Choice<juce::dsp::DelayLine<float>> delay;
   DSP_Choice<juce::dsp::Phaser<float>> phaser;
   DSP_Choice<juce::dsp::Chorus<float>> chorus;
   DSP_Choice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
-  
-  using DSP_Pointers = std::array<juce::dsp::ProcessorBase*,static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+
+  using DSP_Pointers = std::array<juce::dsp::ProcessorBase *,
+                                  static_cast<size_t>(DSP_Option::END_OF_LIST)>;
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
 };
