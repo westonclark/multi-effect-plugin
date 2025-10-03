@@ -60,8 +60,12 @@ public:
 
   enum class DSP_Option { Phase, Chorus, OverDrive, LadderFilter, END_OF_LIST };
 
+  static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+  juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
+  
   using DSP_Order =
       std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+  
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
 private:

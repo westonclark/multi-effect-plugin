@@ -115,6 +115,11 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
 }
 #endif
 
+juce::AudioProcessorValueTreeState::ParameterLayout MultieffectpluginAudioProcessor::createParameterLayout() {
+  juce::AudioProcessorValueTreeState::ParameterLayout layout;
+  return layout;
+}
+
 void MultieffectpluginAudioProcessor::processBlock(
     juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
   juce::ScopedNoDenormals noDenormals;
@@ -170,6 +175,7 @@ void MultieffectpluginAudioProcessor::processBlock(
     }
   }
 }
+
 //==============================================================================
 bool MultieffectpluginAudioProcessor::hasEditor() const {
   return true; // (change this to false if you choose to not supply an editor)
