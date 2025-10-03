@@ -68,6 +68,20 @@ public:
   
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
+  //  Phaser
+  juce::AudioParameterFloat* phaserRate = nullptr; // Hz
+  juce::AudioParameterFloat* phaserDepth = nullptr; //0 to 1
+  juce::AudioParameterFloat* phaserCenterFreq = nullptr; // Hz
+  juce::AudioParameterFloat* phaserFeedback = nullptr; // -1 to 1
+  juce::AudioParameterFloat* phaserMix = nullptr; // 0 to 1
+  
+  //  Chorus
+  juce::AudioParameterFloat* chorusRate = nullptr; // Hz
+  juce::AudioParameterFloat* chorusDepth = nullptr; //0 to 1
+  juce::AudioParameterFloat* chorusCenterDelay = nullptr; // 1 to 100
+  juce::AudioParameterFloat* chorusFeedback = nullptr; // -1 to 1
+  juce::AudioParameterFloat* chorusMix = nullptr; // 0 to 1
+  
 private:
   DSP_Order dspOrder;
 
