@@ -23,6 +23,24 @@ auto getChorusMixName() { return juce::String("Chorus Mix"); }
 
 auto getOverdriveSaturationName() { return juce::String("OverDrive"); }
 
+auto getLadderFilterModeName() { return juce::String("Ladder Filter Mode"); }
+auto getLadderFilterCutoffName() {
+  return juce::String("Ladder Filter Cutoff");
+}
+auto getLadderFilterResonanceName() {
+  return juce::String("Ladder Filter Resonance");
+}
+auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
+
+auto getLadderFilterChoices() {
+  return juce::StringArray{"LPF12"
+                           "HPF12"
+                           "BPF12"
+                           "LPF24"
+                           "HPF24"
+                           "BPF24"};
+}
+
 //==============================================================================
 MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -37,18 +55,35 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       )
 #endif
 {
-  auto params =
-      std::array{&phaserRate,     &phaserCenterFreq,   &phaserDepth,
-                 &phaserFeedback, &phaserMix,          &chorusRate,
-                 &chorusDepth,    &chorusCenterDelay,  &chorusFeedback,
-                 &chorusMix,      &overdriveSaturation};
-  auto functions =
-      std::array{&getPhaserRateName,         &getPhaserCenterFreqName,
-                 &getPhaserDepthName,        &getPhaserFeedbackName,
-                 &getPhaserMixName,          &getChorusRateName,
-                 &getChorusDepthName,        &getChorusCenterDelayName,
-                 &getChorusFeedbackName,     &getChorusMixName,
-                 &getOverdriveSaturationName};
+  auto params = std::array{&phaserRate,
+                           &phaserCenterFreq,
+                           &phaserDepth,
+                           &phaserFeedback,
+                           &phaserMix,
+                           &chorusRate,
+                           &chorusDepth,
+                           &chorusCenterDelay,
+                           &chorusFeedback,
+                           &chorusMix,
+                           &overdriveSaturation,
+                           &ladderFilterCutoff,
+                           &ladderFilterResonance,
+                           &ladderFilterDrive};
+
+  auto functions = std::array{&getPhaserRateName,
+                              &getPhaserCenterFreqName,
+                              &getPhaserDepthName,
+                              &getPhaserFeedbackName,
+                              &getPhaserMixName,
+                              &getChorusRateName,
+                              &getChorusDepthName,
+                              &getChorusCenterDelayName,
+                              &getChorusFeedbackName,
+                              &getChorusMixName,
+                              &getOverdriveSaturationName,
+                              &getLadderFilterCutoffName,
+                              &getLadderFilterResonanceName,
+                              &getLadderFilterDriveName};
 
   for (size_t i = 0; i < params.size(); ++i) {
     auto paramPointer = params[i];
@@ -57,6 +92,10 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 
     jassert(*paramPointer != nullptr);
   }
+
+  ladderFilterMode = dynamic_cast<juce::AudioParameterChoice *>(
+      apvts.getParameter(getLadderFilterModeName()));
+  jassert(ladderFilterMode != nullptr);
 }
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
@@ -159,31 +198,31 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   // Phaser
   name = getPhaserRateName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 2.f, 0.01f, 1.f), 0.2f, "Hz"
 
       ));
   name = getPhaserDepthName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f, "%"
 
       ));
   name = getPhaserCenterFreqName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 1000.f, "Hz"
 
       ));
   name = getPhaserFeedbackName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(-1.f, 1.f, 0.01f, 1.f), 0.0f, "%"
 
       ));
   name = getPhaserMixName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f, "%"
 
       ));
@@ -191,31 +230,31 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   // Chorus
   name = getChorusRateName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 2.f, 0.01f, 1.f), 0.2f, "Hz"
 
       ));
   name = getChorusDepthName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f, "%"
 
       ));
   name = getChorusCenterDelayName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.f, 100.f, 1.f, 1.f), 7.f, "ms"
 
       ));
   name = getChorusFeedbackName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(-1.f, 1.f, 0.01f, 1.f), 0.0f, "%"
 
       ));
   name = getChorusMixName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f, "%"
 
       ));
@@ -223,7 +262,33 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   // Drive
   name = getOverdriveSaturationName();
   layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID(name, versionHint), name,
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f, ""
+
+      ));
+
+  // Ladder Filter
+  name = getLadderFilterModeName();
+  auto choices = getLadderFilterChoices();
+  layout.add(std::make_unique<juce::AudioParameterChoice>(
+      juce::ParameterID{name, versionHint}, name, choices, 0
+
+      ));
+  name = getLadderFilterCutoffName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(20.f, 20000.f, 0.1f, 1.f), 20000.f, "Hz"
+
+      ));
+  name = getLadderFilterResonanceName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(0.f, 1.f, 0.1f, 1.f), 0.f, ""
+
+      ));
+  name = getLadderFilterDriveName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f, ""
 
       ));

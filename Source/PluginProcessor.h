@@ -71,21 +71,27 @@ public:
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
   //  Phaser
-  juce::AudioParameterFloat *phaserRate = nullptr;       // Hz
-  juce::AudioParameterFloat *phaserDepth = nullptr;      // 0 to 1
-  juce::AudioParameterFloat *phaserCenterFreq = nullptr; // Hz
-  juce::AudioParameterFloat *phaserFeedback = nullptr;   // -1 to 1
-  juce::AudioParameterFloat *phaserMix = nullptr;        // 0 to 1
+  juce::AudioParameterFloat *phaserRate = nullptr;
+  juce::AudioParameterFloat *phaserDepth = nullptr;
+  juce::AudioParameterFloat *phaserCenterFreq = nullptr;
+  juce::AudioParameterFloat *phaserFeedback = nullptr;
+  juce::AudioParameterFloat *phaserMix = nullptr;
 
   //  Chorus
-  juce::AudioParameterFloat *chorusRate = nullptr;        // Hz
-  juce::AudioParameterFloat *chorusDepth = nullptr;       // 0 to 1
-  juce::AudioParameterFloat *chorusCenterDelay = nullptr; // 1 to 100
-  juce::AudioParameterFloat *chorusFeedback = nullptr;    // -1 to 1
-  juce::AudioParameterFloat *chorusMix = nullptr;         // 0 to 1
+  juce::AudioParameterFloat *chorusRate = nullptr;
+  juce::AudioParameterFloat *chorusDepth = nullptr;
+  juce::AudioParameterFloat *chorusCenterDelay = nullptr;
+  juce::AudioParameterFloat *chorusFeedback = nullptr;
+  juce::AudioParameterFloat *chorusMix = nullptr;
 
   // Drive
   juce::AudioParameterFloat *overdriveSaturation = nullptr;
+
+  // Ladder Filter
+  juce::AudioParameterChoice *ladderFilterMode = nullptr;
+  juce::AudioParameterFloat *ladderFilterCutoff = nullptr;
+  juce::AudioParameterFloat *ladderFilterResonance = nullptr;
+  juce::AudioParameterFloat *ladderFilterDrive = nullptr;
 
 private:
   DSP_Order dspOrder;
