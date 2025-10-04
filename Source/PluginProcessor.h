@@ -60,28 +60,33 @@ public:
 
   enum class DSP_Option { Phase, Chorus, OverDrive, LadderFilter, END_OF_LIST };
 
-  static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-  juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
-  
+  static juce::AudioProcessorValueTreeState::ParameterLayout
+  createParameterLayout();
+  juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters",
+                                           createParameterLayout()};
+
   using DSP_Order =
       std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
-  
+
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
   //  Phaser
-  juce::AudioParameterFloat* phaserRate = nullptr; // Hz
-  juce::AudioParameterFloat* phaserDepth = nullptr; //0 to 1
-  juce::AudioParameterFloat* phaserCenterFreq = nullptr; // Hz
-  juce::AudioParameterFloat* phaserFeedback = nullptr; // -1 to 1
-  juce::AudioParameterFloat* phaserMix = nullptr; // 0 to 1
-  
+  juce::AudioParameterFloat *phaserRate = nullptr;       // Hz
+  juce::AudioParameterFloat *phaserDepth = nullptr;      // 0 to 1
+  juce::AudioParameterFloat *phaserCenterFreq = nullptr; // Hz
+  juce::AudioParameterFloat *phaserFeedback = nullptr;   // -1 to 1
+  juce::AudioParameterFloat *phaserMix = nullptr;        // 0 to 1
+
   //  Chorus
-  juce::AudioParameterFloat* chorusRate = nullptr; // Hz
-  juce::AudioParameterFloat* chorusDepth = nullptr; //0 to 1
-  juce::AudioParameterFloat* chorusCenterDelay = nullptr; // 1 to 100
-  juce::AudioParameterFloat* chorusFeedback = nullptr; // -1 to 1
-  juce::AudioParameterFloat* chorusMix = nullptr; // 0 to 1
-  
+  juce::AudioParameterFloat *chorusRate = nullptr;        // Hz
+  juce::AudioParameterFloat *chorusDepth = nullptr;       // 0 to 1
+  juce::AudioParameterFloat *chorusCenterDelay = nullptr; // 1 to 100
+  juce::AudioParameterFloat *chorusFeedback = nullptr;    // -1 to 1
+  juce::AudioParameterFloat *chorusMix = nullptr;         // 0 to 1
+
+  // Drive
+  juce::AudioParameterFloat *overdriveSaturation = nullptr;
+
 private:
   DSP_Order dspOrder;
 

@@ -21,6 +21,8 @@ auto getChorusCenterDelayName() { return juce::String("Chorus Center Delay"); }
 auto getChorusFeedbackName() { return juce::String("Chorus Feedback"); }
 auto getChorusMixName() { return juce::String("Chorus Mix"); }
 
+auto getOverdriveSaturationName() { return juce::String("OverDrive"); }
+
 //==============================================================================
 MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -35,15 +37,18 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       )
 #endif
 {
-  auto params = std::array{&phaserRate,     &phaserCenterFreq,  &phaserDepth,
-                           &phaserFeedback, &phaserMix,         &chorusRate,
-                           &chorusDepth,    &chorusCenterDelay, &chorusFeedback,
-                           &chorusMix};
-  auto functions = std::array{&getPhaserRateName,     &getPhaserCenterFreqName,
-                              &getPhaserDepthName,    &getPhaserFeedbackName,
-                              &getPhaserMixName,      &getChorusRateName,
-                              &getChorusDepthName,    &getChorusCenterDelayName,
-                              &getChorusFeedbackName, &getChorusMixName};
+  auto params =
+      std::array{&phaserRate,     &phaserCenterFreq,   &phaserDepth,
+                 &phaserFeedback, &phaserMix,          &chorusRate,
+                 &chorusDepth,    &chorusCenterDelay,  &chorusFeedback,
+                 &chorusMix,      &overdriveSaturation};
+  auto functions =
+      std::array{&getPhaserRateName,         &getPhaserCenterFreqName,
+                 &getPhaserDepthName,        &getPhaserFeedbackName,
+                 &getPhaserMixName,          &getChorusRateName,
+                 &getChorusDepthName,        &getChorusCenterDelayName,
+                 &getChorusFeedbackName,     &getChorusMixName,
+                 &getOverdriveSaturationName};
 
   for (size_t i = 0; i < params.size(); ++i) {
     auto paramPointer = params[i];
@@ -212,6 +217,14 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   layout.add(std::make_unique<juce::AudioParameterFloat>(
       juce::ParameterID(name, versionHint), name,
       juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f, "%"
+
+      ));
+
+  // Drive
+  name = getOverdriveSaturationName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID(name, versionHint), name,
+      juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f, ""
 
       ));
 
