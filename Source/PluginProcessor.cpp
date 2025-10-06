@@ -31,7 +31,6 @@ auto getLadderFilterResonanceName() {
   return juce::String("Ladder Filter Resonance");
 }
 auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
-
 auto getLadderFilterChoices() {
   return juce::StringArray{"LPF12"
                            "HPF12"
@@ -39,6 +38,13 @@ auto getLadderFilterChoices() {
                            "LPF24"
                            "HPF24"
                            "BPF24"};
+}
+auto getFilterModeName() { return juce::String("Filter Mode"); }
+auto getFilterFreqName() { return juce::String("Filter Freq"); }
+auto getFilterQualityName() { return juce::String("Filter Quality"); }
+auto getFilterGainName() { return juce::String("Filter Gain"); }
+auto getFilterChoices() {
+  return juce::StringArray{"Peak", "Bandpass", "Notch", "Allpass"};
 }
 
 //==============================================================================
@@ -55,47 +61,62 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       )
 #endif
 {
-  auto params = std::array{&phaserRate,
-                           &phaserCenterFreq,
-                           &phaserDepth,
-                           &phaserFeedback,
-                           &phaserMix,
-                           &chorusRate,
-                           &chorusDepth,
-                           &chorusCenterDelay,
-                           &chorusFeedback,
-                           &chorusMix,
-                           &overdriveSaturation,
-                           &ladderFilterCutoff,
-                           &ladderFilterResonance,
-                           &ladderFilterDrive};
+  auto floatParams = std::array{&phaserRate,
+                                &phaserCenterFreq,
+                                &phaserDepth,
+                                &phaserFeedback,
+                                &phaserMix,
+                                &chorusRate,
+                                &chorusDepth,
+                                &chorusCenterDelay,
+                                &chorusFeedback,
+                                &chorusMix,
+                                &overdriveSaturation,
+                                &ladderFilterCutoff,
+                                &ladderFilterResonance,
+                                &ladderFilterDrive,
+                                &filterFreq,
+                                &filterQuality,
+                                &filterGain};
 
-  auto functions = std::array{&getPhaserRateName,
-                              &getPhaserCenterFreqName,
-                              &getPhaserDepthName,
-                              &getPhaserFeedbackName,
-                              &getPhaserMixName,
-                              &getChorusRateName,
-                              &getChorusDepthName,
-                              &getChorusCenterDelayName,
-                              &getChorusFeedbackName,
-                              &getChorusMixName,
-                              &getOverdriveSaturationName,
-                              &getLadderFilterCutoffName,
-                              &getLadderFilterResonanceName,
-                              &getLadderFilterDriveName};
+  auto floatFunctions = std::array{&getPhaserRateName,
+                                   &getPhaserCenterFreqName,
+                                   &getPhaserDepthName,
+                                   &getPhaserFeedbackName,
+                                   &getPhaserMixName,
+                                   &getChorusRateName,
+                                   &getChorusDepthName,
+                                   &getChorusCenterDelayName,
+                                   &getChorusFeedbackName,
+                                   &getChorusMixName,
+                                   &getOverdriveSaturationName,
+                                   &getLadderFilterCutoffName,
+                                   &getLadderFilterResonanceName,
+                                   &getLadderFilterDriveName,
+                                   &getFilterFreqName,
+                                   &getFilterQualityName,
+                                   &getFilterGainName};
 
-  for (size_t i = 0; i < params.size(); ++i) {
-    auto paramPointer = params[i];
+  auto choiceParams = std::array{&ladderFilterMode, &filterMode};
+
+  auto choiceFunctions =
+      std::array{&getLadderFilterModeName, &getFilterModeName};
+
+  for (size_t i = 0; i < floatParams.size(); ++i) {
+    auto paramPointer = floatParams[i];
     *paramPointer = dynamic_cast<juce::AudioParameterFloat *>(
-        apvts.getParameter(functions[i]()));
+        apvts.getParameter(floatFunctions[i]()));
 
     jassert(*paramPointer != nullptr);
   }
 
-  ladderFilterMode = dynamic_cast<juce::AudioParameterChoice *>(
-      apvts.getParameter(getLadderFilterModeName()));
-  jassert(ladderFilterMode != nullptr);
+  for (size_t i = 0; i < choiceParams.size(); ++i) {
+    auto paramPointer = choiceParams[i];
+    *paramPointer = dynamic_cast<juce::AudioParameterChoice *>(
+        apvts.getParameter(choiceFunctions[i]()));
+
+    jassert(*paramPointer != nullptr);
+  }
 }
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
@@ -194,6 +215,7 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
 
   const int versionHint = 1;
   juce::String name;
+  juce::StringArray choices;
 
   // Phaser
   name = getPhaserRateName();
@@ -269,7 +291,7 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
 
   // Ladder Filter
   name = getLadderFilterModeName();
-  auto choices = getLadderFilterChoices();
+  choices = getLadderFilterChoices();
   layout.add(std::make_unique<juce::AudioParameterChoice>(
       juce::ParameterID{name, versionHint}, name, choices, 0
 
@@ -290,6 +312,32 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   layout.add(std::make_unique<juce::AudioParameterFloat>(
       juce::ParameterID{name, versionHint}, name,
       juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f, ""
+
+      ));
+
+  // Filter
+  name = getFilterModeName();
+  choices = getFilterChoices();
+  layout.add(std::make_unique<juce::AudioParameterChoice>(
+      juce::ParameterID{name, versionHint}, name, choices, 0
+
+      ));
+  name = getFilterFreqName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 1000.f, "Hz"
+
+      ));
+  name = getFilterQualityName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(0.1f, 10.f, .05f, 1.f), 5.f, ""
+
+      ));
+  name = getFilterGainName();
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      juce::ParameterID{name, versionHint}, name,
+      juce::NormalisableRange<float>(-24.f, 24.f, .5f, 1.f), 0.f, "dB"
 
       ));
 
@@ -334,6 +382,9 @@ void MultieffectpluginAudioProcessor::processBlock(
       break;
     case DSP_Option::LadderFilter:
       dspPointers[i] = &ladderFilter;
+      break;
+    case DSP_Option::Filter:
+      dspPointers[i] = &filter;
       break;
     case DSP_Option::END_OF_LIST:
       jassertfalse;

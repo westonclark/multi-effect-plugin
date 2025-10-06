@@ -58,7 +58,7 @@ public:
   void getStateInformation(juce::MemoryBlock &destData) override;
   void setStateInformation(const void *data, int sizeInBytes) override;
 
-  enum class DSP_Option { Phase, Chorus, OverDrive, LadderFilter, END_OF_LIST };
+  enum class DSP_Option { Phase, Chorus, OverDrive, LadderFilter, Filter, END_OF_LIST };
 
   static juce::AudioProcessorValueTreeState::ParameterLayout
   createParameterLayout();
@@ -93,6 +93,12 @@ public:
   juce::AudioParameterFloat *ladderFilterResonance = nullptr;
   juce::AudioParameterFloat *ladderFilterDrive = nullptr;
 
+  // Filter
+  juce::AudioParameterChoice *filterMode = nullptr;
+  juce::AudioParameterFloat *filterFreq = nullptr;
+  juce::AudioParameterFloat *filterQuality = nullptr;
+  juce::AudioParameterFloat *filterGain = nullptr;
+  
 private:
   DSP_Order dspOrder;
 
@@ -112,6 +118,7 @@ private:
   DSP_Choice<juce::dsp::Phaser<float>> phaser;
   DSP_Choice<juce::dsp::Chorus<float>> chorus;
   DSP_Choice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
+  DSP_Choice<juce::dsp::IIR::Filter<float>> filter;
 
   using DSP_Pointers = std::array<juce::dsp::ProcessorBase *,
                                   static_cast<size_t>(DSP_Option::END_OF_LIST)>;
