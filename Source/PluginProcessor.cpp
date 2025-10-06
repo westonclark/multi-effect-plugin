@@ -174,8 +174,19 @@ void MultieffectpluginAudioProcessor::changeProgramName(
 //==============================================================================
 void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
                                                     int samplesPerBlock) {
-  // Use this method as the place to do any pre-playback
-  // initialisation that you need..
+
+  juce::dsp::ProcessSpec spec;
+  spec.sampleRate = sampleRate;
+  spec.maximumBlockSize = samplesPerBlock;
+  spec.numChannels = getTotalNumInputChannels();
+
+  std::vector<juce::dsp::ProcessorBase *> dsp{&phaser, &chorus, &overdrive,
+                                              &ladderFilter, &filter};
+
+  for (auto processor : dsp) {
+    processor->prepare(spec);
+    processor->reset();
+  }
 }
 
 void MultieffectpluginAudioProcessor::releaseResources() {
