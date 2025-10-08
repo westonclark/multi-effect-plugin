@@ -32,11 +32,11 @@ auto getLadderFilterResonanceName() {
 }
 auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
 auto getLadderFilterChoices() {
-  return juce::StringArray{"LPF12"
-                           "HPF12"
-                           "BPF12"
-                           "LPF24"
-                           "HPF24"
+  return juce::StringArray{"LPF12",
+                           "HPF12",
+                           "BPF12",
+                           "LPF24",
+                           "HPF24",
                            "BPF24"};
 }
 auto getFilterModeName() { return juce::String("Filter Mode"); }
@@ -407,11 +407,11 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto block = juce::dsp::AudioBlock<float>(buffer);
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
-  for (size_t i = 0; i < dspPointers.size(); ++i) {
-    if (dspPointers[i] != nullptr) {
-      dspPointers[i]->process(context);
-    }
-  }
+//  for (size_t i = 0; i < dspPointers.size(); ++i) {
+//    if (dspPointers[i] != nullptr) {
+//      dspPointers[i]->process(context);
+//    }
+//  }
 }
 
 //==============================================================================
@@ -420,22 +420,26 @@ bool MultieffectpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-  return new MultieffectpluginAudioProcessorEditor(*this);
+//  return new MultieffectpluginAudioProcessorEditor(*this);
+  return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
 void MultieffectpluginAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
-  // You should use this method to store your parameters in the memory block.
-  // You could do that either as raw data, or use the XML or ValueTree classes
-  // as intermediaries to make it easy to save and load complex data.
+
+  juce::MemoryOutputStream memoryStream(destData, false);
+  apvts.state.writeToStream(memoryStream);
+
+
 }
 
 void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
                                                           int sizeInBytes) {
-  // You should use this method to restore your parameters from this memory
-  // block, whose contents will have been created by the getStateInformation()
-  // call.
+  auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+  if (tree.isValid()){
+    apvts.replaceState(tree);
+  }
 }
 
 //==============================================================================
