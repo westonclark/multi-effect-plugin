@@ -57,6 +57,14 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       )
 #endif
 {
+
+  dspOrder = {{
+      DSP_Option::Phase,
+      DSP_Option::Chorus,
+      DSP_Option::OverDrive,
+      DSP_Option::LadderFilter,
+  }};
+
   auto floatParams = std::array{&phaserRate,
                                 &phaserCenterFreq,
                                 &phaserDepth,
@@ -396,6 +404,8 @@ void MultieffectpluginAudioProcessor::processBlock(
 
   // Convert dspOrder into pointers
   DSP_Pointers dspPointers;
+  dspPointers.fill(nullptr);
+
   for (size_t i = 0; i < dspPointers.size(); ++i) {
     switch (dspOrder[i]) {
     case DSP_Option::Phase:
@@ -423,11 +433,11 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto block = juce::dsp::AudioBlock<float>(buffer);
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
-  //  for (size_t i = 0; i < dspPointers.size(); ++i) {
-  //    if (dspPointers[i] != nullptr) {
-  //      dspPointers[i]->process(context);
-  //    }
-  //  }
+  for (size_t i = 0; i < dspPointers.size(); ++i) {
+    if (dspPointers[i] != nullptr) {
+      dspPointers[i]->process(context);
+    }
+  }
 }
 
 //==============================================================================
@@ -436,13 +446,60 @@ bool MultieffectpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-  //  return new MultieffectpluginAudioProcessorEditor(*this);
-  return new juce::GenericAudioProcessorEditor(*this);
+  return new MultieffectpluginAudioProcessorEditor(*this);
+  //  return new juce::GenericAudioProcessorEditor(*this);
 }
-
 //==============================================================================
+
+template <>
+struct juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order> {
+  static MultieffectpluginAudioProcessor::DSP_Order
+  fromVar(const juce::var &variable) {
+    using T = MultieffectpluginAudioProcessor::DSP_Order;
+    T dspOrder;
+    jassert(variable.isBinaryData());
+
+    if (variable.isBinaryData() == false) {
+      dspOrder.fill(MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST);
+    } else {
+
+      auto memoryBlock = *variable.getBinaryData();
+
+      juce::MemoryInputStream stream(memoryBlock, false);
+      std::vector<int> array;
+      while (!stream.isExhausted()) {
+        array.push_back(stream.readInt());
+      }
+
+      jassert(array.size() == dspOrder.size());
+      for (size_t i = 0; i < dspOrder.size(); ++i) {
+        dspOrder[i] =
+            static_cast<MultieffectpluginAudioProcessor::DSP_Option>(array[i]);
+      }
+    }
+    return dspOrder;
+  };
+
+  static juce::var toVar(const MultieffectpluginAudioProcessor::DSP_Order &t) {
+    juce::MemoryBlock memoryBlock;
+    {
+      juce::MemoryOutputStream stream(memoryBlock, false);
+      for (const auto &value : t) {
+        stream.writeInt(static_cast<int>(value));
+      }
+    }
+    return memoryBlock;
+  };
+};
+
 void MultieffectpluginAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
+
+  apvts.state.setProperty(
+      "dspOrder",
+      juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order>::toVar(
+          dspOrder),
+      nullptr);
 
   juce::MemoryOutputStream memoryStream(destData, false);
   apvts.state.writeToStream(memoryStream);
@@ -453,6 +510,13 @@ void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
   auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
   if (tree.isValid()) {
     apvts.replaceState(tree);
+    if (apvts.state.hasProperty("dspOrder")) {
+      auto order =
+          juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order>::
+              fromVar(apvts.state.getProperty("dspOrder"));
+      dspOrderFifo.push(order);
+    }
+    DBG(apvts.state.toXmlString());
   }
 }
 
