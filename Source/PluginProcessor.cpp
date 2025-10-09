@@ -32,12 +32,8 @@ auto getLadderFilterResonanceName() {
 }
 auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
 auto getLadderFilterChoices() {
-  return juce::StringArray{"LPF12",
-                           "HPF12",
-                           "BPF12",
-                           "LPF24",
-                           "HPF24",
-                           "BPF24"};
+  return juce::StringArray{"LPF12", "HPF12", "BPF12",
+                           "LPF24", "HPF24", "BPF24"};
 }
 auto getFilterModeName() { return juce::String("Filter Mode"); }
 auto getFilterFreqName() { return juce::String("Filter Freq"); }
@@ -370,6 +366,26 @@ void MultieffectpluginAudioProcessor::processBlock(
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
 
+  phaser.dsp.setRate(phaserRate->get());
+  phaser.dsp.setCentreFrequency(phaserCenterFreq->get());
+  phaser.dsp.setDepth(phaserDepth->get());
+  phaser.dsp.setFeedback(phaserFeedback->get());
+  phaser.dsp.setMix(phaserMix->get());
+
+  chorus.dsp.setRate(chorusRate->get());
+  chorus.dsp.setDepth(chorusDepth->get());
+  chorus.dsp.setCentreDelay(chorusCenterDelay->get());
+  chorus.dsp.setFeedback(chorusFeedback->get());
+  chorus.dsp.setMix(chorusMix->get());
+
+  overdrive.dsp.setDrive(overdriveSaturation->get());
+
+  ladderFilter.dsp.setMode(
+      static_cast<juce::dsp::LadderFilterMode>(ladderFilterMode->getIndex()));
+  ladderFilter.dsp.setCutoffFrequencyHz(ladderFilterCutoff->get());
+  ladderFilter.dsp.setResonance(ladderFilterResonance->get());
+  ladderFilter.dsp.setDrive(ladderFilterDrive->get());
+
   auto newDSPOrder = DSP_Order();
   while (dspOrderFifo.pull(newDSPOrder))
 
@@ -407,11 +423,11 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto block = juce::dsp::AudioBlock<float>(buffer);
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
-//  for (size_t i = 0; i < dspPointers.size(); ++i) {
-//    if (dspPointers[i] != nullptr) {
-//      dspPointers[i]->process(context);
-//    }
-//  }
+  //  for (size_t i = 0; i < dspPointers.size(); ++i) {
+  //    if (dspPointers[i] != nullptr) {
+  //      dspPointers[i]->process(context);
+  //    }
+  //  }
 }
 
 //==============================================================================
@@ -420,7 +436,7 @@ bool MultieffectpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-//  return new MultieffectpluginAudioProcessorEditor(*this);
+  //  return new MultieffectpluginAudioProcessorEditor(*this);
   return new juce::GenericAudioProcessorEditor(*this);
 }
 
@@ -430,14 +446,12 @@ void MultieffectpluginAudioProcessor::getStateInformation(
 
   juce::MemoryOutputStream memoryStream(destData, false);
   apvts.state.writeToStream(memoryStream);
-
-
 }
 
 void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
                                                           int sizeInBytes) {
   auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
-  if (tree.isValid()){
+  if (tree.isValid()) {
     apvts.replaceState(tree);
   }
 }
