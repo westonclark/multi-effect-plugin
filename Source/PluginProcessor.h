@@ -83,6 +83,7 @@ public:
   juce::AudioParameterFloat *phaserCenterFreq = nullptr;
   juce::AudioParameterFloat *phaserFeedback = nullptr;
   juce::AudioParameterFloat *phaserMix = nullptr;
+  juce::AudioParameterBool *phaserBypass = nullptr;
 
   //  Chorus
   juce::AudioParameterFloat *chorusRate = nullptr;
@@ -90,21 +91,25 @@ public:
   juce::AudioParameterFloat *chorusCenterDelay = nullptr;
   juce::AudioParameterFloat *chorusFeedback = nullptr;
   juce::AudioParameterFloat *chorusMix = nullptr;
+  juce::AudioParameterBool *chorusBypass = nullptr;
 
   // Drive
   juce::AudioParameterFloat *overdriveSaturation = nullptr;
+  juce::AudioParameterBool *overdriveBypass = nullptr;
 
   // Ladder Filter
   juce::AudioParameterChoice *ladderFilterMode = nullptr;
   juce::AudioParameterFloat *ladderFilterCutoff = nullptr;
   juce::AudioParameterFloat *ladderFilterResonance = nullptr;
   juce::AudioParameterFloat *ladderFilterDrive = nullptr;
+  juce::AudioParameterBool *ladderFilterBypass = nullptr;
 
   // Filter
   juce::AudioParameterChoice *filterMode = nullptr;
   juce::AudioParameterFloat *filterFreq = nullptr;
   juce::AudioParameterFloat *filterQuality = nullptr;
   juce::AudioParameterFloat *filterGain = nullptr;
+  juce::AudioParameterBool *filterBypass = nullptr;
 
 private:
   DSP_Order dspOrder;
