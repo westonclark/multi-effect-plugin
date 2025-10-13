@@ -136,12 +136,24 @@ private:
       jassert(*paramPointer != nullptr);
     }
   }
+  struct MonoChannelDSP {
+    MonoChannelDSP(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
+    DSP_Choice<juce::dsp::DelayLine<float>> delay;
+    DSP_Choice<juce::dsp::Phaser<float>> phaser;
+    DSP_Choice<juce::dsp::Chorus<float>> chorus;
+    DSP_Choice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
+    DSP_Choice<juce::dsp::IIR::Filter<float>> filter;
 
-  DSP_Choice<juce::dsp::DelayLine<float>> delay;
-  DSP_Choice<juce::dsp::Phaser<float>> phaser;
-  DSP_Choice<juce::dsp::Chorus<float>> chorus;
-  DSP_Choice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
-  DSP_Choice<juce::dsp::IIR::Filter<float>> filter;
+    void prepare(const juce::dsp::ProcessSpec &spec);
+    void update();
+    void process(juce::dsp::AudioBlock<float> block, const DSP_Order &dspOrder);
+
+  private:
+    MultieffectpluginAudioProcessor &processor;
+  };
+
+  MonoChannelDSP leftChannel{*this};
+  MonoChannelDSP rightChannel{*this};
 
   struct ProcessState {
     juce::dsp::ProcessorBase *processor = nullptr;
