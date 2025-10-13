@@ -120,31 +120,11 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       &getLadderFilterBypassName, &getFilterBypassName};
 
   // Floats
-  for (size_t i = 0; i < floatParams.size(); ++i) {
-    auto paramPointer = floatParams[i];
-    *paramPointer = dynamic_cast<juce::AudioParameterFloat *>(
-        apvts.getParameter(floatFunctions[i]()));
-
-    jassert(*paramPointer != nullptr);
-  }
-
+  initCachedParams<juce::AudioParameterFloat *>(floatParams, floatFunctions);
   // Choices
-  for (size_t i = 0; i < choiceParams.size(); ++i) {
-    auto paramPointer = choiceParams[i];
-    *paramPointer = dynamic_cast<juce::AudioParameterChoice *>(
-        apvts.getParameter(choiceFunctions[i]()));
-
-    jassert(*paramPointer != nullptr);
-  }
-
+  initCachedParams<juce::AudioParameterChoice *>(choiceParams, choiceFunctions);
   // Booleans (Bypasses)
-  for (size_t i = 0; i < bypassParams.size(); ++i) {
-    auto paramPointer = bypassParams[i];
-    *paramPointer = dynamic_cast<juce::AudioParameterBool *>(
-        apvts.getParameter(bypassFunctions[i]()));
-
-    jassert(*paramPointer != nullptr);
-  }
+  initCachedParams<juce::AudioParameterBool *>(bypassParams, bypassFunctions);
 }
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}

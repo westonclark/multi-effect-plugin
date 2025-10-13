@@ -126,6 +126,17 @@ private:
     DSP dsp;
   };
 
+  template <typename ParamType, typename Params, typename Functions>
+  void initCachedParams(Params params, Functions functions) {
+    for (size_t i = 0; i < params.size(); ++i) {
+      auto paramPointer = params[i];
+      *paramPointer =
+          dynamic_cast<ParamType>(apvts.getParameter(functions[i]()));
+
+      jassert(*paramPointer != nullptr);
+    }
+  }
+
   DSP_Choice<juce::dsp::DelayLine<float>> delay;
   DSP_Choice<juce::dsp::Phaser<float>> phaser;
   DSP_Choice<juce::dsp::Chorus<float>> chorus;
