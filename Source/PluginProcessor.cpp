@@ -71,6 +71,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       DSP_Option::Chorus,
       DSP_Option::OverDrive,
       DSP_Option::LadderFilter,
+      DSP_Option::Filter,
   }};
 
   auto floatParams = std::array{&phaserRate,
@@ -112,11 +113,11 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
   auto choiceFunctions =
       std::array{&getLadderFilterModeName, &getFilterModeName};
 
-  auto bypassParams = std::array{&phaserBypass, &chorusBypass,
+  auto bypassParams = std::array{&phaserBypass, &chorusBypass, &overdriveBypass,
                                  &ladderFilterBypass, &filterBypass};
-  auto bypassFunctions =
-      std::array{&getPhaserBypassName, &getChorusBypassName,
-                 &getLadderFilterBypassName, &getFilterBypassName};
+  auto bypassFunctions = std::array{
+      &getPhaserBypassName, &getChorusBypassName, &getOverdriveBypassName,
+      &getLadderFilterBypassName, &getFilterBypassName};
 
   // Floats
   for (size_t i = 0; i < floatParams.size(); ++i) {
@@ -136,7 +137,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
     jassert(*paramPointer != nullptr);
   }
 
-  // Bypasses
+  // Booleans (Bypasses)
   for (size_t i = 0; i < bypassParams.size(); ++i) {
     auto paramPointer = bypassParams[i];
     *paramPointer = dynamic_cast<juce::AudioParameterBool *>(
@@ -423,24 +424,29 @@ void MultieffectpluginAudioProcessor::processBlock(
 
   // Convert dspOrder into pointers
   DSP_Pointers dspPointers;
-  dspPointers.fill(nullptr);
+  dspPointers.fill({});
 
   for (size_t i = 0; i < dspPointers.size(); ++i) {
     switch (dspOrder[i]) {
     case DSP_Option::Phase:
-      dspPointers[i] = &phaser;
+      dspPointers[i].processor = &phaser;
+      dspPointers[i].bypassed = phaserBypass->get();
       break;
     case DSP_Option::Chorus:
-      dspPointers[i] = &chorus;
+      dspPointers[i].processor = &chorus;
+      dspPointers[i].bypassed = chorusBypass->get();
       break;
     case DSP_Option::OverDrive:
-      dspPointers[i] = &overdrive;
+      dspPointers[i].processor = &overdrive;
+      dspPointers[i].bypassed = overdriveBypass->get();
       break;
     case DSP_Option::LadderFilter:
-      dspPointers[i] = &ladderFilter;
+      dspPointers[i].processor = &ladderFilter;
+      dspPointers[i].bypassed = ladderFilterBypass->get();
       break;
     case DSP_Option::Filter:
-      dspPointers[i] = &filter;
+      dspPointers[i].processor = &filter;
+      dspPointers[i].bypassed = filterBypass->get();
       break;
     case DSP_Option::END_OF_LIST:
       jassertfalse;
@@ -453,8 +459,10 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
   for (size_t i = 0; i < dspPointers.size(); ++i) {
-    if (dspPointers[i] != nullptr) {
-      dspPointers[i]->process(context);
+    if (dspPointers[i].processor != nullptr && !dspPointers[i].bypassed) {
+      juce::ScopedValueSetter<bool> svs(context.isBypassed,
+                                        dspPointers[i].bypassed);
+      dspPointers[i].processor->process(context);
     }
   }
 }
@@ -465,8 +473,8 @@ bool MultieffectpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-  return new MultieffectpluginAudioProcessorEditor(*this);
-  //  return new juce::GenericAudioProcessorEditor(*this);
+  // return new MultieffectpluginAudioProcessorEditor(*this);
+  return new juce::GenericAudioProcessorEditor(*this);
 }
 //==============================================================================
 
