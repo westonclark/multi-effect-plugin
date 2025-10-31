@@ -111,9 +111,10 @@ public:
   juce::AudioParameterFloat *filterGain = nullptr;
   juce::AudioParameterBool *filterBypass = nullptr;
 
+  enum FilterMode { Peak, Bandpass, Notch, Allpass, END_OF_LIST };
+
 private:
   DSP_Order dspOrder;
-
   template <typename DSP> struct DSP_Choice : juce::dsp::ProcessorBase {
     void prepare(const juce::dsp::ProcessSpec &spec) override {
       dsp.prepare(spec);
@@ -150,6 +151,8 @@ private:
 
   private:
     MultieffectpluginAudioProcessor &processor;
+    FilterMode filterMode = FilterMode::END_OF_LIST;
+    float filterFrequency = 0.f, filterQuality = 0.f, filterGain = -100.f;
   };
 
   MonoChannelDSP leftChannel{*this};

@@ -66,13 +66,9 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 #endif
 {
 
-  dspOrder = {{
-      DSP_Option::Phase,
-      DSP_Option::Chorus,
-      DSP_Option::OverDrive,
-      DSP_Option::LadderFilter,
-      DSP_Option::Filter,
-  }};
+  for (size_t i = 0; i < dspOrder.size(); ++i) {
+    dspOrder[i] = static_cast<DSP_Option>(i);
+  }
 
   auto floatParams = std::array{&phaserRate,
                                 &phaserCenterFreq,
@@ -91,6 +87,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
                                 &filterFreq,
                                 &filterQuality,
                                 &filterGain};
+
   auto floatFunctions = std::array{&getPhaserRateName,
                                    &getPhaserCenterFreqName,
                                    &getPhaserDepthName,
@@ -225,7 +222,7 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
       layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
     return false;
 
-    // This checks if the input layout matches the output layout
+  // This checks if the input layout matches the output layout
 #if !JucePlugin_IsSynth
   if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
     return false;
@@ -387,6 +384,65 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   ladderFilter.dsp.setCutoffFrequencyHz(processor.ladderFilterCutoff->get());
   ladderFilter.dsp.setResonance(processor.ladderFilterResonance->get());
   ladderFilter.dsp.setDrive(processor.ladderFilterDrive->get());
+
+  // Update filter coeeficients
+  auto sampleRate = processor.getSampleRate();
+
+  auto mode = processor.filterMode->getIndex();
+  auto frequency = processor.filterFreq->get();
+  auto quality = processor.filterQuality->get();
+  auto gain = processor.filterGain->get();
+
+  bool filterChanged = false;
+  filterChanged |= (frequency != filterFrequency);
+  filterChanged |= (quality != filterQuality);
+  filterChanged |= (gain != filterGain);
+
+  auto updatedMode = static_cast<FilterMode>(mode);
+  filterChanged |= (mode != filterMode);
+
+  if (filterChanged) {
+    filterMode = updatedMode;
+    filterFrequency = frequency;
+    filterQuality = quality;
+    filterGain = gain;
+
+    juce::dsp::IIR::Coefficients<float>::Ptr coefficients;
+    switch (filterMode) {
+    case FilterMode::Peak: {
+      coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+          sampleRate, filterFrequency, filterQuality,
+          juce::Decibels::decibelsToGain(filterGain));
+      break;
+    };
+    case FilterMode::Bandpass: {
+      coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(
+          sampleRate, filterFrequency, filterQuality);
+
+      break;
+    }
+    case FilterMode::Notch: {
+      coefficients = juce::dsp::IIR::Coefficients<float>::makeNotch(
+          sampleRate, filterFrequency, filterQuality);
+
+      break;
+    };
+    case FilterMode::Allpass: {
+      coefficients = juce::dsp::IIR::Coefficients<float>::makeAllPass(
+          sampleRate, filterFrequency, filterQuality);
+      break;
+    }
+    case FilterMode::END_OF_LIST: {
+      jassertfalse;
+      break;
+    }
+    }
+
+    if (coefficients != nullptr) {
+      *filter.dsp.coefficients = *coefficients;
+      filter.reset();
+    }
+  }
 }
 
 void MultieffectpluginAudioProcessor::processBlock(
