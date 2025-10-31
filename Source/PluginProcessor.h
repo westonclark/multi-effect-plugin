@@ -77,6 +77,8 @@ public:
 
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
+  // Parameter Values
+
   //  Phaser
   juce::AudioParameterFloat *phaserRate = nullptr;
   juce::AudioParameterFloat *phaserDepth = nullptr;
@@ -151,8 +153,8 @@ private:
 
   private:
     MultieffectpluginAudioProcessor &processor;
-    FilterMode filterMode = FilterMode::END_OF_LIST;
-    float filterFrequency = 0.f, filterQuality = 0.f, filterGain = -100.f;
+    FilterMode cachedFilterMode = FilterMode::END_OF_LIST;
+    float cachedFilterFreq = 0.f, cachedFilterQuality = 0.f, cachedFilterGain = -100.f;
   };
 
   MonoChannelDSP leftChannel{*this};

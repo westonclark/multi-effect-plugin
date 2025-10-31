@@ -388,48 +388,48 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   // Update filter coeeficients
   auto sampleRate = processor.getSampleRate();
 
-  auto mode = processor.filterMode->getIndex();
-  auto frequency = processor.filterFreq->get();
-  auto quality = processor.filterQuality->get();
-  auto gain = processor.filterGain->get();
+  auto currentFilterMode = processor.filterMode->getIndex();
+  auto currentFilterFreq = processor.filterFreq->get();
+  auto currentFilterQuality = processor.filterQuality->get();
+  auto currentFilterGain = processor.filterGain->get();
 
   bool filterChanged = false;
-  filterChanged |= (frequency != filterFrequency);
-  filterChanged |= (quality != filterQuality);
-  filterChanged |= (gain != filterGain);
+  filterChanged |= (currentFilterFreq != cachedFilterFreq);
+  filterChanged |= (currentFilterQuality != cachedFilterQuality);
+  filterChanged |= (currentFilterGain != cachedFilterGain);
 
-  auto updatedMode = static_cast<FilterMode>(mode);
-  filterChanged |= (mode != filterMode);
+  auto updatedMode = static_cast<FilterMode>(currentFilterMode);
+  filterChanged |= (currentFilterMode != cachedFilterMode);
 
   if (filterChanged) {
-    filterMode = updatedMode;
-    filterFrequency = frequency;
-    filterQuality = quality;
-    filterGain = gain;
+    cachedFilterMode = updatedMode;
+    cachedFilterFreq = currentFilterFreq;
+    cachedFilterQuality = currentFilterQuality;
+    cachedFilterGain = currentFilterGain;
 
     juce::dsp::IIR::Coefficients<float>::Ptr coefficients;
-    switch (filterMode) {
+    switch (cachedFilterMode) {
     case FilterMode::Peak: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
-          sampleRate, filterFrequency, filterQuality,
-          juce::Decibels::decibelsToGain(filterGain));
+          sampleRate, cachedFilterFreq, cachedFilterQuality,
+          juce::Decibels::decibelsToGain(cachedFilterGain));
       break;
     };
     case FilterMode::Bandpass: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(
-          sampleRate, filterFrequency, filterQuality);
+          sampleRate, cachedFilterFreq, cachedFilterQuality);
 
       break;
     }
     case FilterMode::Notch: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeNotch(
-          sampleRate, filterFrequency, filterQuality);
+          sampleRate, cachedFilterFreq, cachedFilterQuality);
 
       break;
     };
     case FilterMode::Allpass: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeAllPass(
-          sampleRate, filterFrequency, filterQuality);
+          sampleRate, cachedFilterFreq, cachedFilterQuality);
       break;
     }
     case FilterMode::END_OF_LIST: {
