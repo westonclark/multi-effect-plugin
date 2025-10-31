@@ -113,6 +113,35 @@ public:
   juce::AudioParameterFloat *filterGain = nullptr;
   juce::AudioParameterBool *filterBypass = nullptr;
 
+  // Smoothed Values
+
+  // Phaser
+  juce::SmoothedValue<float> phaserRateSmoother;
+  juce::SmoothedValue<float> phaserDepthSmoother;
+  juce::SmoothedValue<float> phaserCenterFreqSmoother;
+  juce::SmoothedValue<float> phaserFeedbackSmoother;
+  juce::SmoothedValue<float> phaserMixSmoother;
+
+  // Chorus
+  juce::SmoothedValue<float> chorusRateSmoother;
+  juce::SmoothedValue<float> chorusDepthSmoother;
+  juce::SmoothedValue<float> chorusCenterDelaySmoother;
+  juce::SmoothedValue<float> chorusFeedbackSmoother;
+  juce::SmoothedValue<float> chorusMixSmoother;
+
+  // Drive
+  juce::SmoothedValue<float> overdriveSaturationSmoother;
+
+  // Ladder Filter
+  juce::SmoothedValue<float> ladderFilterCutoffSmoother;
+  juce::SmoothedValue<float> ladderFilterResonanceSmoother;
+  juce::SmoothedValue<float> ladderFilterDriveSmoother;
+
+  // Filter
+  juce::SmoothedValue<float> filterFreqSmoother;
+  juce::SmoothedValue<float> filterQualitySmoother;
+  juce::SmoothedValue<float> filterGainSmoother;
+
   enum FilterMode { Peak, Bandpass, Notch, Allpass, END_OF_LIST };
 
 private:
@@ -154,7 +183,8 @@ private:
   private:
     MultieffectpluginAudioProcessor &processor;
     FilterMode cachedFilterMode = FilterMode::END_OF_LIST;
-    float cachedFilterFreq = 0.f, cachedFilterQuality = 0.f, cachedFilterGain = -100.f;
+    float cachedFilterFreq = 0.f, cachedFilterQuality = 0.f,
+          cachedFilterGain = -100.f;
   };
 
   MonoChannelDSP leftChannel{*this};
@@ -167,6 +197,13 @@ private:
 
   using DSP_Pointers =
       std::array<ProcessState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+
+  std::vector<juce::SmoothedValue<float> *> getSmoothers();
+
+  enum class SmootherUpdateMode { initialize, updateExisting };
+
+  void updateSmoothersFromParams(int samplesToSkip,
+                                 SmootherUpdateMode smootherMode);
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
 };

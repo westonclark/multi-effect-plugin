@@ -187,6 +187,72 @@ void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
 
   leftChannel.prepare(spec);
   rightChannel.prepare(spec);
+
+  for (auto smoother : getSmoothers()) {
+    smoother->reset(sampleRate, 0.05);
+  }
+  updateSmoothersFromParams(1, SmootherUpdateMode::initialize);
+}
+
+void MultieffectpluginAudioProcessor::updateSmoothersFromParams(
+    int samplesToSkip, SmootherUpdateMode smootherMode) {
+  auto paramsToSmooth = std::vector{
+      phaserRate,
+      phaserDepth,
+      phaserCenterFreq,
+      phaserFeedback,
+      phaserMix,
+      chorusRate,
+      chorusDepth,
+      chorusCenterDelay,
+      chorusFeedback,
+      chorusMix,
+      overdriveSaturation,
+      ladderFilterCutoff,
+      ladderFilterResonance,
+      ladderFilterDrive,
+      filterFreq,
+      filterQuality,
+      filterGain,
+  };
+
+  auto smoothers = getSmoothers();
+  jassert(smoothers.size() == paramsToSmooth.size());
+
+  for (size_t i = 0; i < smoothers.size(); ++i) {
+    auto smoother = smoothers[i];
+    auto param = paramsToSmooth[i];
+    if (smootherMode == SmootherUpdateMode::initialize) {
+      smoother->setCurrentAndTargetValue(param->get());
+    } else {
+      smoother->setTargetValue(param->get());
+    }
+    smoother->skip(samplesToSkip);
+  }
+}
+
+std::vector<juce::SmoothedValue<float> *>
+MultieffectpluginAudioProcessor::getSmoothers() {
+  auto smoothers = std::vector{
+      &phaserRateSmoother,
+      &phaserDepthSmoother,
+      &phaserCenterFreqSmoother,
+      &phaserFeedbackSmoother,
+      &phaserMixSmoother,
+      &chorusRateSmoother,
+      &chorusDepthSmoother,
+      &chorusCenterDelaySmoother,
+      &chorusFeedbackSmoother,
+      &chorusMixSmoother,
+      &overdriveSaturationSmoother,
+      &ladderFilterCutoffSmoother,
+      &ladderFilterResonanceSmoother,
+      &ladderFilterDriveSmoother,
+      &filterFreqSmoother,
+      &filterQualitySmoother,
+      &filterGainSmoother,
+  };
+  return smoothers;
 }
 
 void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
@@ -201,7 +267,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
     processor->reset();
   }
 }
-
 void MultieffectpluginAudioProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
@@ -365,25 +430,31 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
 }
 
 void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
-  phaser.dsp.setRate(processor.phaserRate->get());
-  phaser.dsp.setCentreFrequency(processor.phaserCenterFreq->get());
-  phaser.dsp.setDepth(processor.phaserDepth->get());
-  phaser.dsp.setFeedback(processor.phaserFeedback->get());
-  phaser.dsp.setMix(processor.phaserMix->get());
+  phaser.dsp.setRate(processor.phaserRateSmoother.getCurrentValue());
+  phaser.dsp.setCentreFrequency(
+      processor.phaserCenterFreqSmoother.getCurrentValue());
+  phaser.dsp.setDepth(processor.phaserDepthSmoother.getCurrentValue());
+  phaser.dsp.setFeedback(processor.phaserFeedbackSmoother.getCurrentValue());
+  phaser.dsp.setMix(processor.phaserMixSmoother.getCurrentValue());
 
-  chorus.dsp.setRate(processor.chorusRate->get());
-  chorus.dsp.setDepth(processor.chorusDepth->get());
-  chorus.dsp.setCentreDelay(processor.chorusCenterDelay->get());
-  chorus.dsp.setFeedback(processor.chorusFeedback->get());
-  chorus.dsp.setMix(processor.chorusMix->get());
+  chorus.dsp.setRate(processor.chorusRateSmoother.getCurrentValue());
+  chorus.dsp.setDepth(processor.chorusDepthSmoother.getCurrentValue());
+  chorus.dsp.setCentreDelay(
+      processor.chorusCenterDelaySmoother.getCurrentValue());
+  chorus.dsp.setFeedback(processor.chorusFeedbackSmoother.getCurrentValue());
+  chorus.dsp.setMix(processor.chorusMixSmoother.getCurrentValue());
 
-  overdrive.dsp.setDrive(processor.overdriveSaturation->get());
+  overdrive.dsp.setDrive(
+      processor.overdriveSaturationSmoother.getCurrentValue());
 
   ladderFilter.dsp.setMode(static_cast<juce::dsp::LadderFilterMode>(
       processor.ladderFilterMode->getIndex()));
-  ladderFilter.dsp.setCutoffFrequencyHz(processor.ladderFilterCutoff->get());
-  ladderFilter.dsp.setResonance(processor.ladderFilterResonance->get());
-  ladderFilter.dsp.setDrive(processor.ladderFilterDrive->get());
+  ladderFilter.dsp.setCutoffFrequencyHz(
+      processor.ladderFilterCutoffSmoother.getCurrentValue());
+  ladderFilter.dsp.setResonance(
+      processor.ladderFilterResonanceSmoother.getCurrentValue());
+  ladderFilter.dsp.setDrive(
+      processor.ladderFilterDriveSmoother.getCurrentValue());
 
   // Update filter coeeficients
   auto sampleRate = processor.getSampleRate();
@@ -451,24 +522,44 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-  // Clear buffer of grabage
+  // Clear buffer of garbage
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
 
-  leftChannel.update();
-  rightChannel.update();
-
+  // Check if there's a new DSP order from the GUI
   auto newDSPOrder = DSP_Order();
-  while (dspOrderFifo.pull(newDSPOrder))
-
+  while (dspOrderFifo.pull(newDSPOrder)) {
     // If we pull a change, update the dspOrder
     if (newDSPOrder != DSP_Order()) {
       dspOrder = newDSPOrder;
     }
+  }
 
+  // Process audio in chunks for better parameter smoothing resolution
+  const int maxChunkSize = 64;
+  const auto numSamples = buffer.getNumSamples();
   auto block = juce::dsp::AudioBlock<float>(buffer);
-  leftChannel.process(block.getSingleChannelBlock(0), dspOrder);
-  rightChannel.process(block.getSingleChannelBlock(1), dspOrder);
+
+  for (size_t startSample = 0; startSample < numSamples;) {
+    // Calculate chunk size (might be smaller for the last chunk)
+    auto samplesThisChunk =
+        juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
+
+    // Update smoothers for this chunk
+    updateSmoothersFromParams(samplesThisChunk,
+                              SmootherUpdateMode::updateExisting);
+
+    // Update DSP parameters from smoothed values
+    leftChannel.update();
+    rightChannel.update();
+
+    // Process this chunk
+    auto subBlock = block.getSubBlock(startSample, samplesThisChunk);
+    leftChannel.process(subBlock.getSingleChannelBlock(0), dspOrder);
+    rightChannel.process(subBlock.getSingleChannelBlock(1), dspOrder);
+
+    startSample += samplesThisChunk;
+  }
 }
 
 void MultieffectpluginAudioProcessor::MonoChannelDSP::process(
