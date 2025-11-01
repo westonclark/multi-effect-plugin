@@ -9,6 +9,30 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 
+static juce::String
+getDSPOptionName(MultieffectpluginAudioProcessor::DSP_Option dspOption) {
+  switch (dspOption) {
+  case MultieffectpluginAudioProcessor::DSP_Option::Phase:
+    return "Phaser";
+    break;
+  case MultieffectpluginAudioProcessor::DSP_Option::Chorus:
+    return "Chorus";
+    break;
+  case MultieffectpluginAudioProcessor::DSP_Option::OverDrive:
+    return "Drive";
+    break;
+  case MultieffectpluginAudioProcessor::DSP_Option::LadderFilter:
+    return "Ladder Filter";
+    break;
+  case MultieffectpluginAudioProcessor::DSP_Option::Filter:
+    return "Filter";
+    break;
+  case MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST:
+    jassertfalse;
+    break;
+  }
+  return "None Selected";
+};
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
@@ -21,9 +45,15 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
         static_cast<int>(MultieffectpluginAudioProcessor::DSP_Option::Phase),
         static_cast<int>(
             MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST));
-    for (auto &value : dspOrder) {
+
+    tabbedComponent.clearTabs();
+
+    for (auto &dspOption : dspOrder) {
       auto entry = random.nextInt(range);
-      value = static_cast<MultieffectpluginAudioProcessor::DSP_Option>(entry);
+      dspOption =
+          static_cast<MultieffectpluginAudioProcessor::DSP_Option>(entry);
+      tabbedComponent.addTab(getDSPOptionName(dspOption), juce::Colours::white,
+                             -1);
     }
 
     DBG(juce::Base64::toBase64(dspOrder.data(), dspOrder.size()));
@@ -32,6 +62,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   };
 
   addAndMakeVisible(dspOrderButton);
+  addAndMakeVisible(tabbedComponent);
   setSize(400, 300);
 }
 
@@ -40,8 +71,8 @@ MultieffectpluginAudioProcessorEditor::
 
 //==============================================================================
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
-  // (Our component is opaque, so we must completely fill the background with a
-  // solid colour)
+  // (Our component is opaque, so we must completely fill the background
+  // with a solid colour)
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
@@ -52,5 +83,9 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 }
 
 void MultieffectpluginAudioProcessorEditor::resized() {
-  dspOrderButton.setBounds(getLocalBounds().reduced(100));
+  auto bounds = getLocalBounds();
+  dspOrderButton.setBounds(
+      bounds.removeFromTop(30).withSizeKeepingCentre(150, 30));
+  bounds.removeFromTop(10);
+  tabbedComponent.setBounds(bounds.removeFromTop(30));
 }

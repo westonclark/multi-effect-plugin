@@ -574,8 +574,8 @@ bool MultieffectpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-  // return new MultieffectpluginAudioProcessorEditor(*this);
-  return new juce::GenericAudioProcessorEditor(*this);
+  return new MultieffectpluginAudioProcessorEditor(*this);
+  // return new juce::GenericAudioProcessorEditor(*this);
 }
 //==============================================================================
 
