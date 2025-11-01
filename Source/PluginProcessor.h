@@ -158,14 +158,27 @@ private:
     DSP dsp;
   };
 
-  template <typename ParamType, typename Params, typename Functions>
-  void initCachedParams(Params params, Functions functions) {
-    for (size_t i = 0; i < params.size(); ++i) {
-      auto paramPointer = params[i];
-      *paramPointer =
-          dynamic_cast<ParamType>(apvts.getParameter(functions[i]()));
+  struct FloatParamInitializer {
+    juce::AudioParameterFloat **paramPtr;
+    juce::String (*nameFunc)();
+  };
 
-      jassert(*paramPointer != nullptr);
+  struct ChoiceParamInitializer {
+    juce::AudioParameterChoice **paramPtr;
+    juce::String (*nameFunc)();
+  };
+
+  struct BoolParamInitializer {
+    juce::AudioParameterBool **paramPtr;
+    juce::String (*nameFunc)();
+  };
+
+  template <typename ParamType, typename InitStruct>
+  void initCachedParams(const std::vector<InitStruct> &paramInitializers) {
+    for (const auto &initializer : paramInitializers) {
+      *initializer.paramPtr =
+          dynamic_cast<ParamType>(apvts.getParameter(initializer.nameFunc()));
+      jassert(*initializer.paramPtr != nullptr);
     }
   }
   struct MonoChannelDSP {
@@ -198,12 +211,15 @@ private:
   using DSP_Pointers =
       std::array<ProcessState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
 
-  std::vector<juce::SmoothedValue<float> *> getSmoothers();
+  struct ParamSmootherPair {
+    juce::AudioParameterFloat *param;
+    juce::SmoothedValue<float> *smoother;
+  };
+  std::vector<ParamSmootherPair> paramSmootherPairs;
 
   enum class SmootherUpdateMode { initialize, updateExisting };
 
-  void updateSmoothersFromParams(int samplesToSkip,
-                                 SmootherUpdateMode smootherMode);
+  void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
 };

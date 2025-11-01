@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+// Phaser
 auto getPhaserRateName() { return juce::String("Phaser Rate"); }
 auto getPhaserCenterFreqName() { return juce::String("Phaser Center Freq"); }
 auto getPhaserDepthName() { return juce::String("Phaser Depth"); }
@@ -16,6 +17,7 @@ auto getPhaserFeedbackName() { return juce::String("Phaser Feedback"); }
 auto getPhaserMixName() { return juce::String("Phaser Mix"); }
 auto getPhaserBypassName() { return juce::String("Phaser Bypass"); }
 
+// Chorus
 auto getChorusRateName() { return juce::String("Chorus Rate"); }
 auto getChorusDepthName() { return juce::String("Chorus Depth"); }
 auto getChorusCenterDelayName() { return juce::String("Chorus Center Delay"); }
@@ -23,9 +25,11 @@ auto getChorusFeedbackName() { return juce::String("Chorus Feedback"); }
 auto getChorusMixName() { return juce::String("Chorus Mix"); }
 auto getChorusBypassName() { return juce::String("Chorus Bypass"); }
 
+// Drive
 auto getOverdriveSaturationName() { return juce::String("OverDrive"); }
 auto getOverdriveBypassName() { return juce::String("Overdrive Bypass"); }
 
+// Ladder Filter
 auto getLadderFilterModeName() { return juce::String("Ladder Filter Mode"); }
 auto getLadderFilterCutoffName() {
   return juce::String("Ladder Filter Cutoff");
@@ -42,6 +46,7 @@ auto getLadderFilterBypassName() {
   return juce::String("Ladder Filter Bypass");
 }
 
+// Filter
 auto getFilterModeName() { return juce::String("Filter Mode"); }
 auto getFilterFreqName() { return juce::String("Filter Freq"); }
 auto getFilterQualityName() { return juce::String("Filter Quality"); }
@@ -70,58 +75,64 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
     dspOrder[i] = static_cast<DSP_Option>(i);
   }
 
-  auto floatParams = std::array{&phaserRate,
-                                &phaserCenterFreq,
-                                &phaserDepth,
-                                &phaserFeedback,
-                                &phaserMix,
-                                &chorusRate,
-                                &chorusDepth,
-                                &chorusCenterDelay,
-                                &chorusFeedback,
-                                &chorusMix,
-                                &overdriveSaturation,
-                                &ladderFilterCutoff,
-                                &ladderFilterResonance,
-                                &ladderFilterDrive,
-                                &filterFreq,
-                                &filterQuality,
-                                &filterGain};
+  // Initialize parameters from APVTS
+  auto floatParamInitializers = std::vector<FloatParamInitializer>{
+      {&phaserRate, &getPhaserRateName},
+      {&phaserCenterFreq, &getPhaserCenterFreqName},
+      {&phaserDepth, &getPhaserDepthName},
+      {&phaserFeedback, &getPhaserFeedbackName},
+      {&phaserMix, &getPhaserMixName},
+      {&chorusRate, &getChorusRateName},
+      {&chorusDepth, &getChorusDepthName},
+      {&chorusCenterDelay, &getChorusCenterDelayName},
+      {&chorusFeedback, &getChorusFeedbackName},
+      {&chorusMix, &getChorusMixName},
+      {&overdriveSaturation, &getOverdriveSaturationName},
+      {&ladderFilterCutoff, &getLadderFilterCutoffName},
+      {&ladderFilterResonance, &getLadderFilterResonanceName},
+      {&ladderFilterDrive, &getLadderFilterDriveName},
+      {&filterFreq, &getFilterFreqName},
+      {&filterQuality, &getFilterQualityName},
+      {&filterGain, &getFilterGainName},
+  };
 
-  auto floatFunctions = std::array{&getPhaserRateName,
-                                   &getPhaserCenterFreqName,
-                                   &getPhaserDepthName,
-                                   &getPhaserFeedbackName,
-                                   &getPhaserMixName,
-                                   &getChorusRateName,
-                                   &getChorusDepthName,
-                                   &getChorusCenterDelayName,
-                                   &getChorusFeedbackName,
-                                   &getChorusMixName,
-                                   &getOverdriveSaturationName,
-                                   &getLadderFilterCutoffName,
-                                   &getLadderFilterResonanceName,
-                                   &getLadderFilterDriveName,
-                                   &getFilterFreqName,
-                                   &getFilterQualityName,
-                                   &getFilterGainName};
+  auto choiceParamInitializers = std::vector<ChoiceParamInitializer>{
+      {&ladderFilterMode, &getLadderFilterModeName},
+      {&filterMode, &getFilterModeName},
+  };
 
-  auto choiceParams = std::array{&ladderFilterMode, &filterMode};
-  auto choiceFunctions =
-      std::array{&getLadderFilterModeName, &getFilterModeName};
+  auto boolParamInitializers = std::vector<BoolParamInitializer>{
+      {&phaserBypass, &getPhaserBypassName},
+      {&chorusBypass, &getChorusBypassName},
+      {&overdriveBypass, &getOverdriveBypassName},
+      {&ladderFilterBypass, &getLadderFilterBypassName},
+      {&filterBypass, &getFilterBypassName},
+  };
 
-  auto bypassParams = std::array{&phaserBypass, &chorusBypass, &overdriveBypass,
-                                 &ladderFilterBypass, &filterBypass};
-  auto bypassFunctions = std::array{
-      &getPhaserBypassName, &getChorusBypassName, &getOverdriveBypassName,
-      &getLadderFilterBypassName, &getFilterBypassName};
+  initCachedParams<juce::AudioParameterFloat *>(floatParamInitializers);
+  initCachedParams<juce::AudioParameterChoice *>(choiceParamInitializers);
+  initCachedParams<juce::AudioParameterBool *>(boolParamInitializers);
 
-  // Floats
-  initCachedParams<juce::AudioParameterFloat *>(floatParams, floatFunctions);
-  // Choices
-  initCachedParams<juce::AudioParameterChoice *>(choiceParams, choiceFunctions);
-  // Booleans (Bypasses)
-  initCachedParams<juce::AudioParameterBool *>(bypassParams, bypassFunctions);
+  // Initialize parameter smoothers
+  paramSmootherPairs = {
+      {phaserRate, &phaserRateSmoother},
+      {phaserDepth, &phaserDepthSmoother},
+      {phaserCenterFreq, &phaserCenterFreqSmoother},
+      {phaserFeedback, &phaserFeedbackSmoother},
+      {phaserMix, &phaserMixSmoother},
+      {chorusRate, &chorusRateSmoother},
+      {chorusDepth, &chorusDepthSmoother},
+      {chorusCenterDelay, &chorusCenterDelaySmoother},
+      {chorusFeedback, &chorusFeedbackSmoother},
+      {chorusMix, &chorusMixSmoother},
+      {overdriveSaturation, &overdriveSaturationSmoother},
+      {ladderFilterCutoff, &ladderFilterCutoffSmoother},
+      {ladderFilterResonance, &ladderFilterResonanceSmoother},
+      {ladderFilterDrive, &ladderFilterDriveSmoother},
+      {filterFreq, &filterFreqSmoother},
+      {filterQuality, &filterQualitySmoother},
+      {filterGain, &filterGainSmoother},
+  };
 }
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
@@ -188,71 +199,22 @@ void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
   leftChannel.prepare(spec);
   rightChannel.prepare(spec);
 
-  for (auto smoother : getSmoothers()) {
-    smoother->reset(sampleRate, 0.05);
+  for (const auto &pair : paramSmootherPairs) {
+    pair.smoother->reset(sampleRate, 0.05);
   }
-  updateSmoothersFromParams(1, SmootherUpdateMode::initialize);
+  updateSmoothers(1, SmootherUpdateMode::initialize);
 }
 
-void MultieffectpluginAudioProcessor::updateSmoothersFromParams(
+void MultieffectpluginAudioProcessor::updateSmoothers(
     int samplesToSkip, SmootherUpdateMode smootherMode) {
-  auto paramsToSmooth = std::vector{
-      phaserRate,
-      phaserDepth,
-      phaserCenterFreq,
-      phaserFeedback,
-      phaserMix,
-      chorusRate,
-      chorusDepth,
-      chorusCenterDelay,
-      chorusFeedback,
-      chorusMix,
-      overdriveSaturation,
-      ladderFilterCutoff,
-      ladderFilterResonance,
-      ladderFilterDrive,
-      filterFreq,
-      filterQuality,
-      filterGain,
-  };
-
-  auto smoothers = getSmoothers();
-  jassert(smoothers.size() == paramsToSmooth.size());
-
-  for (size_t i = 0; i < smoothers.size(); ++i) {
-    auto smoother = smoothers[i];
-    auto param = paramsToSmooth[i];
+  for (const auto &pair : paramSmootherPairs) {
     if (smootherMode == SmootherUpdateMode::initialize) {
-      smoother->setCurrentAndTargetValue(param->get());
+      pair.smoother->setCurrentAndTargetValue(pair.param->get());
     } else {
-      smoother->setTargetValue(param->get());
+      pair.smoother->setTargetValue(pair.param->get());
     }
-    smoother->skip(samplesToSkip);
+    pair.smoother->skip(samplesToSkip);
   }
-}
-
-std::vector<juce::SmoothedValue<float> *>
-MultieffectpluginAudioProcessor::getSmoothers() {
-  auto smoothers = std::vector{
-      &phaserRateSmoother,
-      &phaserDepthSmoother,
-      &phaserCenterFreqSmoother,
-      &phaserFeedbackSmoother,
-      &phaserMixSmoother,
-      &chorusRateSmoother,
-      &chorusDepthSmoother,
-      &chorusCenterDelaySmoother,
-      &chorusFeedbackSmoother,
-      &chorusMixSmoother,
-      &overdriveSaturationSmoother,
-      &ladderFilterCutoffSmoother,
-      &ladderFilterResonanceSmoother,
-      &ladderFilterDriveSmoother,
-      &filterFreqSmoother,
-      &filterQualitySmoother,
-      &filterGainSmoother,
-  };
-  return smoothers;
 }
 
 void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
@@ -430,6 +392,7 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
 }
 
 void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
+  // Phaser
   phaser.dsp.setRate(processor.phaserRateSmoother.getCurrentValue());
   phaser.dsp.setCentreFrequency(
       processor.phaserCenterFreqSmoother.getCurrentValue());
@@ -437,6 +400,7 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   phaser.dsp.setFeedback(processor.phaserFeedbackSmoother.getCurrentValue());
   phaser.dsp.setMix(processor.phaserMixSmoother.getCurrentValue());
 
+  // Chorus
   chorus.dsp.setRate(processor.chorusRateSmoother.getCurrentValue());
   chorus.dsp.setDepth(processor.chorusDepthSmoother.getCurrentValue());
   chorus.dsp.setCentreDelay(
@@ -444,9 +408,11 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   chorus.dsp.setFeedback(processor.chorusFeedbackSmoother.getCurrentValue());
   chorus.dsp.setMix(processor.chorusMixSmoother.getCurrentValue());
 
+  // Drive
   overdrive.dsp.setDrive(
       processor.overdriveSaturationSmoother.getCurrentValue());
 
+  // Ladder Filter
   ladderFilter.dsp.setMode(static_cast<juce::dsp::LadderFilterMode>(
       processor.ladderFilterMode->getIndex()));
   ladderFilter.dsp.setCutoffFrequencyHz(
@@ -456,29 +422,27 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   ladderFilter.dsp.setDrive(
       processor.ladderFilterDriveSmoother.getCurrentValue());
 
-  // Update filter coeeficients
-  auto sampleRate = processor.getSampleRate();
-
+  // Filter
+  auto currentFilterFreq = processor.filterFreqSmoother.getCurrentValue();
+  auto currentFilterQuality = processor.filterQualitySmoother.getCurrentValue();
+  auto currentFilterGain = processor.filterGainSmoother.getCurrentValue();
   auto currentFilterMode = processor.filterMode->getIndex();
-  auto currentFilterFreq = processor.filterFreq->get();
-  auto currentFilterQuality = processor.filterQuality->get();
-  auto currentFilterGain = processor.filterGain->get();
 
-  bool filterChanged = false;
-  filterChanged |= (currentFilterFreq != cachedFilterFreq);
-  filterChanged |= (currentFilterQuality != cachedFilterQuality);
-  filterChanged |= (currentFilterGain != cachedFilterGain);
+  // Only update coefficients if mode changes or if values are changing
+  bool modeChanged = (currentFilterMode != cachedFilterMode);
+  bool paramsChanging = (currentFilterFreq != cachedFilterFreq) ||
+                        (currentFilterQuality != cachedFilterQuality) ||
+                        (currentFilterGain != cachedFilterGain);
 
-  auto updatedMode = static_cast<FilterMode>(currentFilterMode);
-  filterChanged |= (currentFilterMode != cachedFilterMode);
-
-  if (filterChanged) {
-    cachedFilterMode = updatedMode;
+  if (modeChanged || paramsChanging) {
+    cachedFilterMode = static_cast<FilterMode>(currentFilterMode);
     cachedFilterFreq = currentFilterFreq;
     cachedFilterQuality = currentFilterQuality;
     cachedFilterGain = currentFilterGain;
 
+    auto sampleRate = processor.getSampleRate();
     juce::dsp::IIR::Coefficients<float>::Ptr coefficients;
+
     switch (cachedFilterMode) {
     case FilterMode::Peak: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
@@ -489,13 +453,11 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
     case FilterMode::Bandpass: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(
           sampleRate, cachedFilterFreq, cachedFilterQuality);
-
       break;
     }
     case FilterMode::Notch: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeNotch(
           sampleRate, cachedFilterFreq, cachedFilterQuality);
-
       break;
     };
     case FilterMode::Allpass: {
@@ -511,7 +473,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
 
     if (coefficients != nullptr) {
       *filter.dsp.coefficients = *coefficients;
-      filter.reset();
     }
   }
 }
@@ -546,8 +507,7 @@ void MultieffectpluginAudioProcessor::processBlock(
         juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
 
     // Update smoothers for this chunk
-    updateSmoothersFromParams(samplesThisChunk,
-                              SmootherUpdateMode::updateExisting);
+    updateSmoothers(samplesThisChunk, SmootherUpdateMode::updateExisting);
 
     // Update DSP parameters from smoothed values
     leftChannel.update();
