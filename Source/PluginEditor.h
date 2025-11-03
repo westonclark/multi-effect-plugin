@@ -22,9 +22,21 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
   }
 
   void itemDropped(const SourceDetails &dragSourceDetails) override {}
+  juce::TabBarButton *createTabButton(const juce::String &tabName,
+                                      int tabIndex) override;
 };
 
-struct ExtendedTabbedButton : juce::TabBarButton {};
+struct ExtendedTabBarButton : juce::TabBarButton {
+  ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner);
+  juce::ComponentDragger dragger;
+
+  void mouseDown(const juce::MouseEvent &event) {
+    dragger.startDraggingComponent(this, event);
+  }
+  void mouseDrag(const juce::MouseEvent &event) {
+    dragger.dragComponent(this, event, nullptr);
+  }
+};
 //==============================================================================
 /**
  */

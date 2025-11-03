@@ -33,6 +33,16 @@ getDSPOptionName(MultieffectpluginAudioProcessor::DSP_Option dspOption) {
   }
   return "None Selected";
 };
+ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
+                                           juce::TabbedButtonBar &owner)
+    : juce::TabBarButton(name, owner) {};
+
+juce::TabBarButton *
+ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
+                                         int tabIndex) {
+  return new ExtendedTabBarButton(tabName, *this);
+};
+
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
