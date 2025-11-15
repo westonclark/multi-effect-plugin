@@ -26,15 +26,32 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
                                       int tabIndex) override;
 };
 
+struct HorizontalConstrainer : juce::ComponentBoundsConstrainer {
+  HorizontalConstrainer(
+      std::function<juce::Rectangle<int>()> confinerBoundsGetter,
+      std::function<juce::Rectangle<int>()> confineeBoundsGetter);
+
+  void checkBounds(juce::Rectangle<int> &bounds,
+                   const juce::Rectangle<int> &previousBounds,
+                   const juce::Rectangle<int> &limits, bool isStretchingTop,
+                   bool isStretchingLeft, bool isStretchingBottom,
+                   bool isStretchingRight) override;
+
+private:
+  std::function<juce::Rectangle<int>()> boundsToConfineToGetter;
+  std::function<juce::Rectangle<int>()> boundsOfConfineeGetter;
+};
+
 struct ExtendedTabBarButton : juce::TabBarButton {
   ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner);
   juce::ComponentDragger dragger;
+  std::unique_ptr<HorizontalConstrainer> constrainter;
 
   void mouseDown(const juce::MouseEvent &event) {
     dragger.startDraggingComponent(this, event);
   }
   void mouseDrag(const juce::MouseEvent &event) {
-    dragger.dragComponent(this, event, nullptr);
+    dragger.dragComponent(this, event, constrainter.get());
   }
 };
 //==============================================================================
