@@ -48,7 +48,9 @@ struct ExtendedTabBarButton : juce::TabBarButton {
   std::unique_ptr<HorizontalConstrainer> constrainter;
 
   void mouseDown(const juce::MouseEvent &event) {
+    toFront(true);
     dragger.startDraggingComponent(this, event);
+    juce::TabBarButton::mouseDown(event);
   }
   void mouseDrag(const juce::MouseEvent &event) {
     dragger.dragComponent(this, event, constrainter.get());
