@@ -61,15 +61,43 @@ void HorizontalConstrainer::checkBounds(
   }
 };
 
+// BUTTON BAR
+//==============================================================================
+
+ExtendedTabbedButtonBar::ExtendedTabbedButtonBar()
+    : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {};
+
+void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
+  toFront(true);
+  dragger.startDraggingComponent(this, e);
+  juce::TabBarButton::mouseDown(e);
+}
+
+void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent &e) {
+  dragger.dragComponent(this, e, constrainer.get());
+}
+
+bool ExtendedTabbedButtonBar::isInterestedInDragSource(
+    const SourceDetails &dragSourceDetails) {
+
+  return false;
+}
+
+void ExtendedTabbedButtonBar::itemDropped(
+    const SourceDetails &dragSourceDetails) {};
+
+// BUTTON
+//==============================================================================
 ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
+
                                            juce::TabbedButtonBar &owner)
     : juce::TabBarButton(name, owner) {
-  constrainter = std::make_unique<HorizontalConstrainer>(
+  constrainer = std::make_unique<HorizontalConstrainer>(
       [&owner]() { return owner.getLocalBounds(); },
       [this]() { return getBounds(); });
 
-  constrainter->setMinimumOnscreenAmounts(0xffffffff, 0xffffffff, 0xffffffff,
-                                          0xffffffff);
+  constrainer->setMinimumOnscreenAmounts(0xffffffff, 0xffffffff, 0xffffffff,
+                                         0xffffffff);
 };
 
 juce::TabBarButton *
@@ -78,6 +106,7 @@ ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
   return new ExtendedTabBarButton(tabName, *this);
 };
 
+// EDITOR
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
