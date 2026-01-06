@@ -9,6 +9,8 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 
+// DSP OPTIONS
+//==============================================================================
 static juce::String
 getDSPOptionName(MultieffectpluginAudioProcessor::DSP_Option dspOption) {
   switch (dspOption) {
@@ -34,6 +36,8 @@ getDSPOptionName(MultieffectpluginAudioProcessor::DSP_Option dspOption) {
   return "None Selected";
 };
 
+// HORIZONTAL CONSTRATINER
+//==============================================================================
 HorizontalConstrainer::HorizontalConstrainer(
     std::function<juce::Rectangle<int>()> confinerBoundsGetter,
     std::function<juce::Rectangle<int>()> confineeBoundsGetter)
@@ -63,28 +67,95 @@ void HorizontalConstrainer::checkBounds(
 
 // BUTTON BAR
 //==============================================================================
-
 ExtendedTabbedButtonBar::ExtendedTabbedButtonBar()
     : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {};
-
-void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
-  toFront(true);
-  dragger.startDraggingComponent(this, e);
-  juce::TabBarButton::mouseDown(e);
-}
-
-void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent &e) {
-  dragger.dragComponent(this, e, constrainer.get());
-}
 
 bool ExtendedTabbedButtonBar::isInterestedInDragSource(
     const SourceDetails &dragSourceDetails) {
 
+  auto *isATabBarButton = dynamic_cast<ExtendedTabBarButton *>(
+      dragSourceDetails.sourceComponent.get());
+  if (isATabBarButton) {
+    return true;
+  }
+
   return false;
 }
 
+void ExtendedTabbedButtonBar::itemDragEnter(
+    const SourceDetails &dragSourceDetails) {
+  juce::DragAndDropTarget::itemDragEnter(dragSourceDetails);
+};
+
+void ExtendedTabbedButtonBar::itemDragMove(
+    const SourceDetails &dragSourceDetails) {
+  // Get the dragged tab component
+  auto *tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton *>(
+      dragSourceDetails.sourceComponent.get());
+  if (!tabButtonBeingDragged) {
+    return;
+  }
+
+  // Find the index of the dragged tab
+  int draggedTabIndex = -1;
+  for (int i = 0; i < getNumTabs(); ++i) {
+    if (getTabButton(i) == tabButtonBeingDragged) {
+      draggedTabIndex = i;
+      break;
+    }
+  }
+
+  // Get the dragged tab position and decide when to swap
+  auto dragPosition = dragSourceDetails.localPosition;
+  for (int i = 0; i < getNumTabs(); ++i) {
+    if (i == draggedTabIndex)
+      continue;
+
+    auto *targetTab = getTabButton(i);
+    auto targetTabBounds = targetTab->getBounds();
+
+    // If we are hovering over another tab
+    if (targetTabBounds.contains(dragPosition)) {
+      int targetMidpoint = targetTabBounds.getCentreX();
+
+      // Swap once we pass the midpoint
+      bool shouldSwap = false;
+      if (i < draggedTabIndex) {
+        shouldSwap = dragPosition.x < targetMidpoint;
+      } else {
+        shouldSwap = dragPosition.x > targetMidpoint;
+      }
+
+      if (shouldSwap) {
+        moveTab(draggedTabIndex, i);
+        break;
+      }
+    }
+  }
+
+  tabButtonBeingDragged->toFront(true);
+};
+
+void ExtendedTabbedButtonBar::itemDragExit(
+    const SourceDetails &dragSourceDetails) {
+  juce::DragAndDropTarget::itemDragExit(dragSourceDetails);
+  resized();
+};
+
 void ExtendedTabbedButtonBar::itemDropped(
-    const SourceDetails &dragSourceDetails) {};
+    const SourceDetails &dragSourceDetails) {
+  juce::DragAndDropTarget::itemDragExit(dragSourceDetails);
+  resized();
+};
+
+void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
+  auto *tabButtonBeingDragged =
+      dynamic_cast<ExtendedTabBarButton *>(e.originalComponent);
+  if (tabButtonBeingDragged) {
+    DragAndDropContainer::startDragging(tabButtonBeingDragged->getButtonText(),
+                                        tabButtonBeingDragged);
+  }
+};
 
 // BUTTON
 //==============================================================================
@@ -100,10 +171,22 @@ ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
                                          0xffffffff);
 };
 
+void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
+  toFront(true);
+  dragger.startDraggingComponent(this, e);
+  juce::TabBarButton::mouseDown(e);
+}
+
+void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent &e) {
+  dragger.dragComponent(this, e, constrainer.get());
+}
+
 juce::TabBarButton *
 ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
                                          int tabIndex) {
-  return new ExtendedTabBarButton(tabName, *this);
+  auto *button = new ExtendedTabBarButton(tabName, *this);
+  button->addMouseListener(this, false);
+  return button;
 };
 
 // EDITOR
@@ -143,7 +226,6 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 MultieffectpluginAudioProcessorEditor::
     ~MultieffectpluginAudioProcessorEditor() {}
 
-//==============================================================================
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
   // (Our component is opaque, so we must completely fill the background
   // with a solid colour)

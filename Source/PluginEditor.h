@@ -11,19 +11,8 @@
 #include "PluginProcessor.h"
 #include <JuceHeader.h>
 
-struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
-                                 juce::DragAndDropTarget {
-  ExtendedTabbedButtonBar();
-
-  bool
-  isInterestedInDragSource(const SourceDetails &dragSourceDetails) override;
-
-  void itemDropped(const SourceDetails &dragSourceDetails) override;
-
-  juce::TabBarButton *createTabButton(const juce::String &tabName,
-                                      int tabIndex) override;
-};
-
+// HORIZONTAL CONSTRATINER
+//==============================================================================
 struct HorizontalConstrainer : juce::ComponentBoundsConstrainer {
   HorizontalConstrainer(
       std::function<juce::Rectangle<int>()> confinerBoundsGetter,
@@ -40,6 +29,31 @@ private:
   std::function<juce::Rectangle<int>()> boundsOfConfineeGetter;
 };
 
+// BUTTON BAR
+//==============================================================================
+struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
+                                 juce::DragAndDropTarget,
+                                 juce::DragAndDropContainer {
+  ExtendedTabbedButtonBar();
+
+  bool
+  isInterestedInDragSource(const SourceDetails &dragSourceDetails) override;
+
+  void itemDragEnter(const SourceDetails &dragSourceDetails) override;
+  void itemDragMove(const SourceDetails &dragSourceDetails) override;
+  void itemDragExit(const SourceDetails &dragSourceDetails) override;
+  void itemDropped(const SourceDetails &dragSourceDetails) override;
+
+  void mouseDown(const juce::MouseEvent &e) override;
+
+  juce::TabBarButton *createTabButton(const juce::String &tabName,
+                                      int tabIndex) override;
+
+private:
+};
+
+// BUTTON
+//==============================================================================
 struct ExtendedTabBarButton : juce::TabBarButton {
   ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner);
   juce::ComponentDragger dragger;
@@ -48,6 +62,8 @@ struct ExtendedTabBarButton : juce::TabBarButton {
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
 };
+
+// EDITOR
 //==============================================================================
 /**
  */
