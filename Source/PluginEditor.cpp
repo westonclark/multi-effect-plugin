@@ -144,7 +144,7 @@ void ExtendedTabbedButtonBar::itemDragExit(
 
 void ExtendedTabbedButtonBar::itemDropped(
     const SourceDetails &dragSourceDetails) {
-  juce::DragAndDropTarget::itemDragExit(dragSourceDetails);
+  juce::DragAndDropTarget::itemDropped(dragSourceDetails);
   resized();
 };
 
