@@ -9,6 +9,47 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+// DSP_OPTION HELPERS
+//==============================================================================
+juce::String
+MultieffectpluginAudioProcessor::getDSPOptionName(DSP_Option dspOption) {
+  switch (dspOption) {
+  case DSP_Option::Phase:
+    return "Phaser";
+  case DSP_Option::Chorus:
+    return "Chorus";
+  case DSP_Option::OverDrive:
+    return "Drive";
+  case DSP_Option::LadderFilter:
+    return "Ladder Filter";
+  case DSP_Option::Filter:
+    return "Filter";
+  case DSP_Option::END_OF_LIST:
+    jassertfalse;
+    break;
+  }
+  return "None Selected";
+}
+
+MultieffectpluginAudioProcessor::DSP_Option
+MultieffectpluginAudioProcessor::getDSPOptionFromName(
+    const juce::String &name) {
+  if (name == "Phaser")
+    return DSP_Option::Phase;
+  if (name == "Chorus")
+    return DSP_Option::Chorus;
+  if (name == "Drive")
+    return DSP_Option::OverDrive;
+  if (name == "Ladder Filter")
+    return DSP_Option::LadderFilter;
+  if (name == "Filter")
+    return DSP_Option::Filter;
+
+  return DSP_Option::END_OF_LIST;
+}
+
+// PARAMETER NAME HELPTERS
+//==============================================================================
 // Phaser
 auto getPhaserRateName() { return juce::String("Phaser Rate"); }
 auto getPhaserCenterFreqName() { return juce::String("Phaser Center Freq"); }
@@ -56,6 +97,7 @@ auto getFilterChoices() {
 }
 auto getFilterBypassName() { return juce::String("Filter Bypass"); }
 
+// AUDIO PROCESSOR
 //==============================================================================
 MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -260,6 +302,8 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
 }
 #endif
 
+// PARAMETER LAYOUT
+//==============================================================================
 juce::AudioProcessorValueTreeState::ParameterLayout
 MultieffectpluginAudioProcessor::createParameterLayout() {
   juce::AudioProcessorValueTreeState::ParameterLayout layout;
@@ -428,7 +472,7 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   auto currentFilterGain = processor.filterGainSmoother.getCurrentValue();
   auto currentFilterMode = processor.filterMode->getIndex();
 
-  // Only update coefficients if mode changes or if values are changing
+  // Only update filter coefficients if mode changes or if values are changing
   bool modeChanged = (currentFilterMode != cachedFilterMode);
   bool paramsChanging = (currentFilterFreq != cachedFilterFreq) ||
                         (currentFilterQuality != cachedFilterQuality) ||
@@ -490,7 +534,6 @@ void MultieffectpluginAudioProcessor::processBlock(
   // Check if there's a new DSP order from the GUI
   auto newDSPOrder = DSP_Order();
   while (dspOrderFifo.pull(newDSPOrder)) {
-    // If we pull a change, update the dspOrder
     if (newDSPOrder != DSP_Order()) {
       dspOrder = newDSPOrder;
     }
@@ -502,7 +545,7 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto block = juce::dsp::AudioBlock<float>(buffer);
 
   for (size_t startSample = 0; startSample < numSamples;) {
-    // Calculate chunk size (might be smaller for the last chunk)
+    // Calculate chunk size (last chunk might be smaller)
     auto samplesThisChunk =
         juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
 

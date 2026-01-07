@@ -29,6 +29,14 @@ private:
   std::function<juce::Rectangle<int>()> boundsOfConfineeGetter;
 };
 
+// TAB ORDER CHANGED LISTENER
+//==============================================================================
+struct TabOrderListener {
+  virtual ~TabOrderListener() = default;
+  virtual void
+  tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newDspOrder) = 0;
+};
+
 // BUTTON BAR
 //==============================================================================
 struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
@@ -49,7 +57,11 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
   juce::TabBarButton *createTabButton(const juce::String &tabName,
                                       int tabIndex) override;
 
+  void addListener(TabOrderListener *l) { listeners.add(l); }
+  void removeListener(TabOrderListener *l) { listeners.remove(l); }
+
 private:
+  juce::ListenerList<TabOrderListener> listeners;
 };
 
 // BUTTON
@@ -67,8 +79,8 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 //==============================================================================
 /**
  */
-class MultieffectpluginAudioProcessorEditor
-    : public juce::AudioProcessorEditor {
+class MultieffectpluginAudioProcessorEditor : public juce::AudioProcessorEditor,
+                                              public TabOrderListener {
 public:
   MultieffectpluginAudioProcessorEditor(MultieffectpluginAudioProcessor &);
   ~MultieffectpluginAudioProcessorEditor() override;
@@ -76,6 +88,9 @@ public:
   //==============================================================================
   void paint(juce::Graphics &) override;
   void resized() override;
+
+  void
+  tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newOrder) override;
 
 private:
   // This reference is provided as a quick way for your editor to

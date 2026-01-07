@@ -67,8 +67,12 @@ public:
     END_OF_LIST
   };
 
+  static juce::String getDSPOptionName(DSP_Option dspOption);
+  static DSP_Option getDSPOptionFromName(const juce::String &name);
+
   static juce::AudioProcessorValueTreeState::ParameterLayout
   createParameterLayout();
+
   juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters",
                                            createParameterLayout()};
 
@@ -146,6 +150,7 @@ public:
 
 private:
   DSP_Order dspOrder;
+
   template <typename DSP> struct DSP_Choice : juce::dsp::ProcessorBase {
     void prepare(const juce::dsp::ProcessSpec &spec) override {
       dsp.prepare(spec);
@@ -155,6 +160,7 @@ private:
       dsp.process(context);
     }
     void reset() override { dsp.reset(); }
+
     DSP dsp;
   };
 
@@ -181,8 +187,10 @@ private:
       jassert(*initializer.paramPtr != nullptr);
     }
   }
+
   struct MonoChannelDSP {
     MonoChannelDSP(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
+
     DSP_Choice<juce::dsp::DelayLine<float>> delay;
     DSP_Choice<juce::dsp::Phaser<float>> phaser;
     DSP_Choice<juce::dsp::Chorus<float>> chorus;
@@ -203,13 +211,13 @@ private:
   MonoChannelDSP leftChannel{*this};
   MonoChannelDSP rightChannel{*this};
 
-  struct ProcessState {
+  struct ProcessorState {
     juce::dsp::ProcessorBase *processor = nullptr;
     bool bypassed = false;
   };
 
   using DSP_Pointers =
-      std::array<ProcessState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+      std::array<ProcessorState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
 
   struct ParamSmootherPair {
     juce::AudioParameterFloat *param;
@@ -218,7 +226,6 @@ private:
   std::vector<ParamSmootherPair> paramSmootherPairs;
 
   enum class SmootherUpdateMode { initialize, updateExisting };
-
   void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)

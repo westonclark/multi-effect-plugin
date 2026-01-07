@@ -9,33 +9,6 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 
-// DSP OPTIONS
-//==============================================================================
-static juce::String
-getDSPOptionName(MultieffectpluginAudioProcessor::DSP_Option dspOption) {
-  switch (dspOption) {
-  case MultieffectpluginAudioProcessor::DSP_Option::Phase:
-    return "Phaser";
-    break;
-  case MultieffectpluginAudioProcessor::DSP_Option::Chorus:
-    return "Chorus";
-    break;
-  case MultieffectpluginAudioProcessor::DSP_Option::OverDrive:
-    return "Drive";
-    break;
-  case MultieffectpluginAudioProcessor::DSP_Option::LadderFilter:
-    return "Ladder Filter";
-    break;
-  case MultieffectpluginAudioProcessor::DSP_Option::Filter:
-    return "Filter";
-    break;
-  case MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST:
-    jassertfalse;
-    break;
-  }
-  return "None Selected";
-};
-
 // HORIZONTAL CONSTRATINER
 //==============================================================================
 HorizontalConstrainer::HorizontalConstrainer(
@@ -144,8 +117,17 @@ void ExtendedTabbedButtonBar::itemDragExit(
 
 void ExtendedTabbedButtonBar::itemDropped(
     const SourceDetails &dragSourceDetails) {
-  juce::DragAndDropTarget::itemDropped(dragSourceDetails);
   resized();
+
+  // Notify listener of DSP order change
+  MultieffectpluginAudioProcessor::DSP_Order newDspOrder;
+  for (int i = 0; i < getNumTabs(); i++) {
+    if (auto *tab = getTabButton(i)) {
+      newDspOrder[i] = MultieffectpluginAudioProcessor::getDSPOptionFromName(
+          tab->getButtonText());
+    }
+  }
+  listeners.call(&TabOrderListener::tabOrderChanged, newDspOrder);
 };
 
 void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
@@ -194,6 +176,9 @@ ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p) {
+
+  tabbedComponent.addListener(this);
+
   dspOrderButton.onClick = [this]() {
     juce::Random random;
     MultieffectpluginAudioProcessor::DSP_Order dspOrder;
@@ -209,11 +194,10 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
       auto entry = random.nextInt(range);
       dspOption =
           static_cast<MultieffectpluginAudioProcessor::DSP_Option>(entry);
-      tabbedComponent.addTab(getDSPOptionName(dspOption), juce::Colours::white,
-                             -1);
+      tabbedComponent.addTab(
+          MultieffectpluginAudioProcessor::getDSPOptionName(dspOption),
+          juce::Colours::white, -1);
     }
-
-    DBG(juce::Base64::toBase64(dspOrder.data(), dspOrder.size()));
 
     audioProcessor.dspOrderFifo.push(dspOrder);
   };
@@ -225,6 +209,11 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 
 MultieffectpluginAudioProcessorEditor::
     ~MultieffectpluginAudioProcessorEditor() {}
+
+void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
+    MultieffectpluginAudioProcessor::DSP_Order newOrder) {
+  audioProcessor.dspOrderFifo.push(newOrder);
+}
 
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
   // (Our component is opaque, so we must completely fill the background
