@@ -9,7 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-// DSP_OPTION HELPERS
+// DSP ORDER HELPERS
 //==============================================================================
 juce::String
 MultieffectpluginAudioProcessor::getDSPOptionName(DSP_Option dspOption) {
@@ -48,7 +48,7 @@ MultieffectpluginAudioProcessor::getDSPOptionFromName(
   return DSP_Option::END_OF_LIST;
 }
 
-// PARAMETER NAME HELPTERS
+// PARAMETER NAME HELPERS
 //==============================================================================
 // Phaser
 auto getPhaserRateName() { return juce::String("Phaser Rate"); }
@@ -57,7 +57,6 @@ auto getPhaserDepthName() { return juce::String("Phaser Depth"); }
 auto getPhaserFeedbackName() { return juce::String("Phaser Feedback"); }
 auto getPhaserMixName() { return juce::String("Phaser Mix"); }
 auto getPhaserBypassName() { return juce::String("Phaser Bypass"); }
-
 // Chorus
 auto getChorusRateName() { return juce::String("Chorus Rate"); }
 auto getChorusDepthName() { return juce::String("Chorus Depth"); }
@@ -65,11 +64,9 @@ auto getChorusCenterDelayName() { return juce::String("Chorus Center Delay"); }
 auto getChorusFeedbackName() { return juce::String("Chorus Feedback"); }
 auto getChorusMixName() { return juce::String("Chorus Mix"); }
 auto getChorusBypassName() { return juce::String("Chorus Bypass"); }
-
 // Drive
 auto getOverdriveSaturationName() { return juce::String("OverDrive"); }
 auto getOverdriveBypassName() { return juce::String("Overdrive Bypass"); }
-
 // Ladder Filter
 auto getLadderFilterModeName() { return juce::String("Ladder Filter Mode"); }
 auto getLadderFilterCutoffName() {
@@ -86,7 +83,6 @@ auto getLadderFilterChoices() {
 auto getLadderFilterBypassName() {
   return juce::String("Ladder Filter Bypass");
 }
-
 // Filter
 auto getFilterModeName() { return juce::String("Filter Mode"); }
 auto getFilterFreqName() { return juce::String("Filter Freq"); }
@@ -179,6 +175,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
 
+// PLUGIN INFO
 //==============================================================================
 const juce::String MultieffectpluginAudioProcessor::getName() const {
   return JucePlugin_Name;
@@ -212,6 +209,8 @@ double MultieffectpluginAudioProcessor::getTailLengthSeconds() const {
   return 0.0;
 }
 
+// PROGRAMS
+//==============================================================================
 int MultieffectpluginAudioProcessor::getNumPrograms() {
   return 1; // NB: some hosts don't cope very well if you tell them there are 0
             // programs, so this should be at least 1, even if you're not really
@@ -229,6 +228,7 @@ const juce::String MultieffectpluginAudioProcessor::getProgramName(int index) {
 void MultieffectpluginAudioProcessor::changeProgramName(
     int index, const juce::String &newName) {}
 
+// PREPARE / RELEASE CONFIG
 //==============================================================================
 void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
                                                     int samplesPerBlock) {
@@ -247,30 +247,6 @@ void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
   updateSmoothers(1, SmootherUpdateMode::initialize);
 }
 
-void MultieffectpluginAudioProcessor::updateSmoothers(
-    int samplesToSkip, SmootherUpdateMode smootherMode) {
-  for (const auto &pair : paramSmootherPairs) {
-    if (smootherMode == SmootherUpdateMode::initialize) {
-      pair.smoother->setCurrentAndTargetValue(pair.param->get());
-    } else {
-      pair.smoother->setTargetValue(pair.param->get());
-    }
-    pair.smoother->skip(samplesToSkip);
-  }
-}
-
-void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
-    const juce::dsp::ProcessSpec &spec) {
-  jassert(spec.numChannels == 1);
-
-  std::vector<juce::dsp::ProcessorBase *> dsp{&phaser, &chorus, &overdrive,
-                                              &ladderFilter, &filter};
-
-  for (auto processor : dsp) {
-    processor->prepare(spec);
-    processor->reset();
-  }
-}
 void MultieffectpluginAudioProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
@@ -435,6 +411,35 @@ MultieffectpluginAudioProcessor::createParameterLayout() {
   return layout;
 }
 
+// PARAMETER SMOOTHING
+//==============================================================================
+void MultieffectpluginAudioProcessor::updateSmoothers(
+    int samplesToSkip, SmootherUpdateMode smootherMode) {
+  for (const auto &pair : paramSmootherPairs) {
+    if (smootherMode == SmootherUpdateMode::initialize) {
+      pair.smoother->setCurrentAndTargetValue(pair.param->get());
+    } else {
+      pair.smoother->setTargetValue(pair.param->get());
+    }
+    pair.smoother->skip(samplesToSkip);
+  }
+}
+
+// MONO CHANNEL DSP
+//==============================================================================
+void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
+    const juce::dsp::ProcessSpec &spec) {
+  jassert(spec.numChannels == 1);
+
+  std::vector<juce::dsp::ProcessorBase *> dsp{&phaser, &chorus, &overdrive,
+                                              &ladderFilter, &filter};
+
+  for (auto processor : dsp) {
+    processor->prepare(spec);
+    processor->reset();
+  }
+}
+
 void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   // Phaser
   phaser.dsp.setRate(processor.phaserRateSmoother.getCurrentValue());
@@ -443,7 +448,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   phaser.dsp.setDepth(processor.phaserDepthSmoother.getCurrentValue());
   phaser.dsp.setFeedback(processor.phaserFeedbackSmoother.getCurrentValue());
   phaser.dsp.setMix(processor.phaserMixSmoother.getCurrentValue());
-
   // Chorus
   chorus.dsp.setRate(processor.chorusRateSmoother.getCurrentValue());
   chorus.dsp.setDepth(processor.chorusDepthSmoother.getCurrentValue());
@@ -451,11 +455,9 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
       processor.chorusCenterDelaySmoother.getCurrentValue());
   chorus.dsp.setFeedback(processor.chorusFeedbackSmoother.getCurrentValue());
   chorus.dsp.setMix(processor.chorusMixSmoother.getCurrentValue());
-
   // Drive
   overdrive.dsp.setDrive(
       processor.overdriveSaturationSmoother.getCurrentValue());
-
   // Ladder Filter
   ladderFilter.dsp.setMode(static_cast<juce::dsp::LadderFilterMode>(
       processor.ladderFilterMode->getIndex()));
@@ -465,7 +467,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
       processor.ladderFilterResonanceSmoother.getCurrentValue());
   ladderFilter.dsp.setDrive(
       processor.ladderFilterDriveSmoother.getCurrentValue());
-
   // Filter
   auto currentFilterFreq = processor.filterFreqSmoother.getCurrentValue();
   auto currentFilterQuality = processor.filterQualitySmoother.getCurrentValue();
@@ -521,50 +522,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   }
 }
 
-void MultieffectpluginAudioProcessor::processBlock(
-    juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
-  juce::ScopedNoDenormals noDenormals;
-  auto totalNumInputChannels = getTotalNumInputChannels();
-  auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-  // Clear buffer of garbage
-  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    buffer.clear(i, 0, buffer.getNumSamples());
-
-  // Check if there's a new DSP order from the GUI
-  auto newDSPOrder = DSP_Order();
-  while (dspOrderFifo.pull(newDSPOrder)) {
-    if (newDSPOrder != DSP_Order()) {
-      dspOrder = newDSPOrder;
-    }
-  }
-
-  // Process audio in chunks for better parameter smoothing resolution
-  const int maxChunkSize = 64;
-  const auto numSamples = buffer.getNumSamples();
-  auto block = juce::dsp::AudioBlock<float>(buffer);
-
-  for (size_t startSample = 0; startSample < numSamples;) {
-    // Calculate chunk size (last chunk might be smaller)
-    auto samplesThisChunk =
-        juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
-
-    // Update smoothers for this chunk
-    updateSmoothers(samplesThisChunk, SmootherUpdateMode::updateExisting);
-
-    // Update DSP parameters from smoothed values
-    leftChannel.update();
-    rightChannel.update();
-
-    // Process this chunk
-    auto subBlock = block.getSubBlock(startSample, samplesThisChunk);
-    leftChannel.process(subBlock.getSingleChannelBlock(0), dspOrder);
-    rightChannel.process(subBlock.getSingleChannelBlock(1), dspOrder);
-
-    startSample += samplesThisChunk;
-  }
-}
-
 void MultieffectpluginAudioProcessor::MonoChannelDSP::process(
     juce::dsp::AudioBlock<float> block, const DSP_Order &dspOrder) {
   // Convert dspOrder into pointers
@@ -601,7 +558,6 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::process(
 
   // Process
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
-
   for (size_t i = 0; i < dspPointers.size(); ++i) {
     if (dspPointers[i].processor != nullptr && !dspPointers[i].bypassed) {
       juce::ScopedValueSetter<bool> svs(context.isBypassed,
@@ -609,8 +565,52 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::process(
       dspPointers[i].processor->process(context);
     }
   }
-};
+}
 
+void MultieffectpluginAudioProcessor::processBlock(
+    juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
+  juce::ScopedNoDenormals noDenormals;
+  auto totalNumInputChannels = getTotalNumInputChannels();
+  auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+  // Clear buffer of garbage
+  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    buffer.clear(i, 0, buffer.getNumSamples());
+
+  // Check if there's a new DSP order from the GUI
+  auto newDSPOrder = DSP_Order();
+  while (dspOrderFifo.pull(newDSPOrder)) {
+    if (newDSPOrder != DSP_Order()) {
+      dspOrder = newDSPOrder;
+    }
+  }
+
+  // Process audio in chunks for better parameter smoothing resolution
+  const int maxChunkSize = 64;
+  const auto numSamples = buffer.getNumSamples();
+  auto block = juce::dsp::AudioBlock<float>(buffer);
+
+  for (size_t startSample = 0; startSample < numSamples;) {
+    auto samplesThisChunk =
+        juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
+
+    // Update smoothers for this chunk
+    updateSmoothers(samplesThisChunk, SmootherUpdateMode::updateExisting);
+
+    // Update DSP parameters from smoothed values
+    leftChannel.update();
+    rightChannel.update();
+
+    // Process this chunk
+    auto subBlock = block.getSubBlock(startSample, samplesThisChunk);
+    leftChannel.process(subBlock.getSingleChannelBlock(0), dspOrder);
+    rightChannel.process(subBlock.getSingleChannelBlock(1), dspOrder);
+
+    startSample += samplesThisChunk;
+  }
+}
+
+// EDITOR
 //==============================================================================
 bool MultieffectpluginAudioProcessor::hasEditor() const {
   return true; // (change this to false if you choose to not supply an editor)
@@ -620,8 +620,9 @@ juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
   return new MultieffectpluginAudioProcessorEditor(*this);
   // return new juce::GenericAudioProcessorEditor(*this);
 }
-//==============================================================================
 
+// STATE MANAGEMENT
+//==============================================================================
 template <>
 struct juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order> {
   static MultieffectpluginAudioProcessor::DSP_Order
@@ -691,6 +692,7 @@ void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
   }
 }
 
+// PLUGIN INSTANTIATION
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {

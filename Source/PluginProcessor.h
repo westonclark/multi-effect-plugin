@@ -11,9 +11,8 @@
 #include <Fifo.h>
 #include <JuceHeader.h>
 
+// AUDIO PROCESSOR
 //==============================================================================
-/**
- */
 class MultieffectpluginAudioProcessor : public juce::AudioProcessor
 #if JucePlugin_Enable_ARA
     ,
@@ -21,10 +20,12 @@ class MultieffectpluginAudioProcessor : public juce::AudioProcessor
 #endif
 {
 public:
+  // LIFECYCLE
   //==============================================================================
   MultieffectpluginAudioProcessor();
   ~MultieffectpluginAudioProcessor() override;
 
+  // AUDIO PROCESSING
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
   void releaseResources() override;
@@ -35,10 +36,12 @@ public:
 
   void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
+  // EDITOR
   //==============================================================================
   juce::AudioProcessorEditor *createEditor() override;
   bool hasEditor() const override;
 
+  // PLUGIN INFO
   //==============================================================================
   const juce::String getName() const override;
 
@@ -47,6 +50,7 @@ public:
   bool isMidiEffect() const override;
   double getTailLengthSeconds() const override;
 
+  // PROGRAMS
   //==============================================================================
   int getNumPrograms() override;
   int getCurrentProgram() override;
@@ -54,10 +58,13 @@ public:
   const juce::String getProgramName(int index) override;
   void changeProgramName(int index, const juce::String &newName) override;
 
+  // STATE MANAGEMENT
   //==============================================================================
   void getStateInformation(juce::MemoryBlock &destData) override;
   void setStateInformation(const void *data, int sizeInBytes) override;
 
+  // DSP ORDER
+  //==============================================================================
   enum class DSP_Option {
     Phase,
     Chorus,
@@ -70,46 +77,41 @@ public:
   static juce::String getDSPOptionName(DSP_Option dspOption);
   static DSP_Option getDSPOptionFromName(const juce::String &name);
 
-  static juce::AudioProcessorValueTreeState::ParameterLayout
-  createParameterLayout();
-
-  juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters",
-                                           createParameterLayout()};
-
   using DSP_Order =
       std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
 
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
-  // Parameter Values
+  // PARAMETERS
+  //==============================================================================
+  static juce::AudioProcessorValueTreeState::ParameterLayout
+  createParameterLayout();
 
-  //  Phaser
+  juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters",
+                                           createParameterLayout()};
+  // Phaser
   juce::AudioParameterFloat *phaserRate = nullptr;
   juce::AudioParameterFloat *phaserDepth = nullptr;
   juce::AudioParameterFloat *phaserCenterFreq = nullptr;
   juce::AudioParameterFloat *phaserFeedback = nullptr;
   juce::AudioParameterFloat *phaserMix = nullptr;
   juce::AudioParameterBool *phaserBypass = nullptr;
-
-  //  Chorus
+  // Chorus
   juce::AudioParameterFloat *chorusRate = nullptr;
   juce::AudioParameterFloat *chorusDepth = nullptr;
   juce::AudioParameterFloat *chorusCenterDelay = nullptr;
   juce::AudioParameterFloat *chorusFeedback = nullptr;
   juce::AudioParameterFloat *chorusMix = nullptr;
   juce::AudioParameterBool *chorusBypass = nullptr;
-
   // Drive
   juce::AudioParameterFloat *overdriveSaturation = nullptr;
   juce::AudioParameterBool *overdriveBypass = nullptr;
-
   // Ladder Filter
   juce::AudioParameterChoice *ladderFilterMode = nullptr;
   juce::AudioParameterFloat *ladderFilterCutoff = nullptr;
   juce::AudioParameterFloat *ladderFilterResonance = nullptr;
   juce::AudioParameterFloat *ladderFilterDrive = nullptr;
   juce::AudioParameterBool *ladderFilterBypass = nullptr;
-
   // Filter
   juce::AudioParameterChoice *filterMode = nullptr;
   juce::AudioParameterFloat *filterFreq = nullptr;
@@ -117,40 +119,39 @@ public:
   juce::AudioParameterFloat *filterGain = nullptr;
   juce::AudioParameterBool *filterBypass = nullptr;
 
-  // Smoothed Values
-
+  // SMOOTHED VALUES
+  //==============================================================================
   // Phaser
   juce::SmoothedValue<float> phaserRateSmoother;
   juce::SmoothedValue<float> phaserDepthSmoother;
   juce::SmoothedValue<float> phaserCenterFreqSmoother;
   juce::SmoothedValue<float> phaserFeedbackSmoother;
   juce::SmoothedValue<float> phaserMixSmoother;
-
   // Chorus
   juce::SmoothedValue<float> chorusRateSmoother;
   juce::SmoothedValue<float> chorusDepthSmoother;
   juce::SmoothedValue<float> chorusCenterDelaySmoother;
   juce::SmoothedValue<float> chorusFeedbackSmoother;
   juce::SmoothedValue<float> chorusMixSmoother;
-
   // Drive
   juce::SmoothedValue<float> overdriveSaturationSmoother;
-
   // Ladder Filter
   juce::SmoothedValue<float> ladderFilterCutoffSmoother;
   juce::SmoothedValue<float> ladderFilterResonanceSmoother;
   juce::SmoothedValue<float> ladderFilterDriveSmoother;
-
   // Filter
   juce::SmoothedValue<float> filterFreqSmoother;
   juce::SmoothedValue<float> filterQualitySmoother;
   juce::SmoothedValue<float> filterGainSmoother;
-
   enum FilterMode { Peak, Bandpass, Notch, Allpass, END_OF_LIST };
 
 private:
+  // DSP ORDER STATE
+  //==============================================================================
   DSP_Order dspOrder;
 
+  // HELPER TYPES
+  //==============================================================================
   template <typename DSP> struct DSP_Choice : juce::dsp::ProcessorBase {
     void prepare(const juce::dsp::ProcessSpec &spec) override {
       dsp.prepare(spec);
@@ -164,6 +165,16 @@ private:
     DSP dsp;
   };
 
+  struct ProcessorState {
+    juce::dsp::ProcessorBase *processor = nullptr;
+    bool bypassed = false;
+  };
+
+  using DSP_Pointers =
+      std::array<ProcessorState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+
+  // PARAMETER INITIALIZATION
+  //==============================================================================
   struct FloatParamInitializer {
     juce::AudioParameterFloat **paramPtr;
     juce::String (*nameFunc)();
@@ -188,6 +199,19 @@ private:
     }
   }
 
+  // PARAMETER SMOOTHING
+  //==============================================================================
+  struct ParamSmootherPair {
+    juce::AudioParameterFloat *param;
+    juce::SmoothedValue<float> *smoother;
+  };
+  std::vector<ParamSmootherPair> paramSmootherPairs;
+
+  enum class SmootherUpdateMode { initialize, updateExisting };
+  void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
+
+  // MONO CHANNEL DSP
+  //==============================================================================
   struct MonoChannelDSP {
     MonoChannelDSP(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
 
@@ -211,22 +235,6 @@ private:
   MonoChannelDSP leftChannel{*this};
   MonoChannelDSP rightChannel{*this};
 
-  struct ProcessorState {
-    juce::dsp::ProcessorBase *processor = nullptr;
-    bool bypassed = false;
-  };
-
-  using DSP_Pointers =
-      std::array<ProcessorState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
-
-  struct ParamSmootherPair {
-    juce::AudioParameterFloat *param;
-    juce::SmoothedValue<float> *smoother;
-  };
-  std::vector<ParamSmootherPair> paramSmootherPairs;
-
-  enum class SmootherUpdateMode { initialize, updateExisting };
-  void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
 };
