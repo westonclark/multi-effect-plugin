@@ -208,7 +208,9 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 }
 
 MultieffectpluginAudioProcessorEditor::
-    ~MultieffectpluginAudioProcessorEditor() {}
+    ~MultieffectpluginAudioProcessorEditor() {
+  tabbedComponent.removeListener(this);
+}
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
     MultieffectpluginAudioProcessor::DSP_Order newOrder) {
