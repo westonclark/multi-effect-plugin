@@ -429,9 +429,9 @@ void MultieffectpluginAudioProcessor::updateSmoothers(
   }
 }
 
-// MONO CHANNEL DSP
+// DSP EFFECTS
 //==============================================================================
-void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
+void MultieffectpluginAudioProcessor::DspEffects::prepare(
     const juce::dsp::ProcessSpec &spec) {
   jassert(spec.numChannels == 1);
 
@@ -444,7 +444,7 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::prepare(
   }
 }
 
-void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
+void MultieffectpluginAudioProcessor::DspEffects::update() {
   // Phaser
   phaser.dsp.setRate(processor.phaserRateSmoother.getCurrentValue());
   phaser.dsp.setCentreFrequency(
@@ -526,7 +526,7 @@ void MultieffectpluginAudioProcessor::MonoChannelDSP::update() {
   }
 }
 
-void MultieffectpluginAudioProcessor::MonoChannelDSP::process(
+void MultieffectpluginAudioProcessor::DspEffects::process(
     juce::dsp::AudioBlock<float> block, const DSP_Order &dspOrder) {
   // Convert dspOrder into pointers
   DSP_Pointers dspPointers;

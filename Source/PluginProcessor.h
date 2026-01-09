@@ -210,10 +210,10 @@ private:
   enum class SmootherUpdateMode { initialize, updateExisting };
   void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
 
-  // MONO CHANNEL DSP
+  // DSP EFFECTS
   //==============================================================================
-  struct MonoChannelDSP {
-    MonoChannelDSP(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
+  struct DspEffects {
+    DspEffects(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
 
     DSP_Choice<juce::dsp::DelayLine<float>> delay;
     DSP_Choice<juce::dsp::Phaser<float>> phaser;
@@ -232,8 +232,8 @@ private:
           cachedFilterGain = -100.f;
   };
 
-  MonoChannelDSP leftChannel{*this};
-  MonoChannelDSP rightChannel{*this};
+  DspEffects leftChannel{*this};
+  DspEffects rightChannel{*this};
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
