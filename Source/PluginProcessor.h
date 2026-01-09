@@ -177,24 +177,24 @@ private:
   //==============================================================================
   struct FloatParamInitializer {
     juce::AudioParameterFloat **paramPtr;
-    juce::String (*nameFunc)();
+    const char *paramName;
   };
 
   struct ChoiceParamInitializer {
     juce::AudioParameterChoice **paramPtr;
-    juce::String (*nameFunc)();
+    const char *paramName;
   };
 
   struct BoolParamInitializer {
     juce::AudioParameterBool **paramPtr;
-    juce::String (*nameFunc)();
+    const char *paramName;
   };
 
   template <typename ParamType, typename InitStruct>
   void initCachedParams(const std::vector<InitStruct> &paramInitializers) {
     for (const auto &initializer : paramInitializers) {
       *initializer.paramPtr =
-          dynamic_cast<ParamType>(apvts.getParameter(initializer.nameFunc()));
+          dynamic_cast<ParamType>(apvts.getParameter(initializer.paramName));
       jassert(*initializer.paramPtr != nullptr);
     }
   }
