@@ -134,8 +134,14 @@ void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
   auto *tabButtonBeingDragged =
       dynamic_cast<ExtendedTabBarButton *>(e.originalComponent);
   if (tabButtonBeingDragged) {
+
+    // A 1x1 transparent image to hide the drag image
+    juce::Image transparentImage(juce::Image::ARGB, 1, 1, true);
+    transparentImage.clear(transparentImage.getBounds(),
+                           juce::Colours::transparentBlack);
     DragAndDropContainer::startDragging(tabButtonBeingDragged->getButtonText(),
-                                        tabButtonBeingDragged);
+                                        tabButtonBeingDragged,
+                                        juce::ScaledImage(transparentImage));
   }
 };
 
