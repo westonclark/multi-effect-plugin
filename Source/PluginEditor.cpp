@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 
@@ -105,8 +97,6 @@ void ExtendedTabbedButtonBar::itemDragMove(
       }
     }
   }
-
-  tabButtonBeingDragged->toFront(true);
 };
 
 void ExtendedTabbedButtonBar::itemDragExit(
@@ -131,9 +121,8 @@ void ExtendedTabbedButtonBar::itemDropped(
 };
 
 void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
-  auto *tabButtonBeingDragged =
-      dynamic_cast<ExtendedTabBarButton *>(e.originalComponent);
-  if (tabButtonBeingDragged) {
+  if (auto *tabButtonBeingDragged =
+          dynamic_cast<ExtendedTabBarButton *>(e.originalComponent)) {
 
     // A 1x1 transparent image to hide the drag image
     juce::Image transparentImage(juce::Image::ARGB, 1, 1, true);
@@ -166,6 +155,7 @@ void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
 }
 
 void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent &e) {
+  toFront(true);
   dragger.dragComponent(this, e, constrainer.get());
 }
 
