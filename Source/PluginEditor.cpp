@@ -131,7 +131,7 @@ void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
         tabButtonBeingDragged->getButtonText(), tabButtonBeingDragged,
         juce::ScaledImage(transparentDragImage));
   }
-};
+}
 
 // BUTTON
 //==============================================================================
@@ -156,6 +156,15 @@ void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
 void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent &e) {
   toFront(true);
   dragger.dragComponent(this, e, constrainer.get());
+}
+
+int ExtendedTabBarButton::getBestTabLength(int depth) {
+  auto bestWidth = getLookAndFeel().getTabButtonBestWidth(*this, depth);
+
+  auto &bar = getTabbedButtonBar();
+  // Choose the larger of: the best width for text, or equal division of bar
+  // width
+  return juce::jmax(bestWidth, bar.getWidth() / bar.getNumTabs());
 }
 
 juce::TabBarButton *

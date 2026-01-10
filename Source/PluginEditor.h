@@ -66,6 +66,7 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
+  int getBestTabLength(int depth) override;
 };
 
 // EDITOR
