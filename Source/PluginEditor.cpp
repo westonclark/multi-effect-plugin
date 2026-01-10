@@ -33,7 +33,10 @@ void HorizontalConstrainer::checkBounds(
 // BUTTON BAR
 //==============================================================================
 ExtendedTabbedButtonBar::ExtendedTabbedButtonBar()
-    : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {};
+    : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {
+  transparentDragImage.clear(transparentDragImage.getBounds(),
+                             juce::Colours::transparentBlack);
+};
 
 bool ExtendedTabbedButtonBar::isInterestedInDragSource(
     const SourceDetails &dragSourceDetails) {
@@ -124,13 +127,9 @@ void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent &e) {
   if (auto *tabButtonBeingDragged =
           dynamic_cast<ExtendedTabBarButton *>(e.originalComponent)) {
 
-    // A 1x1 transparent image to hide the drag image
-    juce::Image transparentImage(juce::Image::ARGB, 1, 1, true);
-    transparentImage.clear(transparentImage.getBounds(),
-                           juce::Colours::transparentBlack);
-    DragAndDropContainer::startDragging(tabButtonBeingDragged->getButtonText(),
-                                        tabButtonBeingDragged,
-                                        juce::ScaledImage(transparentImage));
+    DragAndDropContainer::startDragging(
+        tabButtonBeingDragged->getButtonText(), tabButtonBeingDragged,
+        juce::ScaledImage(transparentDragImage));
   }
 };
 

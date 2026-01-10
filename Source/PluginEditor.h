@@ -54,6 +54,7 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
 
 private:
   juce::ListenerList<TabOrderListener> listeners;
+  juce::Image transparentDragImage{juce::Image::ARGB, 1, 1, true};
 };
 
 // BUTTON
