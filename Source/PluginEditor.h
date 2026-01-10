@@ -29,22 +29,21 @@ struct TabOrderListener {
   tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newDspOrder) = 0;
 };
 
+// TAB BUTTON EVENT LISTENER
+//==============================================================================
+struct ExtendedTabBarButton;
+
+struct TabButtonEventListener {
+  virtual ~TabButtonEventListener() = default;
+  virtual void tabDragStarted(ExtendedTabBarButton *button) = 0;
+  virtual void tabDragMoved(ExtendedTabBarButton *button) = 0;
+  virtual void tabDragEnded(ExtendedTabBarButton *button) = 0;
+};
+
 // BUTTON BAR
 //==============================================================================
-struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
-                                 juce::DragAndDropTarget,
-                                 juce::DragAndDropContainer {
+struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
   ExtendedTabbedButtonBar();
-
-  bool
-  isInterestedInDragSource(const SourceDetails &dragSourceDetails) override;
-
-  void itemDragEnter(const SourceDetails &dragSourceDetails) override;
-  void itemDragMove(const SourceDetails &dragSourceDetails) override;
-  void itemDragExit(const SourceDetails &dragSourceDetails) override;
-  void itemDropped(const SourceDetails &dragSourceDetails) override;
-
-  void mouseDown(const juce::MouseEvent &e) override;
 
   juce::TabBarButton *createTabButton(const juce::String &tabName,
                                       int tabIndex) override;
@@ -52,9 +51,14 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar,
   void addListener(TabOrderListener *l) { listeners.add(l); }
   void removeListener(TabOrderListener *l) { listeners.remove(l); }
 
+  void tabDragStarted(ExtendedTabBarButton *button) override;
+  void tabDragMoved(ExtendedTabBarButton *button) override;
+  void tabDragEnded(ExtendedTabBarButton *button) override;
+
+  void finalizeTabOrder();
+
 private:
   juce::ListenerList<TabOrderListener> listeners;
-  juce::Image transparentDragImage{juce::Image::ARGB, 1, 1, true};
 };
 
 // BUTTON
@@ -66,7 +70,13 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
+  void mouseUp(const juce::MouseEvent &event) override;
   int getBestTabLength(int depth) override;
+
+  void setButtonEventListener(TabButtonEventListener *l) { listener = l; }
+
+private:
+  TabButtonEventListener *listener = nullptr;
 };
 
 // EDITOR
