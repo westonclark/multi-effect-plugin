@@ -40,6 +40,41 @@ MultieffectpluginAudioProcessor::getDSPOptionFromName(
   return DSP_Option::END_OF_LIST;
 }
 
+void MultieffectpluginAudioProcessor::saveDspOrderToState(
+    const DSP_Order &order) {
+  auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
+  if (!dspOrderTree.isValid()) {
+    dspOrderTree = juce::ValueTree("DSP_Order");
+    apvts.state.appendChild(dspOrderTree, nullptr);
+  }
+
+  for (int i = 0; i < order.size(); ++i) {
+    dspOrderTree.setProperty("Position_" + juce::String(i),
+                             getDSPOptionName(order[i]), nullptr);
+  }
+}
+
+MultieffectpluginAudioProcessor::DSP_Order
+MultieffectpluginAudioProcessor::loadDspOrderFromState() const {
+  DSP_Order order;
+  auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
+
+  // Return default order if not found
+  if (!dspOrderTree.isValid()) {
+    for (int i = 0; i < order.size(); ++i) {
+      order[i] = static_cast<DSP_Option>(i);
+    }
+  } else {
+    for (int i = 0; i < order.size(); ++i) {
+      juce::String name =
+          dspOrderTree.getProperty("Position_" + juce::String(i));
+      order[i] = getDSPOptionFromName(name);
+    }
+  }
+
+  return order;
+}
+
 // PARAMETER IDS
 //==============================================================================
 namespace Parameters {
@@ -167,6 +202,17 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       {filterQuality, &filterQualitySmoother},
       {filterGain, &filterGainSmoother},
   };
+
+  // Initialize DSP order in ValueTree if it doesn't exist
+  if (!apvts.state.getChildWithName("DSP_Order").isValid()) {
+    juce::ValueTree dspOrderTree("DSP_Order");
+    for (int i = 0; i < static_cast<int>(DSP_Option::END_OF_LIST); ++i) {
+      auto dspOption = static_cast<DSP_Option>(i);
+      dspOrderTree.setProperty("Position_" + juce::String(i),
+                               getDSPOptionName(dspOption), nullptr);
+    }
+    apvts.state.appendChild(dspOrderTree, nullptr);
+  }
 }
 
 MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
@@ -208,9 +254,9 @@ double MultieffectpluginAudioProcessor::getTailLengthSeconds() const {
 // PROGRAMS
 //==============================================================================
 int MultieffectpluginAudioProcessor::getNumPrograms() {
-  return 1; // NB: some hosts don't cope very well if you tell them there are 0
-            // programs, so this should be at least 1, even if you're not really
-            // implementing programs.
+  return 1; // NB: some hosts don't cope very well if you tell them there are
+            // 0 programs, so this should be at least 1, even if you're not
+            // really implementing programs.
 }
 
 int MultieffectpluginAudioProcessor::getCurrentProgram() { return 0; }
@@ -662,13 +708,6 @@ struct juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order> {
 
 void MultieffectpluginAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
-
-  apvts.state.setProperty(
-      "dspOrder",
-      juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order>::toVar(
-          dspOrder),
-      nullptr);
-
   juce::MemoryOutputStream memoryStream(destData, false);
   apvts.state.writeToStream(memoryStream);
 }
@@ -678,13 +717,9 @@ void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
   auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
   if (tree.isValid()) {
     apvts.replaceState(tree);
-    if (apvts.state.hasProperty("dspOrder")) {
-      auto order =
-          juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order>::
-              fromVar(apvts.state.getProperty("dspOrder"));
-      dspOrderFifo.push(order);
-    }
-    DBG(apvts.state.toXmlString());
+
+    auto order = loadDspOrderFromState();
+    dspOrderFifo.push(order);
   }
 }
 

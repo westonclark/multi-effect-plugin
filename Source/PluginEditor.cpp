@@ -78,7 +78,6 @@ void ExtendedTabbedButtonBar::tabDragEnded(ExtendedTabBarButton *button) {
 void ExtendedTabbedButtonBar::finalizeTabOrder() {
   resized();
 
-  // Notify listener of DSP order change
   MultieffectpluginAudioProcessor::DSP_Order newDspOrder;
   for (int i = 0; i < getNumTabs(); i++) {
     if (auto *tab = getTabButton(i)) {
@@ -152,30 +151,14 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 
   tabbedComponent.addListener(this);
 
-  dspOrderButton.onClick = [this]() {
-    juce::Random random;
-    MultieffectpluginAudioProcessor::DSP_Order dspOrder;
+  // Load DSP order from ValueTree and populate tabs
+  auto dspOrder = audioProcessor.loadDspOrderFromState();
+  for (const auto &dspOption : dspOrder) {
+    tabbedComponent.addTab(
+        MultieffectpluginAudioProcessor::getDSPOptionName(dspOption),
+        juce::Colours::white, -1);
+  }
 
-    auto range = juce::Range<int>(
-        static_cast<int>(MultieffectpluginAudioProcessor::DSP_Option::Phase),
-        static_cast<int>(
-            MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST));
-
-    tabbedComponent.clearTabs();
-
-    for (auto &dspOption : dspOrder) {
-      auto entry = random.nextInt(range);
-      dspOption =
-          static_cast<MultieffectpluginAudioProcessor::DSP_Option>(entry);
-      tabbedComponent.addTab(
-          MultieffectpluginAudioProcessor::getDSPOptionName(dspOption),
-          juce::Colours::white, -1);
-    }
-
-    audioProcessor.dspOrderFifo.push(dspOrder);
-  };
-
-  addAndMakeVisible(dspOrderButton);
   addAndMakeVisible(tabbedComponent);
   setSize(400, 300);
 }
@@ -187,12 +170,11 @@ MultieffectpluginAudioProcessorEditor::
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
     MultieffectpluginAudioProcessor::DSP_Order newOrder) {
+  audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
-  // (Our component is opaque, so we must completely fill the background
-  // with a solid colour)
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
@@ -204,8 +186,5 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
 void MultieffectpluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds();
-  dspOrderButton.setBounds(
-      bounds.removeFromTop(30).withSizeKeepingCentre(150, 30));
-  bounds.removeFromTop(10);
   tabbedComponent.setBounds(bounds.removeFromTop(30));
 }

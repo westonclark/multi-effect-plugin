@@ -82,6 +82,9 @@ public:
 
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
+  void saveDspOrderToState(const DSP_Order &order);
+  DSP_Order loadDspOrderFromState() const;
+
   // PARAMETERS
   //==============================================================================
   static juce::AudioProcessorValueTreeState::ParameterLayout

@@ -81,8 +81,6 @@ private:
 
 // EDITOR
 //==============================================================================
-/**
- */
 class MultieffectpluginAudioProcessorEditor : public juce::AudioProcessorEditor,
                                               public TabOrderListener {
 public:
@@ -101,7 +99,6 @@ private:
   // access the processor object that created it.
   MultieffectpluginAudioProcessor &audioProcessor;
 
-  juce::TextButton dspOrderButton{"dspOrder"};
   ExtendedTabbedButtonBar tabbedComponent;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
