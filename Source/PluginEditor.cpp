@@ -85,9 +85,16 @@ void ExtendedTabbedButtonBar::finalizeTabOrder() {
           tab->getButtonText());
     }
   }
-  listeners.call(&TabOrderListener::tabOrderChanged, newDspOrder);
+  tabOrderListener.call(&TabOrderListener::tabOrderChanged, newDspOrder);
 }
 
+void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
+                                                const juce::String &dspName) {
+  auto dspOption =
+      MultieffectpluginAudioProcessor::getDSPOptionFromName(dspName);
+  tabSelectionListener.call(&TabSelectionListener::TabSelectionChanged,
+                            newSelectionIndex, dspOption);
+};
 // BUTTON
 //==============================================================================
 ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
@@ -149,7 +156,8 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p) {
 
-  tabbedComponent.addListener(this);
+  tabbedComponent.addTabOrderListener(this);
+  tabbedComponent.addTabSelectionListener(this);
 
   // Load DSP order from ValueTree and populate tabs
   auto dspOrder = audioProcessor.loadDspOrderFromState();
@@ -165,13 +173,21 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 
 MultieffectpluginAudioProcessorEditor::
     ~MultieffectpluginAudioProcessorEditor() {
-  tabbedComponent.removeListener(this);
+  tabbedComponent.removeTabOrderListener(this);
+  tabbedComponent.removeTabSelectionListener(this);
 }
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
     MultieffectpluginAudioProcessor::DSP_Order newOrder) {
   audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
+}
+
+void MultieffectpluginAudioProcessorEditor::TabSelectionChanged(
+    int newSelectionIndex,
+    MultieffectpluginAudioProcessor::DSP_Option dspOption) {
+  DBG("TAB SELECTION CHANGED");
+  DBG(MultieffectpluginAudioProcessor::getDSPOptionName(dspOption));
 }
 
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {

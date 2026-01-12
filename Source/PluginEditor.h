@@ -40,6 +40,16 @@ struct TabButtonEventListener {
   virtual void tabDragEnded(ExtendedTabBarButton *button) = 0;
 };
 
+// TAB SELECTION LISTENER
+//==============================================================================
+
+struct TabSelectionListener {
+  virtual ~TabSelectionListener() = default;
+  virtual void TabSelectionChanged(
+      int newSelectionIndex,
+      MultieffectpluginAudioProcessor::DSP_Option dspOption) = 0;
+};
+
 // BUTTON BAR
 //==============================================================================
 struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
@@ -48,17 +58,30 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
   juce::TabBarButton *createTabButton(const juce::String &tabName,
                                       int tabIndex) override;
 
-  void addListener(TabOrderListener *l) { listeners.add(l); }
-  void removeListener(TabOrderListener *l) { listeners.remove(l); }
+  void addTabOrderListener(TabOrderListener *l) { tabOrderListener.add(l); }
+  void removeTabOrderListener(TabOrderListener *l) {
+    tabOrderListener.remove(l);
+  }
+
+  void addTabSelectionListener(TabSelectionListener *l) {
+    tabSelectionListener.add(l);
+  };
+  void removeTabSelectionListener(TabSelectionListener *l) {
+    tabSelectionListener.remove(l);
+  };
 
   void tabDragStarted(ExtendedTabBarButton *button) override;
   void tabDragMoved(ExtendedTabBarButton *button) override;
   void tabDragEnded(ExtendedTabBarButton *button) override;
 
+  void currentTabChanged(int newSelectionIndex,
+                         const juce::String &dspName) override;
+
   void finalizeTabOrder();
 
 private:
-  juce::ListenerList<TabOrderListener> listeners;
+  juce::ListenerList<TabOrderListener> tabOrderListener;
+  juce::ListenerList<TabSelectionListener> tabSelectionListener;
 };
 
 // BUTTON
@@ -82,7 +105,8 @@ private:
 // EDITOR
 //==============================================================================
 class MultieffectpluginAudioProcessorEditor : public juce::AudioProcessorEditor,
-                                              public TabOrderListener {
+                                              public TabOrderListener,
+                                              public TabSelectionListener {
 public:
   MultieffectpluginAudioProcessorEditor(MultieffectpluginAudioProcessor &);
   ~MultieffectpluginAudioProcessorEditor() override;
@@ -93,6 +117,9 @@ public:
 
   void
   tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newOrder) override;
+  void TabSelectionChanged(
+      int newSelectionIndex,
+      MultieffectpluginAudioProcessor::DSP_Option dspOption) override;
 
 private:
   // This reference is provided as a quick way for your editor to
