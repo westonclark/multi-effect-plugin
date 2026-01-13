@@ -83,7 +83,10 @@ public:
   SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
 
   void saveDspOrderToState(const DSP_Order &order);
-  DSP_Order loadDspOrderFromState() const;
+  DSP_Order getDspOrderFromState() const;
+
+  void saveSelectedTabToState(const DSP_Option &selectedTab);
+  DSP_Option getSelectedTabFromState() const;
 
   // PARAMETERS
   //==============================================================================

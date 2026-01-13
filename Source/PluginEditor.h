@@ -3,30 +3,21 @@
 #include "PluginProcessor.h"
 #include <JuceHeader.h>
 
-// HORIZONTAL CONSTRATINER
-//==============================================================================
-struct HorizontalConstrainer : juce::ComponentBoundsConstrainer {
-  HorizontalConstrainer(
-      std::function<juce::Rectangle<int>()> confinerBoundsGetter,
-      std::function<juce::Rectangle<int>()> confineeBoundsGetter);
-
-  void checkBounds(juce::Rectangle<int> &bounds,
-                   const juce::Rectangle<int> &previousBounds,
-                   const juce::Rectangle<int> &limits, bool isStretchingTop,
-                   bool isStretchingLeft, bool isStretchingBottom,
-                   bool isStretchingRight) override;
-
-private:
-  std::function<juce::Rectangle<int>()> boundsToConfineToGetter;
-  std::function<juce::Rectangle<int>()> boundsOfConfineeGetter;
-};
-
 // TAB ORDER CHANGED LISTENER
 //==============================================================================
 struct TabOrderListener {
   virtual ~TabOrderListener() = default;
   virtual void
   tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newDspOrder) = 0;
+};
+
+// TAB SELECTION LISTENER
+//==============================================================================
+struct TabSelectionListener {
+  virtual ~TabSelectionListener() = default;
+  virtual void TabSelectionChanged(
+      int newSelectionIndex,
+      MultieffectpluginAudioProcessor::DSP_Option dspOption) = 0;
 };
 
 // TAB BUTTON EVENT LISTENER
@@ -38,16 +29,6 @@ struct TabButtonEventListener {
   virtual void tabDragStarted(ExtendedTabBarButton *button) = 0;
   virtual void tabDragMoved(ExtendedTabBarButton *button) = 0;
   virtual void tabDragEnded(ExtendedTabBarButton *button) = 0;
-};
-
-// TAB SELECTION LISTENER
-//==============================================================================
-
-struct TabSelectionListener {
-  virtual ~TabSelectionListener() = default;
-  virtual void TabSelectionChanged(
-      int newSelectionIndex,
-      MultieffectpluginAudioProcessor::DSP_Option dspOption) = 0;
 };
 
 // BUTTON BAR
@@ -84,6 +65,24 @@ private:
   juce::ListenerList<TabSelectionListener> tabSelectionListener;
 };
 
+// BUTTON BAR HORIZONTAL CONSTRATINER
+//==============================================================================
+struct HorizontalConstrainer : juce::ComponentBoundsConstrainer {
+  HorizontalConstrainer(
+      std::function<juce::Rectangle<int>()> confinerBoundsGetter,
+      std::function<juce::Rectangle<int>()> confineeBoundsGetter);
+
+  void checkBounds(juce::Rectangle<int> &bounds,
+                   const juce::Rectangle<int> &previousBounds,
+                   const juce::Rectangle<int> &limits, bool isStretchingTop,
+                   bool isStretchingLeft, bool isStretchingBottom,
+                   bool isStretchingRight) override;
+
+private:
+  std::function<juce::Rectangle<int>()> boundsToConfineToGetter;
+  std::function<juce::Rectangle<int>()> boundsOfConfineeGetter;
+};
+
 // BUTTON
 //==============================================================================
 struct ExtendedTabBarButton : juce::TabBarButton {
@@ -100,6 +99,20 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 
 private:
   TabButtonEventListener *listener = nullptr;
+};
+
+// PARAMETERS CONTAINER
+//==============================================================================
+class ParametersContainer : public juce::Component {
+public:
+  ParametersContainer(juce::AudioProcessorValueTreeState &apvts);
+
+  void paint(juce::Graphics &g) override;
+  void showPanelFor(MultieffectpluginAudioProcessor::DSP_Option tab);
+
+private:
+  MultieffectpluginAudioProcessor::DSP_Option currentlyDisplayed;
+  juce::AudioProcessorValueTreeState &apvts;
 };
 
 // EDITOR
@@ -126,7 +139,8 @@ private:
   // access the processor object that created it.
   MultieffectpluginAudioProcessor &audioProcessor;
 
-  ExtendedTabbedButtonBar tabbedComponent;
+  ExtendedTabbedButtonBar tabBarComponent;
+  ParametersContainer parametersComponent;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
       MultieffectpluginAudioProcessorEditor)

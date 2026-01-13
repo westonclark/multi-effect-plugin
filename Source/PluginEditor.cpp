@@ -1,7 +1,8 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
+#include "juce_audio_processors/juce_audio_processors.h"
 
-// HORIZONTAL CONSTRATINER
+// BUTTON BAR HORIZONTAL CONSTRATINER
 //==============================================================================
 HorizontalConstrainer::HorizontalConstrainer(
     std::function<juce::Rectangle<int>()> confinerBoundsGetter,
@@ -95,10 +96,10 @@ void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
   tabSelectionListener.call(&TabSelectionListener::TabSelectionChanged,
                             newSelectionIndex, dspOption);
 };
+
 // BUTTON
 //==============================================================================
 ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
-
                                            juce::TabbedButtonBar &owner)
     : juce::TabBarButton(name, owner) {
   constrainer = std::make_unique<HorizontalConstrainer>(
@@ -135,7 +136,6 @@ void ExtendedTabBarButton::mouseUp(const juce::MouseEvent &e) {
 
 int ExtendedTabBarButton::getBestTabLength(int depth) {
   auto bestWidth = getLookAndFeel().getTabButtonBestWidth(*this, depth);
-
   auto &bar = getTabbedButtonBar();
   // Choose the larger of: the best width for text, or equal division of bar
   // width
@@ -150,31 +150,68 @@ ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
   return button;
 };
 
+// PARAMETER CONTAINTER
+//==============================================================================
+ParametersContainer::ParametersContainer(
+    juce::AudioProcessorValueTreeState &apvts)
+    : apvts(apvts), currentlyDisplayed() {};
+
+void ParametersContainer::paint(juce::Graphics &g) {
+  g.fillAll(juce::Colours::darkgrey);
+
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+
+  auto dspName =
+      MultieffectpluginAudioProcessor::getDSPOptionName(currentlyDisplayed);
+  g.drawText(dspName, getLocalBounds(), juce::Justification::centred);
+}
+
+void ParametersContainer::showPanelFor(
+    MultieffectpluginAudioProcessor::DSP_Option tab) {
+  currentlyDisplayed = tab;
+  repaint();
+}
+
 // EDITOR
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p) {
+    : AudioProcessorEditor(&p), audioProcessor(p),
+      parametersComponent(p.apvts) {
 
-  tabbedComponent.addTabOrderListener(this);
-  tabbedComponent.addTabSelectionListener(this);
-
-  // Load DSP order from ValueTree and populate tabs
-  auto dspOrder = audioProcessor.loadDspOrderFromState();
+  // Load DSP order and populate tabs
+  auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
-    tabbedComponent.addTab(
+    tabBarComponent.addTab(
         MultieffectpluginAudioProcessor::getDSPOptionName(dspOption),
         juce::Colours::white, -1);
   }
 
-  addAndMakeVisible(tabbedComponent);
+  // Register listeners
+  tabBarComponent.addTabOrderListener(this);
+  tabBarComponent.addTabSelectionListener(this);
+
+  // Find index of the currently selected tab
+  auto savedTab = audioProcessor.getSelectedTabFromState();
+  int savedTabIndex = 0;
+  for (int i = 0; i < dspOrder.size(); ++i) {
+    if (dspOrder[i] == savedTab) {
+      savedTabIndex = i;
+      break;
+    }
+  }
+  tabBarComponent.setCurrentTabIndex(savedTabIndex, true);
+
+  addAndMakeVisible(tabBarComponent);
+  addAndMakeVisible(parametersComponent);
   setSize(400, 300);
 }
 
 MultieffectpluginAudioProcessorEditor::
     ~MultieffectpluginAudioProcessorEditor() {
-  tabbedComponent.removeTabOrderListener(this);
-  tabbedComponent.removeTabSelectionListener(this);
+  tabBarComponent.removeTabOrderListener(this);
+  tabBarComponent.removeTabSelectionListener(this);
 }
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
@@ -186,21 +223,17 @@ void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
 void MultieffectpluginAudioProcessorEditor::TabSelectionChanged(
     int newSelectionIndex,
     MultieffectpluginAudioProcessor::DSP_Option dspOption) {
-  DBG("TAB SELECTION CHANGED");
-  DBG(MultieffectpluginAudioProcessor::getDSPOptionName(dspOption));
+  parametersComponent.showPanelFor(dspOption);
+  audioProcessor.saveSelectedTabToState(dspOption);
 }
 
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-
-  g.setColour(juce::Colours::white);
-  g.setFont(15.0f);
-  g.drawFittedText("Hello World!", getLocalBounds(),
-                   juce::Justification::centred, 1);
 }
 
 void MultieffectpluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds();
-  tabbedComponent.setBounds(bounds.removeFromTop(30));
+  tabBarComponent.setBounds(bounds.removeFromTop(30));
+  parametersComponent.setBounds(bounds);
 }

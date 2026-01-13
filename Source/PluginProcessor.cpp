@@ -55,7 +55,7 @@ void MultieffectpluginAudioProcessor::saveDspOrderToState(
 }
 
 MultieffectpluginAudioProcessor::DSP_Order
-MultieffectpluginAudioProcessor::loadDspOrderFromState() const {
+MultieffectpluginAudioProcessor::getDspOrderFromState() const {
   DSP_Order order;
   auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
 
@@ -75,6 +75,17 @@ MultieffectpluginAudioProcessor::loadDspOrderFromState() const {
   return order;
 }
 
+void MultieffectpluginAudioProcessor::saveSelectedTabToState(
+    const DSP_Option &selectedTab) {
+  apvts.state.setProperty("SelectedTab", getDSPOptionName(selectedTab),
+                          nullptr);
+}
+
+MultieffectpluginAudioProcessor::DSP_Option
+MultieffectpluginAudioProcessor::getSelectedTabFromState() const {
+  auto tabName = apvts.state.getProperty("SelectedTab");
+  return getDSPOptionFromName(tabName);
+}
 // PARAMETER IDS
 //==============================================================================
 namespace Parameters {
@@ -718,7 +729,7 @@ void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
   if (tree.isValid()) {
     apvts.replaceState(tree);
 
-    auto order = loadDspOrderFromState();
+    auto order = getDspOrderFromState();
     dspOrderFifo.push(order);
   }
 }
