@@ -150,13 +150,13 @@ ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
   return button;
 };
 
-// PARAMETER CONTAINTER
+// PARAMETER VIEW CONTAINTER
 //==============================================================================
-ParametersContainer::ParametersContainer(
+ParameterViewContainer::ParameterViewContainer(
     juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts), currentlyDisplayed() {};
 
-void ParametersContainer::paint(juce::Graphics &g) {
+void ParameterViewContainer::paint(juce::Graphics &g) {
   g.fillAll(juce::Colours::darkgrey);
 
   g.setColour(juce::Colours::white);
@@ -167,7 +167,7 @@ void ParametersContainer::paint(juce::Graphics &g) {
   g.drawText(dspName, getLocalBounds(), juce::Justification::centred);
 }
 
-void ParametersContainer::showPanelFor(
+void ParameterViewContainer::showPanelFor(
     MultieffectpluginAudioProcessor::DSP_Option tab) {
   currentlyDisplayed = tab;
   repaint();

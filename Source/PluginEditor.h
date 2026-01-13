@@ -101,11 +101,11 @@ private:
   TabButtonEventListener *listener = nullptr;
 };
 
-// PARAMETERS CONTAINER
+// PARAMETER VIEW CONTAINER
 //==============================================================================
-class ParametersContainer : public juce::Component {
+class ParameterViewContainer : public juce::Component {
 public:
-  ParametersContainer(juce::AudioProcessorValueTreeState &apvts);
+  ParameterViewContainer(juce::AudioProcessorValueTreeState &apvts);
 
   void paint(juce::Graphics &g) override;
   void showPanelFor(MultieffectpluginAudioProcessor::DSP_Option tab);
@@ -140,7 +140,7 @@ private:
   MultieffectpluginAudioProcessor &audioProcessor;
 
   ExtendedTabbedButtonBar tabBarComponent;
-  ParametersContainer parametersComponent;
+  ParameterViewContainer parametersComponent;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
       MultieffectpluginAudioProcessorEditor)
