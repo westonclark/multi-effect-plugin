@@ -65,7 +65,7 @@ public:
 
   // DSP ORDER
   //==============================================================================
-  enum class DSP_Option {
+  enum class DspOption {
     Phase,
     Chorus,
     OverDrive,
@@ -74,19 +74,19 @@ public:
     END_OF_LIST
   };
 
-  static juce::String getDSPNameFromOption(DSP_Option dspOption);
-  static DSP_Option getDSPOptionFromName(const juce::String &name);
+  static juce::String getDspNameFromOption(DspOption dspOption);
+  static DspOption getDspOptionFromName(const juce::String &name);
 
-  using DSP_Order =
-      std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+  using DspOrder =
+      std::array<DspOption, static_cast<size_t>(DspOption::END_OF_LIST)>;
 
-  SimpleMBComp::Fifo<DSP_Order> dspOrderFifo;
+  SimpleMBComp::Fifo<DspOrder> dspOrderFifo;
 
-  void saveDspOrderToState(const DSP_Order &order);
-  DSP_Order getDspOrderFromState() const;
+  void saveDspOrderToState(const DspOrder &order);
+  DspOrder getDspOrderFromState() const;
 
-  void saveSelectedTabToState(const DSP_Option &selectedTab);
-  DSP_Option getSelectedTabFromState() const;
+  void saveSelectedTabToState(const DspOption &selectedTab);
+  DspOption getSelectedTabFromState() const;
 
   // PARAMETERS
   //==============================================================================
@@ -154,11 +154,11 @@ public:
 private:
   // DSP ORDER STATE
   //==============================================================================
-  DSP_Order dspOrder;
+  DspOrder dspOrder;
 
   // HELPER TYPES
   //==============================================================================
-  template <typename DSP> struct DSP_Choice : juce::dsp::ProcessorBase {
+  template <typename DSP> struct DspChoice : juce::dsp::ProcessorBase {
     void prepare(const juce::dsp::ProcessSpec &spec) override {
       dsp.prepare(spec);
     }
@@ -176,8 +176,8 @@ private:
     bool bypassed = false;
   };
 
-  using DSP_Pointers =
-      std::array<ProcessorState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;
+  using DspPointers =
+      std::array<ProcessorState, static_cast<size_t>(DspOption::END_OF_LIST)>;
 
   // PARAMETER INITIALIZATION
   //==============================================================================
@@ -221,15 +221,15 @@ private:
   struct DspEffects {
     DspEffects(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
 
-    DSP_Choice<juce::dsp::DelayLine<float>> delay;
-    DSP_Choice<juce::dsp::Phaser<float>> phaser;
-    DSP_Choice<juce::dsp::Chorus<float>> chorus;
-    DSP_Choice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
-    DSP_Choice<juce::dsp::IIR::Filter<float>> filter;
+    DspChoice<juce::dsp::DelayLine<float>> delay;
+    DspChoice<juce::dsp::Phaser<float>> phaser;
+    DspChoice<juce::dsp::Chorus<float>> chorus;
+    DspChoice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
+    DspChoice<juce::dsp::IIR::Filter<float>> filter;
 
     void prepare(const juce::dsp::ProcessSpec &spec);
     void update();
-    void process(juce::dsp::AudioBlock<float> block, const DSP_Order &dspOrder);
+    void process(juce::dsp::AudioBlock<float> block, const DspOrder &dspOrder);
 
   private:
     MultieffectpluginAudioProcessor &processor;

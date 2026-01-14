@@ -79,10 +79,10 @@ void ExtendedTabbedButtonBar::tabDragEnded(ExtendedTabBarButton *button) {
 void ExtendedTabbedButtonBar::finalizeTabOrder() {
   resized();
 
-  MultieffectpluginAudioProcessor::DSP_Order newDspOrder;
+  MultieffectpluginAudioProcessor::DspOrder newDspOrder;
   for (int i = 0; i < getNumTabs(); i++) {
     if (auto *tab = getTabButton(i)) {
-      newDspOrder[i] = MultieffectpluginAudioProcessor::getDSPOptionFromName(
+      newDspOrder[i] = MultieffectpluginAudioProcessor::getDspOptionFromName(
           tab->getButtonText());
     }
   }
@@ -92,7 +92,7 @@ void ExtendedTabbedButtonBar::finalizeTabOrder() {
 void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
                                                 const juce::String &dspName) {
   auto dspOption =
-      MultieffectpluginAudioProcessor::getDSPOptionFromName(dspName);
+      MultieffectpluginAudioProcessor::getDspOptionFromName(dspName);
   tabSelectionListener.call(&TabSelectionListener::TabSelectionChanged,
                             newSelectionIndex, dspOption);
 };
@@ -163,12 +163,12 @@ void ParameterViewContainer::paint(juce::Graphics &g) {
   g.setFont(20.0f);
 
   auto dspName =
-      MultieffectpluginAudioProcessor::getDSPNameFromOption(currentlyDisplayed);
+      MultieffectpluginAudioProcessor::getDspNameFromOption(currentlyDisplayed);
   g.drawText(dspName, getLocalBounds(), juce::Justification::centred);
 }
 
 void ParameterViewContainer::showPanelFor(
-    MultieffectpluginAudioProcessor::DSP_Option tab) {
+    MultieffectpluginAudioProcessor::DspOption tab) {
   currentlyDisplayed = tab;
   repaint();
 }
@@ -184,7 +184,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
     tabBarComponent.addTab(
-        MultieffectpluginAudioProcessor::getDSPNameFromOption(dspOption),
+        MultieffectpluginAudioProcessor::getDspNameFromOption(dspOption),
         juce::Colours::white, -1);
   }
 
@@ -215,14 +215,14 @@ MultieffectpluginAudioProcessorEditor::
 }
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
-    MultieffectpluginAudioProcessor::DSP_Order newOrder) {
+    MultieffectpluginAudioProcessor::DspOrder newOrder) {
   audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
 void MultieffectpluginAudioProcessorEditor::TabSelectionChanged(
     int newSelectionIndex,
-    MultieffectpluginAudioProcessor::DSP_Option dspOption) {
+    MultieffectpluginAudioProcessor::DspOption dspOption) {
   parametersComponent.showPanelFor(dspOption);
   audioProcessor.saveSelectedTabToState(dspOption);
 }

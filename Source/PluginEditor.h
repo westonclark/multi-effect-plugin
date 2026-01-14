@@ -8,16 +8,16 @@
 struct TabOrderListener {
   virtual ~TabOrderListener() = default;
   virtual void
-  tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newDspOrder) = 0;
+  tabOrderChanged(MultieffectpluginAudioProcessor::DspOrder newDspOrder) = 0;
 };
 
 // TAB SELECTION LISTENER
 //==============================================================================
 struct TabSelectionListener {
   virtual ~TabSelectionListener() = default;
-  virtual void TabSelectionChanged(
-      int newSelectionIndex,
-      MultieffectpluginAudioProcessor::DSP_Option dspOption) = 0;
+  virtual void
+  TabSelectionChanged(int newSelectionIndex,
+                      MultieffectpluginAudioProcessor::DspOption dspOption) = 0;
 };
 
 // TAB BUTTON EVENT LISTENER
@@ -108,10 +108,10 @@ public:
   ParameterViewContainer(juce::AudioProcessorValueTreeState &apvts);
 
   void paint(juce::Graphics &g) override;
-  void showPanelFor(MultieffectpluginAudioProcessor::DSP_Option tab);
+  void showPanelFor(MultieffectpluginAudioProcessor::DspOption tab);
 
 private:
-  MultieffectpluginAudioProcessor::DSP_Option currentlyDisplayed;
+  MultieffectpluginAudioProcessor::DspOption currentlyDisplayed;
   juce::AudioProcessorValueTreeState &apvts;
 };
 
@@ -129,10 +129,10 @@ public:
   void resized() override;
 
   void
-  tabOrderChanged(MultieffectpluginAudioProcessor::DSP_Order newOrder) override;
+  tabOrderChanged(MultieffectpluginAudioProcessor::DspOrder newOrder) override;
   void TabSelectionChanged(
       int newSelectionIndex,
-      MultieffectpluginAudioProcessor::DSP_Option dspOption) override;
+      MultieffectpluginAudioProcessor::DspOption dspOption) override;
 
 private:
   // This reference is provided as a quick way for your editor to

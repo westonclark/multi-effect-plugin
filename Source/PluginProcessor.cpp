@@ -3,19 +3,19 @@
 
 // DSP OPTIONS
 //==============================================================================
-static const std::map<MultieffectpluginAudioProcessor::DSP_Option, juce::String>
-    DSP_OPTION_NAMES = {
-        {MultieffectpluginAudioProcessor::DSP_Option::Phase, "Phaser"},
-        {MultieffectpluginAudioProcessor::DSP_Option::Chorus, "Chorus"},
-        {MultieffectpluginAudioProcessor::DSP_Option::OverDrive, "Drive"},
-        {MultieffectpluginAudioProcessor::DSP_Option::LadderFilter,
+static const std::map<MultieffectpluginAudioProcessor::DspOption, juce::String>
+    DspOptionNamesMap = {
+        {MultieffectpluginAudioProcessor::DspOption::Phase, "Phaser"},
+        {MultieffectpluginAudioProcessor::DspOption::Chorus, "Chorus"},
+        {MultieffectpluginAudioProcessor::DspOption::OverDrive, "Drive"},
+        {MultieffectpluginAudioProcessor::DspOption::LadderFilter,
          "Ladder Filter"},
-        {MultieffectpluginAudioProcessor::DSP_Option::Filter, "Filter"},
+        {MultieffectpluginAudioProcessor::DspOption::Filter, "Filter"},
 };
 
 juce::String
-MultieffectpluginAudioProcessor::getDSPNameFromOption(DSP_Option dspOption) {
-  for (const auto &[option, optionName] : DSP_OPTION_NAMES) {
+MultieffectpluginAudioProcessor::getDspNameFromOption(DspOption dspOption) {
+  for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (option == dspOption) {
       return optionName;
     }
@@ -23,48 +23,47 @@ MultieffectpluginAudioProcessor::getDSPNameFromOption(DSP_Option dspOption) {
   return "None Selected";
 }
 
-MultieffectpluginAudioProcessor::DSP_Option
-MultieffectpluginAudioProcessor::getDSPOptionFromName(
+MultieffectpluginAudioProcessor::DspOption
+MultieffectpluginAudioProcessor::getDspOptionFromName(
     const juce::String &name) {
-  for (const auto &[option, optionName] : DSP_OPTION_NAMES) {
+  for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (optionName == name) {
       return option;
     }
   }
-  return DSP_Option::END_OF_LIST;
+  return DspOption::END_OF_LIST;
 }
 
 // STATE SAVING METHODS
 //==============================================================================
 void MultieffectpluginAudioProcessor::saveDspOrderToState(
-    const DSP_Order &order) {
-  auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
+    const DspOrder &order) {
+  auto dspOrderTree = apvts.state.getChildWithName("DspOrder");
   if (!dspOrderTree.isValid()) {
-    dspOrderTree = juce::ValueTree("DSP_Order");
+    dspOrderTree = juce::ValueTree("DspOrder");
     apvts.state.appendChild(dspOrderTree, nullptr);
   }
 
   for (int i = 0; i < order.size(); ++i) {
     dspOrderTree.setProperty("Position_" + juce::String(i),
-                             getDSPNameFromOption(order[i]), nullptr);
+                             getDspNameFromOption(order[i]), nullptr);
   }
 }
 
-MultieffectpluginAudioProcessor::DSP_Order
+MultieffectpluginAudioProcessor::DspOrder
 MultieffectpluginAudioProcessor::getDspOrderFromState() const {
-  DSP_Order order;
-  auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
+  DspOrder order;
+  auto dspOrderTree = apvts.state.getChildWithName("DspOrder");
 
-  // Return default order if not found
   if (!dspOrderTree.isValid()) {
     for (int i = 0; i < order.size(); ++i) {
-      order[i] = static_cast<DSP_Option>(i);
+      order[i] = static_cast<DspOption>(i);
     }
   } else {
     for (int i = 0; i < order.size(); ++i) {
       juce::String name =
           dspOrderTree.getProperty("Position_" + juce::String(i));
-      order[i] = getDSPOptionFromName(name);
+      order[i] = getDspOptionFromName(name);
     }
   }
 
@@ -72,15 +71,21 @@ MultieffectpluginAudioProcessor::getDspOrderFromState() const {
 }
 
 void MultieffectpluginAudioProcessor::saveSelectedTabToState(
-    const DSP_Option &selectedTab) {
-  apvts.state.setProperty("SelectedTab", getDSPNameFromOption(selectedTab),
+    const DspOption &selectedTab) {
+  apvts.state.setProperty("SelectedTab", getDspNameFromOption(selectedTab),
                           nullptr);
 }
 
-MultieffectpluginAudioProcessor::DSP_Option
+MultieffectpluginAudioProcessor::DspOption
 MultieffectpluginAudioProcessor::getSelectedTabFromState() const {
-  auto tabName = apvts.state.getProperty("SelectedTab");
-  return getDSPOptionFromName(tabName);
+  auto tabName = apvts.state.getProperty("SelectedTab", "");
+  auto option = getDspOptionFromName(tabName);
+
+  if (option == DspOption::END_OF_LIST) {
+    return DspOption::Phase;
+  } else {
+    return option;
+  }
 }
 
 // PARAMETER IDS
@@ -116,8 +121,8 @@ struct Parameters {
     static inline const char *drive = "Ladder Filter Drive";
     static inline const char *bypass = "Ladder Filter Bypass";
 
-    static inline const juce::StringArray modeChoices{"LPF12", "HPF12", "BPF12",
-                                                      "LPF24", "HPF24", "BPF24"};
+    static inline const juce::StringArray modeChoices{
+        "LPF12", "HPF12", "BPF12", "LPF24", "HPF24", "BPF24"};
   };
 
   struct Filter {
@@ -127,8 +132,8 @@ struct Parameters {
     static inline const char *gain = "Filter Gain";
     static inline const char *bypass = "Filter Bypass";
 
-    static inline const juce::StringArray modeChoices{"Peak", "Bandpass", "Notch",
-                                                      "Allpass"};
+    static inline const juce::StringArray modeChoices{"Peak", "Bandpass",
+                                                      "Notch", "Allpass"};
   };
 };
 
@@ -149,7 +154,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
 {
 
   for (size_t i = 0; i < dspOrder.size(); ++i) {
-    dspOrder[i] = static_cast<DSP_Option>(i);
+    dspOrder[i] = static_cast<DspOption>(i);
   }
 
   // Initialize parameters from Value Tree
@@ -212,12 +217,12 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
   };
 
   // Initialize DSP order in ValueTree if it doesn't exist
-  if (!apvts.state.getChildWithName("DSP_Order").isValid()) {
-    juce::ValueTree dspOrderTree("DSP_Order");
-    for (int i = 0; i < static_cast<int>(DSP_Option::END_OF_LIST); ++i) {
-      auto dspOption = static_cast<DSP_Option>(i);
+  if (!apvts.state.getChildWithName("DspOrder").isValid()) {
+    juce::ValueTree dspOrderTree("DspOrder");
+    for (int i = 0; i < static_cast<int>(DspOption::END_OF_LIST); ++i) {
+      auto dspOption = static_cast<DspOption>(i);
       dspOrderTree.setProperty("Position_" + juce::String(i),
-                               getDSPNameFromOption(dspOption), nullptr);
+                               getDspNameFromOption(dspOption), nullptr);
     }
     apvts.state.appendChild(dspOrderTree, nullptr);
   }
@@ -573,34 +578,34 @@ void MultieffectpluginAudioProcessor::DspEffects::update() {
 }
 
 void MultieffectpluginAudioProcessor::DspEffects::process(
-    juce::dsp::AudioBlock<float> block, const DSP_Order &dspOrder) {
+    juce::dsp::AudioBlock<float> block, const DspOrder &dspOrder) {
   // Convert dspOrder into pointers
-  DSP_Pointers dspPointers;
+  DspPointers dspPointers;
   dspPointers.fill({});
 
   for (size_t i = 0; i < dspPointers.size(); ++i) {
     switch (dspOrder[i]) {
-    case DSP_Option::Phase:
+    case DspOption::Phase:
       dspPointers[i].processor = &phaser;
       dspPointers[i].bypassed = processor.phaserBypass->get();
       break;
-    case DSP_Option::Chorus:
+    case DspOption::Chorus:
       dspPointers[i].processor = &chorus;
       dspPointers[i].bypassed = processor.chorusBypass->get();
       break;
-    case DSP_Option::OverDrive:
+    case DspOption::OverDrive:
       dspPointers[i].processor = &overdrive;
       dspPointers[i].bypassed = processor.overdriveBypass->get();
       break;
-    case DSP_Option::LadderFilter:
+    case DspOption::LadderFilter:
       dspPointers[i].processor = &ladderFilter;
       dspPointers[i].bypassed = processor.ladderFilterBypass->get();
       break;
-    case DSP_Option::Filter:
+    case DspOption::Filter:
       dspPointers[i].processor = &filter;
       dspPointers[i].bypassed = processor.filterBypass->get();
       break;
-    case DSP_Option::END_OF_LIST:
+    case DspOption::END_OF_LIST:
       jassertfalse;
       break;
     }
@@ -628,9 +633,9 @@ void MultieffectpluginAudioProcessor::processBlock(
     buffer.clear(i, 0, buffer.getNumSamples());
 
   // Check if there's a new DSP order from the GUI
-  auto newDSPOrder = DSP_Order();
+  auto newDSPOrder = DspOrder();
   while (dspOrderFifo.pull(newDSPOrder)) {
-    if (newDSPOrder != DSP_Order()) {
+    if (newDSPOrder != DspOrder()) {
       dspOrder = newDSPOrder;
     }
   }
@@ -674,15 +679,15 @@ juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
 // STATE MANAGEMENT
 //==============================================================================
 template <>
-struct juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order> {
-  static MultieffectpluginAudioProcessor::DSP_Order
+struct juce::VariantConverter<MultieffectpluginAudioProcessor::DspOrder> {
+  static MultieffectpluginAudioProcessor::DspOrder
   fromVar(const juce::var &variable) {
-    using T = MultieffectpluginAudioProcessor::DSP_Order;
+    using T = MultieffectpluginAudioProcessor::DspOrder;
     T dspOrder;
     jassert(variable.isBinaryData());
 
     if (variable.isBinaryData() == false) {
-      dspOrder.fill(MultieffectpluginAudioProcessor::DSP_Option::END_OF_LIST);
+      dspOrder.fill(MultieffectpluginAudioProcessor::DspOption::END_OF_LIST);
     } else {
 
       auto memoryBlock = *variable.getBinaryData();
@@ -696,13 +701,13 @@ struct juce::VariantConverter<MultieffectpluginAudioProcessor::DSP_Order> {
       jassert(array.size() == dspOrder.size());
       for (size_t i = 0; i < dspOrder.size(); ++i) {
         dspOrder[i] =
-            static_cast<MultieffectpluginAudioProcessor::DSP_Option>(array[i]);
+            static_cast<MultieffectpluginAudioProcessor::DspOption>(array[i]);
       }
     }
     return dspOrder;
   };
 
-  static juce::var toVar(const MultieffectpluginAudioProcessor::DSP_Order &t) {
+  static juce::var toVar(const MultieffectpluginAudioProcessor::DspOrder &t) {
     juce::MemoryBlock memoryBlock;
     {
       juce::MemoryOutputStream stream(memoryBlock, false);
