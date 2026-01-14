@@ -1,24 +1,24 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-// DSP ORDER HELPERS
+// DSP OPTIONS
 //==============================================================================
+static const std::map<MultieffectpluginAudioProcessor::DSP_Option, juce::String>
+    DSP_OPTION_NAMES = {
+        {MultieffectpluginAudioProcessor::DSP_Option::Phase, "Phaser"},
+        {MultieffectpluginAudioProcessor::DSP_Option::Chorus, "Chorus"},
+        {MultieffectpluginAudioProcessor::DSP_Option::OverDrive, "Drive"},
+        {MultieffectpluginAudioProcessor::DSP_Option::LadderFilter,
+         "Ladder Filter"},
+        {MultieffectpluginAudioProcessor::DSP_Option::Filter, "Filter"},
+};
+
 juce::String
-MultieffectpluginAudioProcessor::getDSPOptionName(DSP_Option dspOption) {
-  switch (dspOption) {
-  case DSP_Option::Phase:
-    return "Phaser";
-  case DSP_Option::Chorus:
-    return "Chorus";
-  case DSP_Option::OverDrive:
-    return "Drive";
-  case DSP_Option::LadderFilter:
-    return "Ladder Filter";
-  case DSP_Option::Filter:
-    return "Filter";
-  case DSP_Option::END_OF_LIST:
-    jassertfalse;
-    break;
+MultieffectpluginAudioProcessor::getDSPNameFromOption(DSP_Option dspOption) {
+  for (const auto &[option, optionName] : DSP_OPTION_NAMES) {
+    if (option == dspOption) {
+      return optionName;
+    }
   }
   return "None Selected";
 }
@@ -26,20 +26,16 @@ MultieffectpluginAudioProcessor::getDSPOptionName(DSP_Option dspOption) {
 MultieffectpluginAudioProcessor::DSP_Option
 MultieffectpluginAudioProcessor::getDSPOptionFromName(
     const juce::String &name) {
-  if (name == "Phaser")
-    return DSP_Option::Phase;
-  if (name == "Chorus")
-    return DSP_Option::Chorus;
-  if (name == "Drive")
-    return DSP_Option::OverDrive;
-  if (name == "Ladder Filter")
-    return DSP_Option::LadderFilter;
-  if (name == "Filter")
-    return DSP_Option::Filter;
-
+  for (const auto &[option, optionName] : DSP_OPTION_NAMES) {
+    if (optionName == name) {
+      return option;
+    }
+  }
   return DSP_Option::END_OF_LIST;
 }
 
+// STATE SAVING METHODS
+//==============================================================================
 void MultieffectpluginAudioProcessor::saveDspOrderToState(
     const DSP_Order &order) {
   auto dspOrderTree = apvts.state.getChildWithName("DSP_Order");
@@ -50,7 +46,7 @@ void MultieffectpluginAudioProcessor::saveDspOrderToState(
 
   for (int i = 0; i < order.size(); ++i) {
     dspOrderTree.setProperty("Position_" + juce::String(i),
-                             getDSPOptionName(order[i]), nullptr);
+                             getDSPNameFromOption(order[i]), nullptr);
   }
 }
 
@@ -77,7 +73,7 @@ MultieffectpluginAudioProcessor::getDspOrderFromState() const {
 
 void MultieffectpluginAudioProcessor::saveSelectedTabToState(
     const DSP_Option &selectedTab) {
-  apvts.state.setProperty("SelectedTab", getDSPOptionName(selectedTab),
+  apvts.state.setProperty("SelectedTab", getDSPNameFromOption(selectedTab),
                           nullptr);
 }
 
@@ -86,54 +82,55 @@ MultieffectpluginAudioProcessor::getSelectedTabFromState() const {
   auto tabName = apvts.state.getProperty("SelectedTab");
   return getDSPOptionFromName(tabName);
 }
+
 // PARAMETER IDS
 //==============================================================================
-namespace Parameters {
-namespace Phaser {
-inline constexpr const char *rate = "Phaser Rate";
-inline constexpr const char *depth = "Phaser Depth";
-inline constexpr const char *centerFreq = "Phaser Center Freq";
-inline constexpr const char *feedback = "Phaser Feedback";
-inline constexpr const char *mix = "Phaser Mix";
-inline constexpr const char *bypass = "Phaser Bypass";
-} // namespace Phaser
+struct Parameters {
+  struct Phaser {
+    static inline const char *rate = "Phaser Rate";
+    static inline const char *depth = "Phaser Depth";
+    static inline const char *centerFreq = "Phaser Center Freq";
+    static inline const char *feedback = "Phaser Feedback";
+    static inline const char *mix = "Phaser Mix";
+    static inline const char *bypass = "Phaser Bypass";
+  };
 
-namespace Chorus {
-inline constexpr const char *rate = "Chorus Rate";
-inline constexpr const char *depth = "Chorus Depth";
-inline constexpr const char *centerDelay = "Chorus Center Delay";
-inline constexpr const char *feedback = "Chorus Feedback";
-inline constexpr const char *mix = "Chorus Mix";
-inline constexpr const char *bypass = "Chorus Bypass";
-} // namespace Chorus
+  struct Chorus {
+    static inline const char *rate = "Chorus Rate";
+    static inline const char *depth = "Chorus Depth";
+    static inline const char *centerDelay = "Chorus Center Delay";
+    static inline const char *feedback = "Chorus Feedback";
+    static inline const char *mix = "Chorus Mix";
+    static inline const char *bypass = "Chorus Bypass";
+  };
 
-namespace Overdrive {
-inline constexpr const char *saturation = "OverDrive";
-inline constexpr const char *bypass = "Overdrive Bypass";
-} // namespace Overdrive
+  struct Overdrive {
+    static inline const char *saturation = "OverDrive";
+    static inline const char *bypass = "Overdrive Bypass";
+  };
 
-namespace LadderFilter {
-inline constexpr const char *mode = "Ladder Filter Mode";
-inline constexpr const char *cutoff = "Ladder Filter Cutoff";
-inline constexpr const char *resonance = "Ladder Filter Resonance";
-inline constexpr const char *drive = "Ladder Filter Drive";
-inline constexpr const char *bypass = "Ladder Filter Bypass";
+  struct LadderFilter {
+    static inline const char *mode = "Ladder Filter Mode";
+    static inline const char *cutoff = "Ladder Filter Cutoff";
+    static inline const char *resonance = "Ladder Filter Resonance";
+    static inline const char *drive = "Ladder Filter Drive";
+    static inline const char *bypass = "Ladder Filter Bypass";
 
-inline const juce::StringArray modeChoices{"LPF12", "HPF12", "BPF12",
-                                           "LPF24", "HPF24", "BPF24"};
-} // namespace LadderFilter
+    static inline const juce::StringArray modeChoices{"LPF12", "HPF12", "BPF12",
+                                                      "LPF24", "HPF24", "BPF24"};
+  };
 
-namespace Filter {
-inline constexpr const char *mode = "Filter Mode";
-inline constexpr const char *freq = "Filter Freq";
-inline constexpr const char *quality = "Filter Quality";
-inline constexpr const char *gain = "Filter Gain";
-inline constexpr const char *bypass = "Filter Bypass";
+  struct Filter {
+    static inline const char *mode = "Filter Mode";
+    static inline const char *freq = "Filter Freq";
+    static inline const char *quality = "Filter Quality";
+    static inline const char *gain = "Filter Gain";
+    static inline const char *bypass = "Filter Bypass";
 
-inline const juce::StringArray modeChoices{"Peak", "Bandpass", "Notch",
-                                           "Allpass"};
-} // namespace Filter
-} // namespace Parameters
+    static inline const juce::StringArray modeChoices{"Peak", "Bandpass", "Notch",
+                                                      "Allpass"};
+  };
+};
 
 // AUDIO PROCESSOR
 //==============================================================================
@@ -220,7 +217,7 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
     for (int i = 0; i < static_cast<int>(DSP_Option::END_OF_LIST); ++i) {
       auto dspOption = static_cast<DSP_Option>(i);
       dspOrderTree.setProperty("Position_" + juce::String(i),
-                               getDSPOptionName(dspOption), nullptr);
+                               getDSPNameFromOption(dspOption), nullptr);
     }
     apvts.state.appendChild(dspOrderTree, nullptr);
   }

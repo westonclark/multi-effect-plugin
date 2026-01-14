@@ -74,7 +74,7 @@ public:
     END_OF_LIST
   };
 
-  static juce::String getDSPOptionName(DSP_Option dspOption);
+  static juce::String getDSPNameFromOption(DSP_Option dspOption);
   static DSP_Option getDSPOptionFromName(const juce::String &name);
 
   using DSP_Order =

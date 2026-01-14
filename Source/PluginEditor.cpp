@@ -163,7 +163,7 @@ void ParameterViewContainer::paint(juce::Graphics &g) {
   g.setFont(20.0f);
 
   auto dspName =
-      MultieffectpluginAudioProcessor::getDSPOptionName(currentlyDisplayed);
+      MultieffectpluginAudioProcessor::getDSPNameFromOption(currentlyDisplayed);
   g.drawText(dspName, getLocalBounds(), juce::Justification::centred);
 }
 
@@ -184,7 +184,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
     tabBarComponent.addTab(
-        MultieffectpluginAudioProcessor::getDSPOptionName(dspOption),
+        MultieffectpluginAudioProcessor::getDSPNameFromOption(dspOption),
         juce::Colours::white, -1);
   }
 
