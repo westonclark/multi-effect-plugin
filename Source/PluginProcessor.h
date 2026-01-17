@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <Fifo.h>
@@ -221,7 +213,6 @@ private:
   struct DspEffects {
     DspEffects(MultieffectpluginAudioProcessor &proc) : processor(proc) {}
 
-    DspChoice<juce::dsp::DelayLine<float>> delay;
     DspChoice<juce::dsp::Phaser<float>> phaser;
     DspChoice<juce::dsp::Chorus<float>> chorus;
     DspChoice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;

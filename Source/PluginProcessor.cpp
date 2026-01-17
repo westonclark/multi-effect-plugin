@@ -678,47 +678,6 @@ juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
 
 // STATE MANAGEMENT
 //==============================================================================
-template <>
-struct juce::VariantConverter<MultieffectpluginAudioProcessor::DspOrder> {
-  static MultieffectpluginAudioProcessor::DspOrder
-  fromVar(const juce::var &variable) {
-    using T = MultieffectpluginAudioProcessor::DspOrder;
-    T dspOrder;
-    jassert(variable.isBinaryData());
-
-    if (variable.isBinaryData() == false) {
-      dspOrder.fill(MultieffectpluginAudioProcessor::DspOption::END_OF_LIST);
-    } else {
-
-      auto memoryBlock = *variable.getBinaryData();
-
-      juce::MemoryInputStream stream(memoryBlock, false);
-      std::vector<int> array;
-      while (!stream.isExhausted()) {
-        array.push_back(stream.readInt());
-      }
-
-      jassert(array.size() == dspOrder.size());
-      for (size_t i = 0; i < dspOrder.size(); ++i) {
-        dspOrder[i] =
-            static_cast<MultieffectpluginAudioProcessor::DspOption>(array[i]);
-      }
-    }
-    return dspOrder;
-  };
-
-  static juce::var toVar(const MultieffectpluginAudioProcessor::DspOrder &t) {
-    juce::MemoryBlock memoryBlock;
-    {
-      juce::MemoryOutputStream stream(memoryBlock, false);
-      for (const auto &value : t) {
-        stream.writeInt(static_cast<int>(value));
-      }
-    }
-    return memoryBlock;
-  };
-};
-
 void MultieffectpluginAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
   juce::MemoryOutputStream memoryStream(destData, false);
