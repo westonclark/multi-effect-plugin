@@ -5,6 +5,41 @@
               jucerFormatVersion="1" cppLanguageStandard="20">
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
+      <GROUP id="{63E3FF49-1B4E-1947-4A0A-4CF10CA7C9C6}" name="GUI">
+        <GROUP id="{F1CA1AAC-A23E-C46C-658F-1ACA97C44A50}" name="TabbedButtonBar">
+          <FILE id="wLtMlA" name="TabbedButtonBar.cpp" compile="1" resource="0"
+                file="Source/GUI/TabbedButtonBar/TabbedButtonBar.cpp"/>
+          <FILE id="P2kN5w" name="TabbedButtonBar.h" compile="0" resource="0"
+                file="Source/GUI/TabbedButtonBar/TabbedButtonBar.h"/>
+        </GROUP>
+        <GROUP id="{23504FCB-9BA9-D41F-BB30-58541E699517}" name="Listeners">
+          <FILE id="jlZTFu" name="Listeners.h" compile="0" resource="0" file="Source/GUI/Listeners/Listeners.h"/>
+        </GROUP>
+        <GROUP id="{1EC9C8B3-976A-6D1A-14EE-00C64F54AEE8}" name="DspPanels">
+          <GROUP id="{BA3E1475-C3E4-8FB9-9EF5-688427324F94}" name="Phaser">
+            <FILE id="dzPqzN" name="PhaserPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Phaser/PhaserPanel.cpp"/>
+            <FILE id="an6KIq" name="PhaserPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Phaser/PhaserPanel.h"/>
+          </GROUP>
+          <GROUP id="{460F9E87-E8CF-1F6B-5852-32667C1486F7}" name="LadderFilter">
+            <FILE id="eQnHWs" name="LadderFilterPanel.cpp" compile="1" resource="0"
+                  file="Source/GUI/DspPanels/LadderFilter/LadderFilterPanel.cpp"/>
+            <FILE id="cYMqEd" name="LadderFilterPanel.h" compile="0" resource="0"
+                  file="Source/GUI/DspPanels/LadderFilter/LadderFilterPanel.h"/>
+          </GROUP>
+          <GROUP id="{0B4EF024-903B-D216-29F4-32187E075F75}" name="Filter">
+            <FILE id="df6t6D" name="FilterPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Filter/FilterPanel.cpp"/>
+            <FILE id="CY5dqZ" name="FilterPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Filter/FilterPanel.h"/>
+          </GROUP>
+          <GROUP id="{A90B9D6F-B20E-50A8-2AE6-F3CB6C5167C6}" name="Drive">
+            <FILE id="zvLUnr" name="DrivePanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Drive/DrivePanel.cpp"/>
+            <FILE id="Pw0LaF" name="DrivePanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Drive/DrivePanel.h"/>
+          </GROUP>
+          <GROUP id="{241341D3-9E87-9765-4EAD-F8B36B67E740}" name="Chorus">
+            <FILE id="d6vd0u" name="ChorusPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Chorus/ChorusPanel.cpp"/>
+            <FILE id="rLvoVi" name="ChorusPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Chorus/ChorusPanel.h"/>
+          </GROUP>
+        </GROUP>
+      </GROUP>
       <GROUP id="{CA67A969-AB50-51B3-E954-CB5A5DFB4DAA}" name="DSP">
         <FILE id="lXYWh3" name="Fifo.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/DSP/Fifo.h"/>
       </GROUP>
