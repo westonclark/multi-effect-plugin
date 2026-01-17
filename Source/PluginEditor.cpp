@@ -93,7 +93,7 @@ void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
                                                 const juce::String &dspName) {
   auto dspOption =
       MultieffectpluginAudioProcessor::getDspOptionFromName(dspName);
-  tabSelectionListener.call(&TabSelectionListener::TabSelectionChanged,
+  tabSelectionListener.call(&TabSelectionListener::tabSelectionChanged,
                             newSelectionIndex, dspOption);
 };
 
@@ -150,34 +150,80 @@ ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
   return button;
 };
 
-// PARAMETER VIEW CONTAINTER
+// PARAMETER VIEW
 //==============================================================================
-ParameterViewContainer::ParameterViewContainer(
-    juce::AudioProcessorValueTreeState &apvts)
-    : apvts(apvts), currentlyDisplayed() {};
+ParameterView::ParameterView(juce::AudioProcessorValueTreeState &apvts)
+    : apvts(apvts), phaserParameters(apvts), chorusParameters(apvts),
+      driveParameters(apvts), ladderFilterParameters(apvts),
+      filterParameters(apvts), currentlyDisplayed() {
+  addAndMakeVisible(phaserParameters);
+  addAndMakeVisible(chorusParameters);
+  addAndMakeVisible(driveParameters);
+  addAndMakeVisible(ladderFilterParameters);
+  addAndMakeVisible(filterParameters);
+};
 
-void ParameterViewContainer::paint(juce::Graphics &g) {
+void ParameterView::paint(juce::Graphics &g) {
   g.fillAll(juce::Colours::darkgrey);
-
-  g.setColour(juce::Colours::white);
-  g.setFont(20.0f);
-
-  auto dspName =
-      MultieffectpluginAudioProcessor::getDspNameFromOption(currentlyDisplayed);
-  g.drawText(dspName, getLocalBounds(), juce::Justification::centred);
 }
 
-void ParameterViewContainer::showPanelFor(
+void PhaserParameters::paint(juce::Graphics &g) {
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+  g.drawText("Phaser", getLocalBounds(), juce::Justification::centred);
+}
+
+void ChorusParameters::paint(juce::Graphics &g) {
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+  g.drawText("Chorus", getLocalBounds(), juce::Justification::centred);
+}
+
+void DriveParameters::paint(juce::Graphics &g) {
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+  g.drawText("Drive", getLocalBounds(), juce::Justification::centred);
+}
+
+void LadderFilterParameters::paint(juce::Graphics &g) {
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+  g.drawText("Ladder Filter", getLocalBounds(), juce::Justification::centred);
+}
+
+void FilterParameters::paint(juce::Graphics &g) {
+  g.setColour(juce::Colours::white);
+  g.setFont(20.0f);
+  g.drawText("Filter", getLocalBounds(), juce::Justification::centred);
+}
+
+void ParameterView::showPanelFor(
     MultieffectpluginAudioProcessor::DspOption tab) {
-  currentlyDisplayed = tab;
-  repaint();
+  phaserParameters.setVisible(
+      tab == MultieffectpluginAudioProcessor::DspOption::Phase);
+  chorusParameters.setVisible(
+      tab == MultieffectpluginAudioProcessor::DspOption::Chorus);
+  driveParameters.setVisible(
+      tab == MultieffectpluginAudioProcessor::DspOption::OverDrive);
+  ladderFilterParameters.setVisible(
+      tab == MultieffectpluginAudioProcessor::DspOption::LadderFilter);
+  filterParameters.setVisible(
+      tab == MultieffectpluginAudioProcessor::DspOption::Filter);
+}
+
+void ParameterView::resized() {
+  phaserParameters.setBounds(getLocalBounds());
+  chorusParameters.setBounds(getLocalBounds());
+  driveParameters.setBounds(getLocalBounds());
+  ladderFilterParameters.setBounds(getLocalBounds());
+  filterParameters.setBounds(getLocalBounds());
 }
 
 // EDITOR
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p),
+    : AudioProcessorEditor(&p), audioProcessor(p), tabBarComponent(),
       parametersComponent(p.apvts) {
 
   // Load DSP order and populate tabs
@@ -202,9 +248,11 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     }
   }
   tabBarComponent.setCurrentTabIndex(savedTabIndex, true);
+  parametersComponent.showPanelFor(savedTab);
 
   addAndMakeVisible(tabBarComponent);
   addAndMakeVisible(parametersComponent);
+
   setSize(400, 300);
 }
 
@@ -220,7 +268,7 @@ void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
-void MultieffectpluginAudioProcessorEditor::TabSelectionChanged(
+void MultieffectpluginAudioProcessorEditor::tabSelectionChanged(
     int newSelectionIndex,
     MultieffectpluginAudioProcessor::DspOption dspOption) {
   parametersComponent.showPanelFor(dspOption);

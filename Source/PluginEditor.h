@@ -16,7 +16,7 @@ struct TabOrderListener {
 struct TabSelectionListener {
   virtual ~TabSelectionListener() = default;
   virtual void
-  TabSelectionChanged(int newSelectionIndex,
+  tabSelectionChanged(int newSelectionIndex,
                       MultieffectpluginAudioProcessor::DspOption dspOption) = 0;
 };
 
@@ -101,18 +101,71 @@ private:
   TabButtonEventListener *listener = nullptr;
 };
 
-// PARAMETER VIEW CONTAINER
+// PARAMETER VIEWS
 //==============================================================================
-class ParameterViewContainer : public juce::Component {
+class PhaserParameters : public juce::Component {
 public:
-  ParameterViewContainer(juce::AudioProcessorValueTreeState &apvts);
+  PhaserParameters(juce::AudioProcessorValueTreeState &apvts) : apvts(apvts) {};
+  void paint(juce::Graphics &g) override;
 
+private:
+  juce::AudioProcessorValueTreeState &apvts;
+};
+
+class ChorusParameters : public juce::Component {
+public:
+  ChorusParameters(juce::AudioProcessorValueTreeState &apvts) : apvts(apvts) {};
+  void paint(juce::Graphics &g) override;
+
+private:
+  juce::AudioProcessorValueTreeState &apvts;
+};
+
+class DriveParameters : public juce::Component {
+public:
+  DriveParameters(juce::AudioProcessorValueTreeState &apvts) : apvts(apvts) {};
+  void paint(juce::Graphics &g) override;
+
+private:
+  juce::AudioProcessorValueTreeState &apvts;
+};
+
+class LadderFilterParameters : public juce::Component {
+public:
+  LadderFilterParameters(juce::AudioProcessorValueTreeState &apvts)
+      : apvts(apvts) {};
+  void paint(juce::Graphics &g) override;
+
+private:
+  juce::AudioProcessorValueTreeState &apvts;
+};
+
+class FilterParameters : public juce::Component {
+public:
+  FilterParameters(juce::AudioProcessorValueTreeState &apvts) : apvts(apvts) {};
+  void paint(juce::Graphics &g) override;
+
+private:
+  juce::AudioProcessorValueTreeState &apvts;
+};
+
+class ParameterView : public juce::Component {
+public:
+  ParameterView(juce::AudioProcessorValueTreeState &apvts);
+
+  void resized() override;
   void paint(juce::Graphics &g) override;
   void showPanelFor(MultieffectpluginAudioProcessor::DspOption tab);
 
 private:
   MultieffectpluginAudioProcessor::DspOption currentlyDisplayed;
   juce::AudioProcessorValueTreeState &apvts;
+
+  PhaserParameters phaserParameters;
+  ChorusParameters chorusParameters;
+  DriveParameters driveParameters;
+  LadderFilterParameters ladderFilterParameters;
+  FilterParameters filterParameters;
 };
 
 // EDITOR
@@ -130,7 +183,7 @@ public:
 
   void
   tabOrderChanged(MultieffectpluginAudioProcessor::DspOrder newOrder) override;
-  void TabSelectionChanged(
+  void tabSelectionChanged(
       int newSelectionIndex,
       MultieffectpluginAudioProcessor::DspOption dspOption) override;
 
@@ -140,7 +193,7 @@ private:
   MultieffectpluginAudioProcessor &audioProcessor;
 
   ExtendedTabbedButtonBar tabBarComponent;
-  ParameterViewContainer parametersComponent;
+  ParameterView parametersComponent;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
       MultieffectpluginAudioProcessorEditor)
