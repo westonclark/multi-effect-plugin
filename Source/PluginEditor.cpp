@@ -41,7 +41,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   addChildComponent(filterPanel);
   showDspPanel(savedTab);
 
-  setSize(400, 300);
+  setSize(800, 450);
 }
 
 MultieffectpluginAudioProcessorEditor::
@@ -84,7 +84,7 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
 void MultieffectpluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds();
-  tabBarComponent.setBounds(bounds.removeFromTop(30));
+  tabBarComponent.setBounds(bounds.removeFromBottom(30));
 
   phaserPanel.setBounds(bounds);
   chorusPanel.setBounds(bounds);
