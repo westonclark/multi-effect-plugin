@@ -6,6 +6,7 @@
 #include "GUI/DspPanels/LadderFilter/LadderFilterPanel.h"
 #include "GUI/DspPanels/Phaser/PhaserPanel.h"
 #include "GUI/Listeners/Listeners.h"
+#include "GUI/SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "GUI/TabbedButtonBar/TabbedButtonBar.h"
 #include "PluginProcessor.h"
 #include <JuceHeader.h>
@@ -29,11 +30,14 @@ public:
       MultieffectpluginAudioProcessor::DspOption dspOption) override;
 
 private:
+  juce::LookAndFeel_V4 lookAndFeel{
+      juce::LookAndFeel_V4::getMidnightColourScheme()};
   MultieffectpluginAudioProcessor &audioProcessor;
 
   void showDspPanel(MultieffectpluginAudioProcessor::DspOption dspOption);
 
-  ExtendedTabbedButtonBar tabBarComponent;
+  ExtendedTabbedButtonBar tabBar;
+  SpectrumAnalyzer spectrumAnalyzer;
 
   PhaserPanel phaserPanel;
   ChorusPanel chorusPanel;

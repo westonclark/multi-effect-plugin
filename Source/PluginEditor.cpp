@@ -5,21 +5,23 @@
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p), tabBarComponent(),
+    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(),
       phaserPanel(p.apvts), chorusPanel(p.apvts), drivePanel(p.apvts),
       ladderFilterPanel(p.apvts), filterPanel(p.apvts) {
+
+  setLookAndFeel(&lookAndFeel);
 
   // Load DSP order and populate tabs
   auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
-    tabBarComponent.addTab(
+    tabBar.addTab(
         MultieffectpluginAudioProcessor::getDspNameFromOption(dspOption),
         juce::Colours::white, -1);
   }
 
   // Register listeners
-  tabBarComponent.addTabOrderListener(this);
-  tabBarComponent.addTabSelectionListener(this);
+  tabBar.addTabOrderListener(this);
+  tabBar.addTabSelectionListener(this);
 
   // Find index of the currently selected tab
   auto savedTab = audioProcessor.getSelectedTabFromState();
@@ -30,9 +32,10 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
       break;
     }
   }
-  tabBarComponent.setCurrentTabIndex(savedTabIndex, true);
+  tabBar.setCurrentTabIndex(savedTabIndex, true);
 
-  addAndMakeVisible(tabBarComponent);
+  addAndMakeVisible(tabBar);
+  addAndMakeVisible(spectrumAnalyzer);
 
   addChildComponent(phaserPanel);
   addChildComponent(chorusPanel);
@@ -46,8 +49,9 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 
 MultieffectpluginAudioProcessorEditor::
     ~MultieffectpluginAudioProcessorEditor() {
-  tabBarComponent.removeTabOrderListener(this);
-  tabBarComponent.removeTabSelectionListener(this);
+  tabBar.removeTabOrderListener(this);
+  tabBar.removeTabSelectionListener(this);
+  setLookAndFeel(nullptr);
 }
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
@@ -83,8 +87,9 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 }
 
 void MultieffectpluginAudioProcessorEditor::resized() {
-  auto bounds = getLocalBounds();
-  tabBarComponent.setBounds(bounds.removeFromBottom(30));
+  auto bounds = getLocalBounds().reduced(10);
+  tabBar.setBounds(bounds.removeFromTop(25));
+  spectrumAnalyzer.setBounds(bounds.removeFromTop(275));
 
   phaserPanel.setBounds(bounds);
   chorusPanel.setBounds(bounds);
