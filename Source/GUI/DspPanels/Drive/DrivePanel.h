@@ -1,14 +1,15 @@
 #pragma once
 
+#include "../../Sliders/Sliders.h"
 #include <JuceHeader.h>
 
-// DRIVE PANEL
-//==============================================================================
 class DrivePanel : public juce::Component {
 public:
   DrivePanel(juce::AudioProcessorValueTreeState &apvts);
   void paint(juce::Graphics &g) override;
+  void resized() override;
 
 private:
   juce::AudioProcessorValueTreeState &apvts;
+  std::vector<SliderWithLabel> sliders;
 };

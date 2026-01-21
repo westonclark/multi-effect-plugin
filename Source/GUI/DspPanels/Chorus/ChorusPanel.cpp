@@ -1,9 +1,11 @@
 #include "ChorusPanel.h"
 
-// CHORUS PANEL
-//==============================================================================
 ChorusPanel::ChorusPanel(juce::AudioProcessorValueTreeState &apvts)
-    : apvts(apvts) {}
+    : apvts(apvts) {
+  for (const auto &param : Parameters::Chorus::sliderParams) {
+    sliders.push_back(SliderWithLabel(param, apvts, this));
+  }
+}
 
 void ChorusPanel::paint(juce::Graphics &g) {
   g.setColour(juce::Colours::grey);
@@ -13,4 +15,8 @@ void ChorusPanel::paint(juce::Graphics &g) {
   int borderThickness = 2;
   g.setColour(juce::Colours::darkgrey);
   g.drawRect(getLocalBounds().reduced(borderThickness / 2), borderThickness);
+}
+
+void ChorusPanel::resized() {
+  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
 }

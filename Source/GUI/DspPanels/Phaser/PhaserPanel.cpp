@@ -1,12 +1,11 @@
 #include "PhaserPanel.h"
+#include "../../../Parameters.h"
 
-// PHASER PANEL
-//==============================================================================
 PhaserPanel::PhaserPanel(juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts) {
-  rate.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-  rate.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-  addAndMakeVisible(rate);
+  for (const auto &param : Parameters::Phaser::sliderParams) {
+    sliders.push_back(SliderWithLabel(param, apvts, this));
+  }
 }
 
 void PhaserPanel::paint(juce::Graphics &g) {
@@ -20,6 +19,5 @@ void PhaserPanel::paint(juce::Graphics &g) {
 }
 
 void PhaserPanel::resized() {
-  auto bounds = getLocalBounds();
-  rate.setBounds(bounds.removeFromLeft(80));
+  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
 }

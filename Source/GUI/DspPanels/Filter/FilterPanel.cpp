@@ -1,9 +1,11 @@
 #include "FilterPanel.h"
 
-// FILTER PANEL
-//==============================================================================
 FilterPanel::FilterPanel(juce::AudioProcessorValueTreeState &apvts)
-    : apvts(apvts) {}
+    : apvts(apvts) {
+  for (const auto &param : Parameters::Filter::sliderParams) {
+    sliders.push_back(SliderWithLabel(param, apvts, this));
+  }
+}
 
 void FilterPanel::paint(juce::Graphics &g) {
   g.setColour(juce::Colours::grey);
@@ -13,4 +15,8 @@ void FilterPanel::paint(juce::Graphics &g) {
   int borderThickness = 2;
   g.setColour(juce::Colours::darkgrey);
   g.drawRect(getLocalBounds().reduced(borderThickness / 2), borderThickness);
+}
+
+void FilterPanel::resized() {
+  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
 }

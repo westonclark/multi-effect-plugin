@@ -23,7 +23,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   tabBar.addTabOrderListener(this);
   tabBar.addTabSelectionListener(this);
 
-  // Find index of the currently selected tab
+  // Set current tab
   auto savedTab = audioProcessor.getSelectedTabFromState();
   int savedTabIndex = 0;
   for (int i = 0; i < dspOrder.size(); ++i) {
@@ -34,8 +34,8 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   }
   tabBar.setCurrentTabIndex(savedTabIndex, true);
 
-  addAndMakeVisible(tabBar);
   addAndMakeVisible(spectrumAnalyzer);
+  addAndMakeVisible(tabBar);
 
   addChildComponent(phaserPanel);
   addChildComponent(chorusPanel);
@@ -88,8 +88,8 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
 void MultieffectpluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(10);
-  tabBar.setBounds(bounds.removeFromTop(25));
   spectrumAnalyzer.setBounds(bounds.removeFromTop(275));
+  tabBar.setBounds(bounds.removeFromTop(25));
 
   phaserPanel.setBounds(bounds);
   chorusPanel.setBounds(bounds);
