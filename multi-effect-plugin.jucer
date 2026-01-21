@@ -5,6 +5,7 @@
               jucerFormatVersion="1" cppLanguageStandard="20">
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
+      <FILE id="fdOwzz" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
       <GROUP id="{63E3FF49-1B4E-1947-4A0A-4CF10CA7C9C6}" name="GUI">
         <GROUP id="{53FD49A0-FF20-6123-B19F-CD6147E3C719}" name="SpectrumAnalyzer">
           <FILE id="rY6Mv8" name="SpectrumAnalyzer.cpp" compile="1" resource="0"
