@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../../Parameters.h"
-#include <JuceHeader.h>
+#include "../ParameterComponent.h"
 
 class PercentSlider : public juce::Slider {
 public:
@@ -17,16 +16,20 @@ public:
   }
 };
 
-struct SliderWithLabel {
-  std::unique_ptr<juce::Slider> slider;
-  std::unique_ptr<juce::Label> label;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
-      attachment;
-
-  SliderWithLabel(const Parameter &param,
+class ParameterSlider : public ParameterComponent {
+public:
+  ParameterSlider(const Parameter &parameter,
                   juce::AudioProcessorValueTreeState &apvts,
-                  juce::Component *parent);
+                  juce::Component *component);
 
-  static void layoutHorizontally(juce::Rectangle<int> bounds,
-                                 std::vector<SliderWithLabel> &sliders);
+  void setBounds(juce::Rectangle<int> bounds) override;
+
+private:
+  Parameter parameter;
+  juce::Component *component;
+
+  std::unique_ptr<juce::Slider> slider;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
+      sliderAttachment;
+  std::unique_ptr<juce::Label> label;
 };

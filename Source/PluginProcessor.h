@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Parameters.h"
 #include <Fifo.h>
 #include <JuceHeader.h>
 
@@ -180,12 +181,12 @@ private:
 
   struct ChoiceParamInitializer {
     juce::AudioParameterChoice **paramPtr;
-    const char *paramName;
+    const Parameter &param;
   };
 
   struct BoolParamInitializer {
     juce::AudioParameterBool **paramPtr;
-    const char *paramName;
+    const Parameter &param;
   };
 
   template <typename ParamType, typename InitStruct>
@@ -193,6 +194,24 @@ private:
     for (const auto &initializer : paramInitializers) {
       *initializer.paramPtr =
           dynamic_cast<ParamType>(apvts.getParameter(initializer.paramName));
+      jassert(*initializer.paramPtr != nullptr);
+    }
+  }
+
+  void initCachedChoiceParams(
+      const std::vector<ChoiceParamInitializer> &paramInitializers) {
+    for (const auto &initializer : paramInitializers) {
+      *initializer.paramPtr = dynamic_cast<juce::AudioParameterChoice *>(
+          apvts.getParameter(initializer.param.id));
+      jassert(*initializer.paramPtr != nullptr);
+    }
+  }
+
+  void initCachedBoolParams(
+      const std::vector<BoolParamInitializer> &paramInitializers) {
+    for (const auto &initializer : paramInitializers) {
+      *initializer.paramPtr = dynamic_cast<juce::AudioParameterBool *>(
+          apvts.getParameter(initializer.param.id));
       jassert(*initializer.paramPtr != nullptr);
     }
   }

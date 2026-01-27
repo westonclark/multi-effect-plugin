@@ -2,8 +2,10 @@
 
 LadderFilterPanel::LadderFilterPanel(juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts) {
-  for (const auto &param : Parameters::LadderFilter::sliderParams) {
-    sliders.push_back(SliderWithLabel(param, apvts, this));
+  for (const auto &param : Parameters::LadderFilter::params) {
+    if (param.type == ParameterType::Bool)
+      continue;
+    controls.push_back(ParameterComponent::create(param, apvts, this));
   }
 }
 
@@ -18,5 +20,5 @@ void LadderFilterPanel::paint(juce::Graphics &g) {
 }
 
 void LadderFilterPanel::resized() {
-  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
+  ParameterComponent::layoutHorizontally(getLocalBounds(), controls);
 }

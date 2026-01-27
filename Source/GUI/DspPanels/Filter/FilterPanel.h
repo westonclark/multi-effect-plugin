@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../../Sliders/Sliders.h"
+#include "../../ParameterComponents/ParameterComponent.h"
 #include <JuceHeader.h>
-#include <vector>
 
 class FilterPanel : public juce::Component {
 public:
@@ -12,5 +11,5 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState &apvts;
-  std::vector<SliderWithLabel> sliders;
+  std::vector<std::unique_ptr<ParameterComponent>> controls;
 };

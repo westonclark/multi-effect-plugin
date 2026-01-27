@@ -2,8 +2,10 @@
 
 DrivePanel::DrivePanel(juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts) {
-  for (const auto &param : Parameters::Overdrive::sliderParams) {
-    sliders.push_back(SliderWithLabel(param, apvts, this));
+  for (const auto &param : Parameters::Overdrive::params) {
+    if (param.type == ParameterType::Bool)
+      continue;
+    controls.push_back(ParameterComponent::create(param, apvts, this));
   }
 }
 
@@ -18,5 +20,5 @@ void DrivePanel::paint(juce::Graphics &g) {
 }
 
 void DrivePanel::resized() {
-  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
+  ParameterComponent::layoutHorizontally(getLocalBounds(), controls);
 }

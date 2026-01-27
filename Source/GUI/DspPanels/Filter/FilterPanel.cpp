@@ -2,8 +2,10 @@
 
 FilterPanel::FilterPanel(juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts) {
-  for (const auto &param : Parameters::Filter::sliderParams) {
-    sliders.push_back(SliderWithLabel(param, apvts, this));
+  for (const auto &param : Parameters::Filter::params) {
+    if (param.type == ParameterType::Bool)
+      continue;
+    controls.push_back(ParameterComponent::create(param, apvts, this));
   }
 }
 
@@ -18,5 +20,5 @@ void FilterPanel::paint(juce::Graphics &g) {
 }
 
 void FilterPanel::resized() {
-  SliderWithLabel::layoutHorizontally(getLocalBounds(), sliders);
+  ParameterComponent::layoutHorizontally(getLocalBounds(), controls);
 }

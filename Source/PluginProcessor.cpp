@@ -144,8 +144,8 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
   };
 
   initCachedParams<juce::AudioParameterFloat *>(floatParamInitializers);
-  initCachedParams<juce::AudioParameterChoice *>(choiceParamInitializers);
-  initCachedParams<juce::AudioParameterBool *>(boolParamInitializers);
+  initCachedChoiceParams(choiceParamInitializers);
+  initCachedBoolParams(boolParamInitializers);
 
   // Initialize parameter smoothers
   paramSmootherPairs = {
@@ -290,145 +290,24 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
 juce::AudioProcessorValueTreeState::ParameterLayout
 MultieffectpluginAudioProcessor::createParameterLayout() {
   juce::AudioProcessorValueTreeState::ParameterLayout layout;
-
   const int versionHint = 1;
-  Parameter param;
-  juce::StringArray choices;
 
-  // Phaser
-  param = Parameters::Phaser::rate;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 2.f, 0.01f, 1.f), 1.0f,
-      param.suffix));
-
-  param = Parameters::Phaser::depth;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f,
-      param.suffix));
-
-  param = Parameters::Phaser::centerFreq;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.23f), 1000.f,
-      param.suffix));
-
-  param = Parameters::Phaser::feedback;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(-1.f, 1.f, 0.01f, 1.f), 0.0f,
-      param.suffix));
-
-  param = Parameters::Phaser::mix;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f,
-      param.suffix));
-
-  layout.add(std::make_unique<juce::AudioParameterBool>(
-      juce::ParameterID{Parameters::Phaser::bypass, versionHint},
-      Parameters::Phaser::bypass, false));
-
-  // Chorus
-  param = Parameters::Chorus::rate;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 2.f, 0.01f, 1.f), 0.2f,
-      param.suffix));
-
-  param = Parameters::Chorus::depth;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f,
-      param.suffix));
-
-  param = Parameters::Chorus::centerDelay;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.f, 100.f, 1.f, 1.f), 7.f, param.suffix));
-
-  param = Parameters::Chorus::feedback;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(-1.f, 1.f, 0.01f, 1.f), 0.0f,
-      param.suffix));
-
-  param = Parameters::Chorus::mix;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.01f, 1.f, 0.01f, 1.f), 0.05f,
-      param.suffix));
-
-  layout.add(std::make_unique<juce::AudioParameterBool>(
-      juce::ParameterID{Parameters::Chorus::bypass, versionHint},
-      Parameters::Chorus::bypass, false));
-
-  // Drive
-  param = Parameters::Overdrive::saturation;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f,
-      param.suffix));
-
-  layout.add(std::make_unique<juce::AudioParameterBool>(
-      juce::ParameterID{Parameters::Overdrive::bypass, versionHint},
-      Parameters::Overdrive::bypass, false));
-
-  // Ladder Filter
-  choices = Parameters::LadderFilter::modeChoices;
-  layout.add(std::make_unique<juce::AudioParameterChoice>(
-      juce::ParameterID{Parameters::LadderFilter::mode, versionHint},
-      Parameters::LadderFilter::mode, choices, 0));
-
-  param = Parameters::LadderFilter::cutoff;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(20.f, 20000.f, 0.1f, 0.23f), 20000.f,
-      param.suffix));
-
-  param = Parameters::LadderFilter::resonance;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.f, 1.f, 0.1f, 1.f), 0.f, param.suffix));
-
-  param = Parameters::LadderFilter::drive;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(1.f, 100.f, 0.1f, 1.f), 1.f,
-      param.suffix));
-
-  layout.add(std::make_unique<juce::AudioParameterBool>(
-      juce::ParameterID{Parameters::LadderFilter::bypass, versionHint},
-      Parameters::LadderFilter::bypass, false));
-
-  // Filter
-  choices = Parameters::Filter::modeChoices;
-  layout.add(std::make_unique<juce::AudioParameterChoice>(
-      juce::ParameterID{Parameters::Filter::mode, versionHint},
-      Parameters::Filter::mode, choices, 0));
-
-  param = Parameters::Filter::freq;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.23f), 1000.f,
-      param.suffix));
-
-  param = Parameters::Filter::quality;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(0.1f, 10.f, .05f, 1.f), 5.f,
-      param.suffix));
-
-  param = Parameters::Filter::gain;
-  layout.add(std::make_unique<juce::AudioParameterFloat>(
-      juce::ParameterID{param.id, versionHint}, param.id,
-      juce::NormalisableRange<float>(-24.f, 24.f, .5f, 1.f), 0.f,
-      param.suffix));
-
-  layout.add(std::make_unique<juce::AudioParameterBool>(
-      juce::ParameterID{Parameters::Filter::bypass, versionHint},
-      Parameters::Filter::bypass, false));
+  for (const auto &param : Parameters::getAllParameters()) {
+    if (param.type == ParameterType::Float) {
+      layout.add(std::make_unique<juce::AudioParameterFloat>(
+          juce::ParameterID{param.id, versionHint}, param.id,
+          juce::NormalisableRange<float>(param.minValue, param.maxValue,
+                                         param.step, param.skew),
+          param.defaultValue, param.suffix));
+    } else if (param.type == ParameterType::Choice) {
+      layout.add(std::make_unique<juce::AudioParameterChoice>(
+          juce::ParameterID{param.id, versionHint}, param.displayName,
+          *param.choices, 0, ""));
+    } else if (param.type == ParameterType::Bool) {
+      layout.add(std::make_unique<juce::AudioParameterBool>(
+          juce::ParameterID{param.id, versionHint}, param.id, false));
+    }
+  }
 
   return layout;
 }
