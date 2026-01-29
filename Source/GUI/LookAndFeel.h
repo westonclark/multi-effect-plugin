@@ -2,13 +2,13 @@
 
 #include <JuceHeader.h>
 
-class CustomLookAndFeel : public juce::LookAndFeel_V4 {
+class LookAndFeel : public juce::LookAndFeel_V4 {
 public:
   static constexpr juce::uint32 BACKGROUND = 0xff09090b; // zinc-950
   static constexpr juce::uint32 TEXT = 0xfffef3c7;       // amber-50
   static constexpr juce::uint32 HIGHLIGHT = 0xffd97757;  // orange accent
 
-  CustomLookAndFeel() {
+  LookAndFeel() {
     auto scheme = LookAndFeel_V4::ColourScheme(
         juce::Colour(BACKGROUND),                 // windowBackground
         juce::Colour(BACKGROUND).brighter(0.1f),  // widgetBackground

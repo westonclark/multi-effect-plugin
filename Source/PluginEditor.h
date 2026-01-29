@@ -1,12 +1,12 @@
 #pragma once
 
-#include "GUI/CustomLookAndFeel.h"
 #include "GUI/DspPanels/Chorus/ChorusPanel.h"
 #include "GUI/DspPanels/Drive/DrivePanel.h"
 #include "GUI/DspPanels/Filter/FilterPanel.h"
 #include "GUI/DspPanels/LadderFilter/LadderFilterPanel.h"
 #include "GUI/DspPanels/Phaser/PhaserPanel.h"
 #include "GUI/Listeners/Listeners.h"
+#include "GUI/LookAndFeel.h"
 #include "GUI/SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "GUI/TabbedButtonBar/TabbedButtonBar.h"
 #include "PluginProcessor.h"
@@ -31,7 +31,7 @@ public:
       MultieffectpluginAudioProcessor::DspOption dspOption) override;
 
 private:
-  CustomLookAndFeel lookAndFeel;
+  LookAndFeel lookAndFeel;
   MultieffectpluginAudioProcessor &audioProcessor;
 
   void showDspPanel(MultieffectpluginAudioProcessor::DspOption dspOption);
