@@ -90,9 +90,11 @@ ExtendedTabbedButtonBar::ExtendedTabbedButtonBar(
 
 void ExtendedTabbedButtonBar::addTab(
     MultieffectpluginAudioProcessor::DspOption option, int insertIndex) {
+  auto tabColour =
+      findColour(juce::ResizableWindow::backgroundColourId).brighter(0.1f);
   juce::TabbedButtonBar::addTab(
-      MultieffectpluginAudioProcessor::getDspNameFromOption(option),
-      juce::Colours::white, insertIndex);
+      MultieffectpluginAudioProcessor::getDspNameFromOption(option), tabColour,
+      insertIndex);
 }
 
 juce::TabBarButton *
@@ -155,6 +157,14 @@ void ExtendedTabbedButtonBar::tabDragEnded(ExtendedTabBarButton *button) {
 
 void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
                                                 const juce::String &dspName) {
+  // Update background colors for all tabs based on selection state
+  auto baseColour = findColour(juce::ResizableWindow::backgroundColourId);
+  auto unselectedColour = baseColour.brighter(0.05f);
+  for (int i = 0; i < getNumTabs(); ++i) {
+    setTabBackgroundColour(i, i == newSelectionIndex ? baseColour
+                                                     : unselectedColour);
+  }
+
   auto *button =
       static_cast<ExtendedTabBarButton *>(getTabButton(newSelectionIndex));
   auto dspOption = button->dspOption;

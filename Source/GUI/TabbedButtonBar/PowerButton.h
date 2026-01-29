@@ -55,7 +55,7 @@ public:
     g.strokePath(arc, juce::PathStrokeType(2.0f));
 
     if (shouldDrawButtonAsHighlighted) {
-      g.setColour(juce::Colours::white.withAlpha(0.2f));
+      g.setColour(lnf.findColour(juce::Label::textColourId).withAlpha(0.2f));
       g.fillEllipse(bounds);
     }
   }

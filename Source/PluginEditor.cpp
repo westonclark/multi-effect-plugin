@@ -11,6 +11,9 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
 
   setLookAndFeel(&lookAndFeel);
 
+  addAndMakeVisible(spectrumAnalyzer);
+  addAndMakeVisible(tabBar);
+
   // Load DSP order and populate tabs
   auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
@@ -31,9 +34,6 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     }
   }
   tabBar.setCurrentTabIndex(savedTabIndex, true);
-
-  addAndMakeVisible(spectrumAnalyzer);
-  addAndMakeVisible(tabBar);
 
   addChildComponent(phaserPanel);
   addChildComponent(chorusPanel);

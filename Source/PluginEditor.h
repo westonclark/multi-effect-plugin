@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GUI/CustomLookAndFeel.h"
 #include "GUI/DspPanels/Chorus/ChorusPanel.h"
 #include "GUI/DspPanels/Drive/DrivePanel.h"
 #include "GUI/DspPanels/Filter/FilterPanel.h"
@@ -30,8 +31,7 @@ public:
       MultieffectpluginAudioProcessor::DspOption dspOption) override;
 
 private:
-  juce::LookAndFeel_V4 lookAndFeel{
-      juce::LookAndFeel_V4::getMidnightColourScheme()};
+  CustomLookAndFeel lookAndFeel;
   MultieffectpluginAudioProcessor &audioProcessor;
 
   void showDspPanel(MultieffectpluginAudioProcessor::DspOption dspOption);
