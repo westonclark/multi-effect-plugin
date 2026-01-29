@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../Parameters.h"
+#include "../../PluginProcessor.h"
 #include "../Listeners/Listeners.h"
-#include "../PluginProcessor.h"
 #include <JuceHeader.h>
 
 // BYPASS PARAMETER LOOKUP

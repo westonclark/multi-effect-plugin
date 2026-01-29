@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Parameters.h"
-#include <Fifo.h>
+#include "Utils/Fifo.h"
 #include <JuceHeader.h>
 
 // AUDIO PROCESSOR
@@ -73,7 +73,7 @@ public:
   using DspOrder =
       std::array<DspOption, static_cast<size_t>(DspOption::END_OF_LIST)>;
 
-  SimpleMBComp::Fifo<DspOrder> dspOrderFifo;
+  Fifo<DspOrder> dspOrderFifo;
 
   void saveDspOrderToState(const DspOrder &order);
   DspOrder getDspOrderFromState() const;
