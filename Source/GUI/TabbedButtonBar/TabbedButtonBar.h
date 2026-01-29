@@ -1,8 +1,30 @@
 #pragma once
 
+#include "../../Parameters.h"
 #include "../Listeners/Listeners.h"
 #include "../PluginProcessor.h"
 #include <JuceHeader.h>
+
+// BYPASS PARAMETER LOOKUP
+//==============================================================================
+inline const Parameter &
+getBypassParam(MultieffectpluginAudioProcessor::DspOption option) {
+  switch (option) {
+  case MultieffectpluginAudioProcessor::DspOption::Phase:
+    return Parameters::Phaser::bypass;
+  case MultieffectpluginAudioProcessor::DspOption::Chorus:
+    return Parameters::Chorus::bypass;
+  case MultieffectpluginAudioProcessor::DspOption::OverDrive:
+    return Parameters::Overdrive::bypass;
+  case MultieffectpluginAudioProcessor::DspOption::LadderFilter:
+    return Parameters::LadderFilter::bypass;
+  case MultieffectpluginAudioProcessor::DspOption::Filter:
+    return Parameters::Filter::bypass;
+  case MultieffectpluginAudioProcessor::DspOption::END_OF_LIST:
+    break;
+  }
+  return Parameters::Phaser::bypass;
+}
 
 // HORIZONTAL CONSTRAINER
 //==============================================================================
@@ -25,7 +47,9 @@ private:
 // BUTTON
 //==============================================================================
 struct ExtendedTabBarButton : juce::TabBarButton {
-  ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner);
+  ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner,
+                       juce::AudioProcessorValueTreeState *apvts,
+                       MultieffectpluginAudioProcessor::DspOption dspOption);
 
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
@@ -34,16 +58,24 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 
   void setButtonEventListener(TabButtonEventListener *l) { listener = l; }
 
+  MultieffectpluginAudioProcessor::DspOption dspOption;
+
 private:
   juce::ComponentDragger dragger;
   std::unique_ptr<HorizontalConstrainer> constrainer;
   TabButtonEventListener *listener = nullptr;
+
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
+      bypassAttachment;
 };
 
 // TABBED BUTTON BAR
 //==============================================================================
 struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
-  ExtendedTabbedButtonBar();
+  ExtendedTabbedButtonBar(juce::AudioProcessorValueTreeState &apvts);
+
+  void addTab(MultieffectpluginAudioProcessor::DspOption option,
+              int insertIndex = -1);
 
   juce::TabBarButton *createTabButton(const juce::String &tabName,
                                       int tabIndex) override;
@@ -67,9 +99,8 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
   void currentTabChanged(int newSelectionIndex,
                          const juce::String &dspName) override;
 
-  void finalizeTabOrder();
-
 private:
   juce::ListenerList<TabOrderListener> tabOrderListener;
   juce::ListenerList<TabSelectionListener> tabSelectionListener;
+  juce::AudioProcessorValueTreeState &apvts;
 };

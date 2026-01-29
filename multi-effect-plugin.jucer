@@ -34,6 +34,8 @@
                 file="Source/GUI/TabbedButtonBar/TabbedButtonBar.cpp"/>
           <FILE id="P2kN5w" name="TabbedButtonBar.h" compile="0" resource="0"
                 file="Source/GUI/TabbedButtonBar/TabbedButtonBar.h"/>
+          <FILE id="pwrBtn1" name="PowerButton.h" compile="0" resource="0"
+                file="Source/GUI/TabbedButtonBar/PowerButton.h"/>
         </GROUP>
         <GROUP id="{23504FCB-9BA9-D41F-BB30-58541E699517}" name="Listeners">
           <FILE id="jlZTFu" name="Listeners.h" compile="0" resource="0" file="Source/GUI/Listeners/Listeners.h"/>

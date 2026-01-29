@@ -5,7 +5,7 @@
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(),
+    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.apvts),
       phaserPanel(p.apvts), chorusPanel(p.apvts), drivePanel(p.apvts),
       ladderFilterPanel(p.apvts), filterPanel(p.apvts) {
 
@@ -14,9 +14,7 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   // Load DSP order and populate tabs
   auto dspOrder = audioProcessor.getDspOrderFromState();
   for (const auto &dspOption : dspOrder) {
-    tabBar.addTab(
-        MultieffectpluginAudioProcessor::getDspNameFromOption(dspOption),
-        juce::Colours::white, -1);
+    tabBar.addTab(dspOption);
   }
 
   // Register listeners

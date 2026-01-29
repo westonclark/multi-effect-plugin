@@ -1,4 +1,5 @@
 #include "TabbedButtonBar.h"
+#include "PowerButton.h"
 
 // HORIZONTAL CONSTRAINER
 //==============================================================================
@@ -29,15 +30,25 @@ void HorizontalConstrainer::checkBounds(
 
 // BUTTON
 //==============================================================================
-ExtendedTabBarButton::ExtendedTabBarButton(const juce::String &name,
-                                           juce::TabbedButtonBar &owner)
-    : juce::TabBarButton(name, owner) {
+ExtendedTabBarButton::ExtendedTabBarButton(
+    const juce::String &name, juce::TabbedButtonBar &owner,
+    juce::AudioProcessorValueTreeState *apvts,
+    MultieffectpluginAudioProcessor::DspOption dspOption)
+    : juce::TabBarButton(name, owner), dspOption(dspOption) {
   constrainer = std::make_unique<HorizontalConstrainer>(
       [&owner]() { return owner.getLocalBounds(); },
       [this]() { return getBounds(); });
 
   constrainer->setMinimumOnscreenAmounts(0xffffffff, 0xffffffff, 0xffffffff,
                                          0xffffffff);
+
+  auto &bypassParam = getBypassParam(dspOption);
+  auto *powerButton = new PowerButton();
+  bypassAttachment =
+      std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
+          *apvts, bypassParam.id, *powerButton);
+
+  setExtraComponent(powerButton, juce::TabBarButton::beforeText);
 }
 
 void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
@@ -72,13 +83,24 @@ int ExtendedTabBarButton::getBestTabLength(int depth) {
 
 // TABBED BUTTON BAR
 //==============================================================================
-ExtendedTabbedButtonBar::ExtendedTabbedButtonBar()
-    : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {}
+ExtendedTabbedButtonBar::ExtendedTabbedButtonBar(
+    juce::AudioProcessorValueTreeState &apvts)
+    : juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop),
+      apvts(apvts) {}
+
+void ExtendedTabbedButtonBar::addTab(
+    MultieffectpluginAudioProcessor::DspOption option, int insertIndex) {
+  juce::TabbedButtonBar::addTab(
+      MultieffectpluginAudioProcessor::getDspNameFromOption(option),
+      juce::Colours::white, insertIndex);
+}
 
 juce::TabBarButton *
 ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
                                          int tabIndex) {
-  auto *button = new ExtendedTabBarButton(tabName, *this);
+  auto dspOption =
+      MultieffectpluginAudioProcessor::getDspOptionFromName(tabName);
+  auto *button = new ExtendedTabBarButton(tabName, *this, &apvts, dspOption);
   button->setButtonEventListener(this);
   return button;
 }
@@ -121,26 +143,21 @@ void ExtendedTabbedButtonBar::tabDragMoved(ExtendedTabBarButton *button) {
 }
 
 void ExtendedTabbedButtonBar::tabDragEnded(ExtendedTabBarButton *button) {
-  finalizeTabOrder();
-}
-
-void ExtendedTabbedButtonBar::finalizeTabOrder() {
   resized();
 
   MultieffectpluginAudioProcessor::DspOrder newDspOrder;
   for (int i = 0; i < getNumTabs(); i++) {
-    if (auto *tab = getTabButton(i)) {
-      newDspOrder[i] = MultieffectpluginAudioProcessor::getDspOptionFromName(
-          tab->getButtonText());
-    }
+    auto *tab = static_cast<ExtendedTabBarButton *>(getTabButton(i));
+    newDspOrder[i] = tab->dspOption;
   }
   tabOrderListener.call(&TabOrderListener::tabOrderChanged, newDspOrder);
 }
 
 void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
                                                 const juce::String &dspName) {
-  auto dspOption =
-      MultieffectpluginAudioProcessor::getDspOptionFromName(dspName);
+  auto *button =
+      static_cast<ExtendedTabBarButton *>(getTabButton(newSelectionIndex));
+  auto dspOption = button->dspOption;
   tabSelectionListener.call(&TabSelectionListener::tabSelectionChanged,
                             newSelectionIndex, dspOption);
 }
