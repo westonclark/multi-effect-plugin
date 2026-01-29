@@ -478,12 +478,10 @@ void MultieffectpluginAudioProcessor::processBlock(
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
 
-  // Check if there's a new DSP order from the GUI
-  auto newDSPOrder = DspOrder();
-  while (dspOrderFifo.pull(newDSPOrder)) {
-    if (newDSPOrder != DspOrder()) {
-      dspOrder = newDSPOrder;
-    }
+  // Update DSP order from the Fifo
+  DspOrder newDspOrder;
+  while (dspOrderFifo.pull(newDspOrder)) {
+    dspOrder = newDspOrder;
   }
 
   // Process audio in chunks for better parameter smoothing resolution
