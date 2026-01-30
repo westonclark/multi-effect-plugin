@@ -342,6 +342,11 @@ void MultieffectpluginAudioProcessor::DspEffects::prepare(
     processor->reset();
   }
 
+  // Set defualt filter settings for overdrive
+  overdrive.dsp.setMode(juce::dsp::LadderFilterMode::LPF12);
+  overdrive.dsp.setCutoffFrequencyHz(20000.0f);
+  overdrive.dsp.setResonance(0);
+
   inputGain.prepare(spec);
   outputGain.prepare(spec);
   inputGain.setRampDurationSeconds(0.05);
