@@ -83,7 +83,7 @@ struct Parameters {
                                               .displayName = "Delay",
                                               .suffix = " ms",
                                               .type = ParameterType ::Float,
-                                              .maxValue = 100.f,
+                                              .maxValue = 99.f,
                                               .defaultValue = 7.f,
                                               .step = 1.f};
 
@@ -197,8 +197,9 @@ struct Parameters {
                                           .type = ParameterType ::Float,
                                           .minValue = 0.1f,
                                           .maxValue = 10.f,
-                                          .defaultValue = 5.f,
-                                          .step = 0.05f};
+                                          .defaultValue = 1.f,
+                                          .step = 0.05f,
+                                          .skew = 0.29f};
 
     static constexpr Parameter gain = {.id = "Filter Gain",
                                        .displayName = "Gain",
