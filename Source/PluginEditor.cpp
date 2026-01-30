@@ -7,12 +7,15 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.apvts),
       phaserPanel(p.apvts), chorusPanel(p.apvts), drivePanel(p.apvts),
-      ladderFilterPanel(p.apvts), filterPanel(p.apvts) {
+      ladderFilterPanel(p.apvts), filterPanel(p.apvts), input(p.apvts),
+      output(p.apvts) {
 
   setLookAndFeel(&lookAndFeel);
 
   addAndMakeVisible(spectrumAnalyzer);
   addAndMakeVisible(tabBar);
+  addAndMakeVisible(input);
+  addAndMakeVisible(output);
 
   // Load DSP order and populate tabs
   auto dspOrder = audioProcessor.getDspOrderFromState();
@@ -86,6 +89,9 @@ void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
 void MultieffectpluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(10);
+  input.setBounds(bounds.removeFromLeft(80));
+  output.setBounds(bounds.removeFromRight(80));
+
   spectrumAnalyzer.setBounds(bounds.removeFromTop(275));
   tabBar.setBounds(bounds.removeFromTop(25));
 

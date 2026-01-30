@@ -7,6 +7,14 @@
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
       <FILE id="fdOwzz" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
       <GROUP id="{63E3FF49-1B4E-1947-4A0A-4CF10CA7C9C6}" name="GUI">
+        <GROUP id="{47A500CB-F98E-3854-15BA-CE3D71984A4A}" name="Output">
+          <FILE id="zqYa9Q" name="Output.cpp" compile="1" resource="0" file="Source/GUI/Output/Output.cpp"/>
+          <FILE id="F1msxc" name="Output.h" compile="0" resource="0" file="Source/GUI/Output/Output.h"/>
+        </GROUP>
+        <GROUP id="{F75F354E-DE5C-3DE8-D9A1-3AB013E0AEA7}" name="Input">
+          <FILE id="KjtpL3" name="Input.cpp" compile="1" resource="0" file="Source/GUI/Input/Input.cpp"/>
+          <FILE id="WefEiB" name="Input.h" compile="0" resource="0" file="Source/GUI/Input/Input.h"/>
+        </GROUP>
         <FILE id="YKKxNL" name="LookAndFeel.h" compile="0" resource="0" file="Source/GUI/LookAndFeel.h"/>
         <GROUP id="{B8C3E7F1-4D2A-8E5B-9C1F-3A7D6E0F2B4C}" name="ParameterComponents">
           <FILE id="pComp01" name="ParameterComponent.cpp" compile="1" resource="0"

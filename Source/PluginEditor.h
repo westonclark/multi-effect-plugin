@@ -5,8 +5,10 @@
 #include "GUI/DspPanels/Filter/FilterPanel.h"
 #include "GUI/DspPanels/LadderFilter/LadderFilterPanel.h"
 #include "GUI/DspPanels/Phaser/PhaserPanel.h"
+#include "GUI/Input/Input.h"
 #include "GUI/Listeners/Listeners.h"
 #include "GUI/LookAndFeel.h"
+#include "GUI/Output/Output.h"
 #include "GUI/SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "GUI/TabbedButtonBar/TabbedButtonBar.h"
 #include "PluginProcessor.h"
@@ -44,6 +46,8 @@ private:
   DrivePanel drivePanel;
   LadderFilterPanel ladderFilterPanel;
   FilterPanel filterPanel;
+  Input input;
+  Output output;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
       MultieffectpluginAudioProcessorEditor)

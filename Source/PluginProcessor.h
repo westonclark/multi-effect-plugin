@@ -117,6 +117,10 @@ public:
   juce::AudioParameterFloat *filterQuality = nullptr;
   juce::AudioParameterFloat *filterGain = nullptr;
   juce::AudioParameterBool *filterBypass = nullptr;
+  // Input Gain
+  juce::AudioParameterFloat *inputGain = nullptr;
+  // Output Gain
+  juce::AudioParameterFloat *outputGain = nullptr;
 
   // SMOOTHED VALUES
   //==============================================================================
@@ -236,6 +240,9 @@ private:
     DspChoice<juce::dsp::Chorus<float>> chorus;
     DspChoice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
     DspChoice<juce::dsp::IIR::Filter<float>> filter;
+
+    juce::dsp::Gain<float> inputGain;
+    juce::dsp::Gain<float> outputGain;
 
     void prepare(const juce::dsp::ProcessSpec &spec);
     void update();

@@ -128,6 +128,8 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
       {&filterFreq, Parameters::Filter::freq.id},
       {&filterQuality, Parameters::Filter::quality.id},
       {&filterGain, Parameters::Filter::gain.id},
+      {&inputGain, Parameters::Input::gain.id},
+      {&outputGain, Parameters::Output::gain.id},
   };
 
   auto choiceParamInitializers = std::vector<ChoiceParamInitializer>{
@@ -339,6 +341,11 @@ void MultieffectpluginAudioProcessor::DspEffects::prepare(
     processor->prepare(spec);
     processor->reset();
   }
+
+  inputGain.prepare(spec);
+  outputGain.prepare(spec);
+  inputGain.setRampDurationSeconds(0.05);
+  outputGain.setRampDurationSeconds(0.05);
 }
 
 void MultieffectpluginAudioProcessor::DspEffects::update() {
@@ -484,29 +491,34 @@ void MultieffectpluginAudioProcessor::processBlock(
     dspOrder = newDspOrder;
   }
 
-  // Process audio in chunks for better parameter smoothing resolution
-  const int maxChunkSize = 64;
   const auto numSamples = buffer.getNumSamples();
   auto block = juce::dsp::AudioBlock<float>(buffer);
+  auto leftBlock = block.getSingleChannelBlock(0);
+  auto rightBlock = block.getSingleChannelBlock(1);
 
-  for (size_t startSample = 0; startSample < numSamples;) {
-    auto samplesThisChunk =
-        juce::jmin(maxChunkSize, static_cast<int>(numSamples - startSample));
+  updateSmoothers(numSamples, SmootherUpdateMode::updateExisting);
 
-    // Update smoothers for this chunk
-    updateSmoothers(samplesThisChunk, SmootherUpdateMode::updateExisting);
+  leftChannel.inputGain.setGainDecibels(inputGain->get());
+  leftChannel.inputGain.process(
+      juce::dsp::ProcessContextReplacing<float>(leftBlock));
 
-    // Update DSP parameters from smoothed values
-    leftChannel.update();
-    rightChannel.update();
+  rightChannel.inputGain.setGainDecibels(inputGain->get());
+  rightChannel.inputGain.process(
+      juce::dsp::ProcessContextReplacing<float>(rightBlock));
 
-    // Process this chunk
-    auto subBlock = block.getSubBlock(startSample, samplesThisChunk);
-    leftChannel.process(subBlock.getSingleChannelBlock(0), dspOrder);
-    rightChannel.process(subBlock.getSingleChannelBlock(1), dspOrder);
+  leftChannel.update();
+  rightChannel.update();
 
-    startSample += samplesThisChunk;
-  }
+  leftChannel.process(leftBlock, dspOrder);
+  rightChannel.process(rightBlock, dspOrder);
+
+  leftChannel.outputGain.setGainDecibels(outputGain->get());
+  leftChannel.outputGain.process(
+      juce::dsp::ProcessContextReplacing<float>(leftBlock));
+
+  rightChannel.outputGain.setGainDecibels(outputGain->get());
+  rightChannel.outputGain.process(
+      juce::dsp::ProcessContextReplacing<float>(rightBlock));
 }
 
 // EDITOR

@@ -217,6 +217,30 @@ struct Parameters {
                                                          gain, bypass};
   };
 
+  struct Input {
+    static inline const Parameter gain = {.id = "Input Gain",
+                                          .displayName = "Input",
+                                          .suffix = "dB",
+                                          .type = ParameterType ::Float,
+                                          .minValue = -12.f,
+                                          .maxValue = 12.f,
+                                          .step = 0.1f};
+
+    static inline const std::vector<Parameter> params = {gain};
+  };
+
+  struct Output {
+    static inline const Parameter gain = {.id = "Output Gain",
+                                          .displayName = "Output",
+                                          .suffix = "dB",
+                                          .type = ParameterType ::Float,
+                                          .minValue = -12.f,
+                                          .maxValue = 12.f,
+                                          .step = 0.1f};
+
+    static inline const std::vector<Parameter> params = {gain};
+  };
+
   static inline std::vector<Parameter> getAllParameters() {
     std::vector<Parameter> allParameters;
     for (const auto &p : Phaser::params)
@@ -228,6 +252,10 @@ struct Parameters {
     for (const auto &p : LadderFilter::params)
       allParameters.push_back(p);
     for (const auto &p : Filter::params)
+      allParameters.push_back(p);
+    for (const auto &p : Input::params)
+      allParameters.push_back(p);
+    for (const auto &p : Output::params)
       allParameters.push_back(p);
     return allParameters;
   }
