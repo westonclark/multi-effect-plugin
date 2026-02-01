@@ -5,92 +5,96 @@
               jucerFormatVersion="1" cppLanguageStandard="20">
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
-      <FILE id="fdOwzz" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      <GROUP id="{PROC3SS0R-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="Processor">
+        <FILE id="fdOwzz" name="Parameters.h" compile="0" resource="0" file="Source/Processor/Parameters.h"/>
+        <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
+              file="Source/Processor/PluginProcessor.cpp"/>
+        <FILE id="d8q84h" name="PluginProcessor.h" compile="0" resource="0"
+              file="Source/Processor/PluginProcessor.h"/>
+      </GROUP>
       <GROUP id="{63E3FF49-1B4E-1947-4A0A-4CF10CA7C9C6}" name="GUI">
-        <GROUP id="{47A500CB-F98E-3854-15BA-CE3D71984A4A}" name="Output">
-          <FILE id="zqYa9Q" name="Output.cpp" compile="1" resource="0" file="Source/GUI/Output/Output.cpp"/>
-          <FILE id="F1msxc" name="Output.h" compile="0" resource="0" file="Source/GUI/Output/Output.h"/>
-        </GROUP>
-        <GROUP id="{F75F354E-DE5C-3DE8-D9A1-3AB013E0AEA7}" name="Input">
-          <FILE id="KjtpL3" name="Input.cpp" compile="1" resource="0" file="Source/GUI/Input/Input.cpp"/>
-          <FILE id="WefEiB" name="Input.h" compile="0" resource="0" file="Source/GUI/Input/Input.h"/>
-        </GROUP>
         <FILE id="YKKxNL" name="LookAndFeel.h" compile="0" resource="0" file="Source/GUI/LookAndFeel.h"/>
-        <GROUP id="{B8C3E7F1-4D2A-8E5B-9C1F-3A7D6E0F2B4C}" name="ParameterComponents">
-          <FILE id="pComp01" name="ParameterComponent.cpp" compile="1" resource="0"
-                file="Source/GUI/ParameterComponents/ParameterComponent.cpp"/>
-          <FILE id="pComp02" name="ParameterComponent.h" compile="0" resource="0"
-                file="Source/GUI/ParameterComponents/ParameterComponent.h"/>
-          <GROUP id="{C1D4E7F8-5E3B-9F6C-0D2E-4B8F7A1C3D5E}" name="ParameterSlider">
-            <FILE id="pSlid01" name="ParameterSlider.cpp" compile="1" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterSlider/ParameterSlider.cpp"/>
-            <FILE id="pSlid02" name="ParameterSlider.h" compile="0" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterSlider/ParameterSlider.h"/>
+        <GROUP id="{PLUGED1T-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="PluginEditor">
+          <FILE id="Sa5aKJ" name="PluginEditor.cpp" compile="1" resource="0"
+                file="Source/GUI/PluginEditor/PluginEditor.cpp"/>
+          <FILE id="eeiy3A" name="PluginEditor.h" compile="0" resource="0" file="Source/GUI/PluginEditor/PluginEditor.h"/>
+        </GROUP>
+        <GROUP id="{1EC9C8B3-976A-6D1A-14EE-00C64F54AEE8}" name="Components">
+          <GROUP id="{B8C3E7F1-4D2A-8E5B-9C1F-3A7D6E0F2B4C}" name="ParameterControls">
+            <FILE id="pComp01" name="ParameterComponent.cpp" compile="1" resource="0"
+                  file="Source/GUI/Components/ParameterControls/ParameterComponent.cpp"/>
+            <FILE id="pComp02" name="ParameterComponent.h" compile="0" resource="0"
+                  file="Source/GUI/Components/ParameterControls/ParameterComponent.h"/>
+            <GROUP id="{C1D4E7F8-5E3B-9F6C-0D2E-4B8F7A1C3D5E}" name="ParameterSlider">
+              <FILE id="pSlid01" name="ParameterSlider.cpp" compile="1" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterSlider/ParameterSlider.cpp"/>
+              <FILE id="pSlid02" name="ParameterSlider.h" compile="0" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterSlider/ParameterSlider.h"/>
+            </GROUP>
+            <GROUP id="{D2E5F8A9-6F4C-0G7D-1E3F-5C9G8B2D4E6F}" name="ParameterComboBox">
+              <FILE id="pCombo01" name="ParameterComboBox.cpp" compile="1" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterComboBox/ParameterComboBox.cpp"/>
+              <FILE id="pCombo02" name="ParameterComboBox.h" compile="0" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterComboBox/ParameterComboBox.h"/>
+            </GROUP>
+            <GROUP id="{E3F6A9B0-7G5D-1H8E-2F4G-6D0H9C3E5F7G}" name="ParameterToggle">
+              <FILE id="pTogg01" name="ParameterToggle.cpp" compile="1" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterToggle/ParameterToggle.cpp"/>
+              <FILE id="pTogg02" name="ParameterToggle.h" compile="0" resource="0"
+                    file="Source/GUI/Components/ParameterControls/ParameterToggle/ParameterToggle.h"/>
+            </GROUP>
           </GROUP>
-          <GROUP id="{D2E5F8A9-6F4C-0G7D-1E3F-5C9G8B2D4E6F}" name="ParameterComboBox">
-            <FILE id="pCombo01" name="ParameterComboBox.cpp" compile="1" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterComboBox/ParameterComboBox.cpp"/>
-            <FILE id="pCombo02" name="ParameterComboBox.h" compile="0" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterComboBox/ParameterComboBox.h"/>
+          <GROUP id="{47A500CB-F98E-3854-15BA-CE3D71984A4A}" name="Output">
+            <FILE id="zqYa9Q" name="Output.cpp" compile="1" resource="0" file="Source/GUI/Components/Output/Output.cpp"/>
+            <FILE id="F1msxc" name="Output.h" compile="0" resource="0" file="Source/GUI/Components/Output/Output.h"/>
           </GROUP>
-          <GROUP id="{E3F6A9B0-7G5D-1H8E-2F4G-6D0H9C3E5F7G}" name="ParameterToggle">
-            <FILE id="pTogg01" name="ParameterToggle.cpp" compile="1" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterToggle/ParameterToggle.cpp"/>
-            <FILE id="pTogg02" name="ParameterToggle.h" compile="0" resource="0"
-                  file="Source/GUI/ParameterComponents/ParameterToggle/ParameterToggle.h"/>
+          <GROUP id="{F75F354E-DE5C-3DE8-D9A1-3AB013E0AEA7}" name="Input">
+            <FILE id="KjtpL3" name="Input.cpp" compile="1" resource="0" file="Source/GUI/Components/Input/Input.cpp"/>
+            <FILE id="WefEiB" name="Input.h" compile="0" resource="0" file="Source/GUI/Components/Input/Input.h"/>
           </GROUP>
-        </GROUP>
-        <GROUP id="{53FD49A0-FF20-6123-B19F-CD6147E3C719}" name="SpectrumAnalyzer">
-          <FILE id="rY6Mv8" name="SpectrumAnalyzer.cpp" compile="1" resource="0"
-                file="Source/GUI/SpectrumAnalyzer/SpectrumAnalyzer.cpp"/>
-          <FILE id="Vg3FA9" name="SpectrumAnalyzer.h" compile="0" resource="0"
-                file="Source/GUI/SpectrumAnalyzer/SpectrumAnalyzer.h"/>
-        </GROUP>
-        <GROUP id="{F1CA1AAC-A23E-C46C-658F-1ACA97C44A50}" name="TabbedButtonBar">
-          <FILE id="wLtMlA" name="TabbedButtonBar.cpp" compile="1" resource="0"
-                file="Source/GUI/TabbedButtonBar/TabbedButtonBar.cpp"/>
-          <FILE id="P2kN5w" name="TabbedButtonBar.h" compile="0" resource="0"
-                file="Source/GUI/TabbedButtonBar/TabbedButtonBar.h"/>
-          <FILE id="pwrBtn1" name="PowerButton.h" compile="0" resource="0" file="Source/GUI/TabbedButtonBar/PowerButton.h"/>
-        </GROUP>
-        <GROUP id="{23504FCB-9BA9-D41F-BB30-58541E699517}" name="Listeners">
-          <FILE id="jlZTFu" name="Listeners.h" compile="0" resource="0" file="Source/GUI/Listeners/Listeners.h"/>
-        </GROUP>
-        <GROUP id="{1EC9C8B3-976A-6D1A-14EE-00C64F54AEE8}" name="DspPanels">
+          <GROUP id="{53FD49A0-FF20-6123-B19F-CD6147E3C719}" name="SpectrumAnalyzer">
+            <FILE id="rY6Mv8" name="SpectrumAnalyzer.cpp" compile="1" resource="0"
+                  file="Source/GUI/Components/SpectrumAnalyzer/SpectrumAnalyzer.cpp"/>
+            <FILE id="Vg3FA9" name="SpectrumAnalyzer.h" compile="0" resource="0"
+                  file="Source/GUI/Components/SpectrumAnalyzer/SpectrumAnalyzer.h"/>
+          </GROUP>
+          <GROUP id="{F1CA1AAC-A23E-C46C-658F-1ACA97C44A50}" name="TabbedButtonBar">
+            <FILE id="wLtMlA" name="TabbedButtonBar.cpp" compile="1" resource="0"
+                  file="Source/GUI/Components/TabbedButtonBar/TabbedButtonBar.cpp"/>
+            <FILE id="P2kN5w" name="TabbedButtonBar.h" compile="0" resource="0"
+                  file="Source/GUI/Components/TabbedButtonBar/TabbedButtonBar.h"/>
+            <FILE id="pwrBtn1" name="PowerButton.h" compile="0" resource="0" file="Source/GUI/Components/TabbedButtonBar/PowerButton.h"/>
+          </GROUP>
           <GROUP id="{BA3E1475-C3E4-8FB9-9EF5-688427324F94}" name="Phaser">
-            <FILE id="dzPqzN" name="PhaserPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Phaser/PhaserPanel.cpp"/>
-            <FILE id="an6KIq" name="PhaserPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Phaser/PhaserPanel.h"/>
+            <FILE id="dzPqzN" name="PhaserPanel.cpp" compile="1" resource="0" file="Source/GUI/Components/Phaser/PhaserPanel.cpp"/>
+            <FILE id="an6KIq" name="PhaserPanel.h" compile="0" resource="0" file="Source/GUI/Components/Phaser/PhaserPanel.h"/>
           </GROUP>
           <GROUP id="{460F9E87-E8CF-1F6B-5852-32667C1486F7}" name="LadderFilter">
             <FILE id="eQnHWs" name="LadderFilterPanel.cpp" compile="1" resource="0"
-                  file="Source/GUI/DspPanels/LadderFilter/LadderFilterPanel.cpp"/>
+                  file="Source/GUI/Components/LadderFilter/LadderFilterPanel.cpp"/>
             <FILE id="cYMqEd" name="LadderFilterPanel.h" compile="0" resource="0"
-                  file="Source/GUI/DspPanels/LadderFilter/LadderFilterPanel.h"/>
+                  file="Source/GUI/Components/LadderFilter/LadderFilterPanel.h"/>
           </GROUP>
           <GROUP id="{0B4EF024-903B-D216-29F4-32187E075F75}" name="Filter">
-            <FILE id="df6t6D" name="FilterPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Filter/FilterPanel.cpp"/>
-            <FILE id="CY5dqZ" name="FilterPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Filter/FilterPanel.h"/>
+            <FILE id="df6t6D" name="FilterPanel.cpp" compile="1" resource="0" file="Source/GUI/Components/Filter/FilterPanel.cpp"/>
+            <FILE id="CY5dqZ" name="FilterPanel.h" compile="0" resource="0" file="Source/GUI/Components/Filter/FilterPanel.h"/>
           </GROUP>
           <GROUP id="{A90B9D6F-B20E-50A8-2AE6-F3CB6C5167C6}" name="Drive">
-            <FILE id="zvLUnr" name="DrivePanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Drive/DrivePanel.cpp"/>
-            <FILE id="Pw0LaF" name="DrivePanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Drive/DrivePanel.h"/>
+            <FILE id="zvLUnr" name="DrivePanel.cpp" compile="1" resource="0" file="Source/GUI/Components/Drive/DrivePanel.cpp"/>
+            <FILE id="Pw0LaF" name="DrivePanel.h" compile="0" resource="0" file="Source/GUI/Components/Drive/DrivePanel.h"/>
           </GROUP>
           <GROUP id="{241341D3-9E87-9765-4EAD-F8B36B67E740}" name="Chorus">
-            <FILE id="d6vd0u" name="ChorusPanel.cpp" compile="1" resource="0" file="Source/GUI/DspPanels/Chorus/ChorusPanel.cpp"/>
-            <FILE id="rLvoVi" name="ChorusPanel.h" compile="0" resource="0" file="Source/GUI/DspPanels/Chorus/ChorusPanel.h"/>
+            <FILE id="d6vd0u" name="ChorusPanel.cpp" compile="1" resource="0" file="Source/GUI/Components/Chorus/ChorusPanel.cpp"/>
+            <FILE id="rLvoVi" name="ChorusPanel.h" compile="0" resource="0" file="Source/GUI/Components/Chorus/ChorusPanel.h"/>
           </GROUP>
         </GROUP>
       </GROUP>
       <GROUP id="{CA67A969-AB50-51B3-E954-CB5A5DFB4DAA}" name="Utils">
         <FILE id="lXYWh3" name="Fifo.h" compile="0" resource="0" file="Source/Utils/Fifo.h"/>
+        <GROUP id="{23504FCB-9BA9-D41F-BB30-58541E699517}" name="Listeners">
+          <FILE id="jlZTFu" name="Listeners.h" compile="0" resource="0" file="Source/Utils/Listeners/Listeners.h"/>
+        </GROUP>
       </GROUP>
-      <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="d8q84h" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
-      <FILE id="Sa5aKJ" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="eeiy3A" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

@@ -1,5 +1,5 @@
 #include "PhaserPanel.h"
-#include "../../../Parameters.h"
+#include "../../../Processor/Parameters.h"
 
 PhaserPanel::PhaserPanel(juce::AudioProcessorValueTreeState &apvts)
     : apvts(apvts) {

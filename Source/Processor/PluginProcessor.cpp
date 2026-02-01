@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
+#include "../GUI/PluginEditor/PluginEditor.h"
 #include "Parameters.h"
-#include "PluginEditor.h"
 
 // DSP OPTIONS
 //==============================================================================

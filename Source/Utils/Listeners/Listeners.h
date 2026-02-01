@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../PluginProcessor.h"
+#include "../../Processor/PluginProcessor.h"
 
 struct ExtendedTabBarButton; // Forward declaration
 

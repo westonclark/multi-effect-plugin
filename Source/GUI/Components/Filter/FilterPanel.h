@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../ParameterComponents/ParameterComponent.h"
+#include "../ParameterControls/ParameterComponent.h"
 #include <JuceHeader.h>
 
-class Input : public juce::Component {
+class FilterPanel : public juce::Component {
 public:
-  Input(juce::AudioProcessorValueTreeState &apvts);
+  FilterPanel(juce::AudioProcessorValueTreeState &apvts);
   void paint(juce::Graphics &g) override;
   void resized() override;
 

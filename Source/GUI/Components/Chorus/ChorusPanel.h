@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../../ParameterComponents/ParameterComponent.h"
+#include "../ParameterControls/ParameterComponent.h"
 #include <JuceHeader.h>
 
-class PhaserPanel : public juce::Component {
+class ChorusPanel : public juce::Component {
 public:
-  PhaserPanel(juce::AudioProcessorValueTreeState &apvts);
-  void resized() override;
+  ChorusPanel(juce::AudioProcessorValueTreeState &apvts);
   void paint(juce::Graphics &g) override;
+  void resized() override;
 
 private:
   juce::AudioProcessorValueTreeState &apvts;

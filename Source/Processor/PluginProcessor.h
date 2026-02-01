@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Parameters.h"
-#include "Utils/Fifo.h"
+#include "../Utils/Fifo.h"
 #include <JuceHeader.h>
 
 // AUDIO PROCESSOR

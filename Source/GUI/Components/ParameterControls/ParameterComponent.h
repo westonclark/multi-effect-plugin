@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Parameters.h"
+#include "../../../Processor/Parameters.h"
 #include <JuceHeader.h>
 
 class ParameterComponent {

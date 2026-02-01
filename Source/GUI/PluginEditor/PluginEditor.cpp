@@ -1,5 +1,5 @@
 #include "PluginEditor.h"
-#include "PluginProcessor.h"
+#include "../../Processor/PluginProcessor.h"
 
 // EDITOR
 //==============================================================================

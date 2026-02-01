@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../ParameterComponents/ParameterComponent.h"
+#include "../ParameterControls/ParameterComponent.h"
 #include <JuceHeader.h>
 
 class LadderFilterPanel : public juce::Component {

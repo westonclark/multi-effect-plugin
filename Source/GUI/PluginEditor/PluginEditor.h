@@ -1,17 +1,17 @@
 #pragma once
 
-#include "GUI/DspPanels/Chorus/ChorusPanel.h"
-#include "GUI/DspPanels/Drive/DrivePanel.h"
-#include "GUI/DspPanels/Filter/FilterPanel.h"
-#include "GUI/DspPanels/LadderFilter/LadderFilterPanel.h"
-#include "GUI/DspPanels/Phaser/PhaserPanel.h"
-#include "GUI/Input/Input.h"
-#include "GUI/Listeners/Listeners.h"
-#include "GUI/LookAndFeel.h"
-#include "GUI/Output/Output.h"
-#include "GUI/SpectrumAnalyzer/SpectrumAnalyzer.h"
-#include "GUI/TabbedButtonBar/TabbedButtonBar.h"
-#include "PluginProcessor.h"
+#include "../Components/Chorus/ChorusPanel.h"
+#include "../Components/Drive/DrivePanel.h"
+#include "../Components/Filter/FilterPanel.h"
+#include "../Components/Input/Input.h"
+#include "../Components/LadderFilter/LadderFilterPanel.h"
+#include "../Components/Output/Output.h"
+#include "../Components/Phaser/PhaserPanel.h"
+#include "../Components/SpectrumAnalyzer/SpectrumAnalyzer.h"
+#include "../Components/TabbedButtonBar/TabbedButtonBar.h"
+#include "../../Utils/Listeners/Listeners.h"
+#include "../LookAndFeel.h"
+#include "../../Processor/PluginProcessor.h"
 #include <JuceHeader.h>
 
 // EDITOR
