@@ -126,9 +126,16 @@ void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
   juce::dsp::ProcessSpec spec;
   spec.sampleRate = sampleRate;
   spec.maximumBlockSize = samplesPerBlock;
-  spec.numChannels = 1;
 
+  spec.numChannels = 1;
   dsp.prepareToPlay(spec);
+
+  spec.numChannels = 2;
+  inputGain.prepare(spec);
+  outputGain.prepare(spec);
+  inputGain.setRampDurationSeconds(0.05);
+  outputGain.setRampDurationSeconds(0.05);
+
   parameters.prepareToPlay(sampleRate);
 }
 
@@ -169,25 +176,34 @@ void MultieffectpluginAudioProcessor::processBlock(
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-  // Clear buffer of garbage
-  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    buffer.clear(i, 0, buffer.getNumSamples());
-
   // Update DSP order from the Fifo
   DspOrder newDspOrder;
   while (dspOrderFifo.pull(newDspOrder)) {
     dspOrder = newDspOrder;
   }
 
-  const auto numSamples = buffer.getNumSamples();
   auto block = juce::dsp::AudioBlock<float>(buffer);
-  auto leftBlock = block.getSingleChannelBlock(0);
-  auto rightBlock = block.getSingleChannelBlock(1);
 
-  parameters.updateSmoothers(numSamples,
+  inputGain.setGainDecibels(parameters.inputGain->get());
+  inputGain.process(juce::dsp::ProcessContextReplacing<float>(block));
+
+  float inputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
+  float inputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
+  inputLevelFifo.push({inputRmsLeft, inputRmsRight});
+
+  parameters.updateSmoothers(buffer.getNumSamples(),
                              Parameters::SmootherUpdateMode::updateExisting);
 
+  auto leftBlock = block.getSingleChannelBlock(0);
+  auto rightBlock = block.getSingleChannelBlock(1);
   dsp.processBlock(leftBlock, rightBlock, dspOrder);
+
+  outputGain.setGainDecibels(parameters.outputGain->get());
+  outputGain.process(juce::dsp::ProcessContextReplacing<float>(block));
+
+  float outputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
+  float outputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
+  outputLevelFifo.push({outputRmsLeft, outputRmsRight});
 }
 
 // EDITOR

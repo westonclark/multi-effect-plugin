@@ -12,27 +12,10 @@ void DSP::prepareToPlay(const juce::dsp::ProcessSpec &spec) {
 void DSP::processBlock(juce::dsp::AudioBlock<float> leftBlock,
                        juce::dsp::AudioBlock<float> rightBlock,
                        const DspOrder &dspOrder) {
-  leftChannel.inputGain.setGainDecibels(parameters.inputGain->get());
-  leftChannel.inputGain.process(
-      juce::dsp::ProcessContextReplacing<float>(leftBlock));
-
-  rightChannel.inputGain.setGainDecibels(parameters.inputGain->get());
-  rightChannel.inputGain.process(
-      juce::dsp::ProcessContextReplacing<float>(rightBlock));
-
   leftChannel.update();
   rightChannel.update();
-
   leftChannel.process(leftBlock, dspOrder);
   rightChannel.process(rightBlock, dspOrder);
-
-  leftChannel.outputGain.setGainDecibels(parameters.outputGain->get());
-  leftChannel.outputGain.process(
-      juce::dsp::ProcessContextReplacing<float>(leftBlock));
-
-  rightChannel.outputGain.setGainDecibels(parameters.outputGain->get());
-  rightChannel.outputGain.process(
-      juce::dsp::ProcessContextReplacing<float>(rightBlock));
 }
 
 // DSP CHANNEL
@@ -55,11 +38,6 @@ void DSP::DspChannel::prepare(const juce::dsp::ProcessSpec &spec) {
   overdrive.dsp.setMode(juce::dsp::LadderFilterMode::LPF12);
   overdrive.dsp.setCutoffFrequencyHz(20000.0f);
   overdrive.dsp.setResonance(0);
-
-  inputGain.prepare(spec);
-  outputGain.prepare(spec);
-  inputGain.setRampDurationSeconds(0.05);
-  outputGain.setRampDurationSeconds(0.05);
 }
 
 void DSP::DspChannel::update() {

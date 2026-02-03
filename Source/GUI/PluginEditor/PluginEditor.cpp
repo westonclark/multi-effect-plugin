@@ -8,8 +8,9 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.parameters.apvts),
       phaserPanel(p.parameters.apvts), chorusPanel(p.parameters.apvts),
       drivePanel(p.parameters.apvts), ladderFilterPanel(p.parameters.apvts),
-      filterPanel(p.parameters.apvts), input(p.parameters.apvts),
-      output(p.parameters.apvts) {
+      filterPanel(p.parameters.apvts),
+      input(p.parameters.apvts, p.inputLevelFifo),
+      output(p.parameters.apvts, p.outputLevelFifo) {
 
   setLookAndFeel(&lookAndFeel);
 
@@ -56,8 +57,7 @@ MultieffectpluginAudioProcessorEditor::
   setLookAndFeel(nullptr);
 }
 
-void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
-    DspOrder newOrder) {
+void MultieffectpluginAudioProcessorEditor::tabOrderChanged(DspOrder newOrder) {
   audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
 }

@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-template <typename T> class Fifo {
+template <typename T> class DSPOrderFifo {
 public:
   // Push a new value. Returns false only if FIFO is full (8 pending updates).
   bool push(const T &value) {

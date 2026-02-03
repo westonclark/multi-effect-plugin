@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../../Processor/DSP/DSP.h"
 #include "../../../Processor/Parameters/Parameters.h"
-#include "../../../Processor/PluginProcessor/PluginProcessor.h"
 #include "../../../Utils/Listeners/Listeners.h"
 #include <JuceHeader.h>
 

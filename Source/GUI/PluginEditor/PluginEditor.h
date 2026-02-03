@@ -9,9 +9,7 @@
 #include "../Components/Phaser/PhaserPanel.h"
 #include "../Components/SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "../Components/TabbedButtonBar/TabbedButtonBar.h"
-#include "../../Utils/Listeners/Listeners.h"
 #include "../LookAndFeel.h"
-#include "../../Processor/PluginProcessor/PluginProcessor.h"
 #include <JuceHeader.h>
 
 // EDITOR

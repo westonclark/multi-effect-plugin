@@ -63,9 +63,6 @@ private:
     DspChoice<juce::dsp::LadderFilter<float>> overdrive, ladderFilter;
     DspChoice<juce::dsp::IIR::Filter<float>> filter;
 
-    juce::dsp::Gain<float> inputGain;
-    juce::dsp::Gain<float> outputGain;
-
     void prepare(const juce::dsp::ProcessSpec &spec);
     void update();
     void process(juce::dsp::AudioBlock<float> block, const DspOrder &dspOrder);

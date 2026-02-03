@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../../Utils/Fifo.h"
+#include "../../Utils/Fifos/DspOrderFifo.h"
+#include "../../Utils/Fifos/InputLevelFifo.h"
+#include "../../Utils/Fifos/OutputLevelFifo.h"
 #include "../DSP/DSP.h"
 #include "../Parameters/Parameters.h"
 #include <JuceHeader.h>
@@ -62,7 +64,12 @@ public:
   static juce::String getDspNameFromOption(DspOption dspOption);
   static DspOption getDspOptionFromName(const juce::String &name);
 
-  Fifo<DspOrder> dspOrderFifo;
+  DSPOrderFifo<DspOrder> dspOrderFifo;
+  InputLevelFifo<std::vector<float>> inputLevelFifo;
+  OutputLevelFifo<std::vector<float>> outputLevelFifo;
+
+  juce::dsp::Gain<float> inputGain;
+  juce::dsp::Gain<float> outputGain;
 
   void saveDspOrderToState(const DspOrder &order);
   DspOrder getDspOrderFromState() const;
