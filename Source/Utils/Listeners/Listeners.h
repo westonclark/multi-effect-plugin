@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Processor/PluginProcessor.h"
+#include "../../Processor/DSP/DSP.h"
 
 struct ExtendedTabBarButton; // Forward declaration
 
@@ -8,17 +8,15 @@ struct ExtendedTabBarButton; // Forward declaration
 //==============================================================================
 struct TabOrderListener {
   virtual ~TabOrderListener() = default;
-  virtual void
-  tabOrderChanged(MultieffectpluginAudioProcessor::DspOrder newDspOrder) = 0;
+  virtual void tabOrderChanged(DspOrder newDspOrder) = 0;
 };
 
 // TAB SELECTION LISTENER
 //==============================================================================
 struct TabSelectionListener {
   virtual ~TabSelectionListener() = default;
-  virtual void
-  tabSelectionChanged(int newSelectionIndex,
-                      MultieffectpluginAudioProcessor::DspOption dspOption) = 0;
+  virtual void tabSelectionChanged(int newSelectionIndex,
+                                   DspOption dspOption) = 0;
 };
 
 // TAB BUTTON EVENT LISTENER

@@ -1,14 +1,15 @@
 #include "PluginEditor.h"
-#include "../../Processor/PluginProcessor.h"
+#include "../../Processor/PluginProcessor/PluginProcessor.h"
 
 // EDITOR
 //==============================================================================
 MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
     MultieffectpluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.apvts),
-      phaserPanel(p.apvts), chorusPanel(p.apvts), drivePanel(p.apvts),
-      ladderFilterPanel(p.apvts), filterPanel(p.apvts), input(p.apvts),
-      output(p.apvts) {
+    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.parameters.apvts),
+      phaserPanel(p.parameters.apvts), chorusPanel(p.parameters.apvts),
+      drivePanel(p.parameters.apvts), ladderFilterPanel(p.parameters.apvts),
+      filterPanel(p.parameters.apvts), input(p.parameters.apvts),
+      output(p.parameters.apvts) {
 
   setLookAndFeel(&lookAndFeel);
 
@@ -56,30 +57,23 @@ MultieffectpluginAudioProcessorEditor::
 }
 
 void MultieffectpluginAudioProcessorEditor::tabOrderChanged(
-    MultieffectpluginAudioProcessor::DspOrder newOrder) {
+    DspOrder newOrder) {
   audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
 void MultieffectpluginAudioProcessorEditor::tabSelectionChanged(
-    int newSelectionIndex,
-    MultieffectpluginAudioProcessor::DspOption dspOption) {
+    int newSelectionIndex, DspOption dspOption) {
   showDspPanel(dspOption);
   audioProcessor.saveSelectedTabToState(dspOption);
 }
 
-void MultieffectpluginAudioProcessorEditor::showDspPanel(
-    MultieffectpluginAudioProcessor::DspOption dspOption) {
-  phaserPanel.setVisible(dspOption ==
-                         MultieffectpluginAudioProcessor::DspOption::Phase);
-  chorusPanel.setVisible(dspOption ==
-                         MultieffectpluginAudioProcessor::DspOption::Chorus);
-  drivePanel.setVisible(dspOption ==
-                        MultieffectpluginAudioProcessor::DspOption::OverDrive);
-  ladderFilterPanel.setVisible(
-      dspOption == MultieffectpluginAudioProcessor::DspOption::LadderFilter);
-  filterPanel.setVisible(dspOption ==
-                         MultieffectpluginAudioProcessor::DspOption::Filter);
+void MultieffectpluginAudioProcessorEditor::showDspPanel(DspOption dspOption) {
+  phaserPanel.setVisible(dspOption == DspOption::Phase);
+  chorusPanel.setVisible(dspOption == DspOption::Chorus);
+  drivePanel.setVisible(dspOption == DspOption::OverDrive);
+  ladderFilterPanel.setVisible(dspOption == DspOption::LadderFilter);
+  filterPanel.setVisible(dspOption == DspOption::Filter);
 }
 
 void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {

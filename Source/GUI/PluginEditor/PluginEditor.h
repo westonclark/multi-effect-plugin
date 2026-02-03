@@ -11,7 +11,7 @@
 #include "../Components/TabbedButtonBar/TabbedButtonBar.h"
 #include "../../Utils/Listeners/Listeners.h"
 #include "../LookAndFeel.h"
-#include "../../Processor/PluginProcessor.h"
+#include "../../Processor/PluginProcessor/PluginProcessor.h"
 #include <JuceHeader.h>
 
 // EDITOR
@@ -26,17 +26,14 @@ public:
   void paint(juce::Graphics &) override;
   void resized() override;
 
-  void
-  tabOrderChanged(MultieffectpluginAudioProcessor::DspOrder newOrder) override;
-  void tabSelectionChanged(
-      int newSelectionIndex,
-      MultieffectpluginAudioProcessor::DspOption dspOption) override;
+  void tabOrderChanged(DspOrder newOrder) override;
+  void tabSelectionChanged(int newSelectionIndex, DspOption dspOption) override;
 
 private:
   LookAndFeel lookAndFeel;
   MultieffectpluginAudioProcessor &audioProcessor;
 
-  void showDspPanel(MultieffectpluginAudioProcessor::DspOption dspOption);
+  void showDspPanel(DspOption dspOption);
 
   ExtendedTabbedButtonBar tabBar;
   SpectrumAnalyzer spectrumAnalyzer;

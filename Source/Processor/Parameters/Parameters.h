@@ -17,7 +17,10 @@ struct Parameter {
   const juce::StringArray *choices = nullptr;
 };
 
-struct Parameters {
+// STATIC PARAMETER DEFINITIONS
+//============================================================================
+class Parameters {
+public:
   struct Phaser {
     static constexpr Parameter rate = {.id = "Phaser Rate",
                                        .displayName = "Rate",
@@ -260,4 +263,122 @@ struct Parameters {
       allParameters.push_back(p);
     return allParameters;
   }
+
+  // CONSTRUCTOR
+  //============================================================================
+  Parameters(juce::AudioProcessor &processor);
+
+  // APVTS
+  //============================================================================
+  juce::AudioProcessorValueTreeState apvts;
+
+  // PARAMETER POINTERS
+  //============================================================================
+  // Phaser
+  juce::AudioParameterFloat *phaserRate = nullptr;
+  juce::AudioParameterFloat *phaserDepth = nullptr;
+  juce::AudioParameterFloat *phaserCenterFreq = nullptr;
+  juce::AudioParameterFloat *phaserFeedback = nullptr;
+  juce::AudioParameterFloat *phaserMix = nullptr;
+  juce::AudioParameterBool *phaserBypass = nullptr;
+  // Chorus
+  juce::AudioParameterFloat *chorusRate = nullptr;
+  juce::AudioParameterFloat *chorusDepth = nullptr;
+  juce::AudioParameterFloat *chorusCenterDelay = nullptr;
+  juce::AudioParameterFloat *chorusFeedback = nullptr;
+  juce::AudioParameterFloat *chorusMix = nullptr;
+  juce::AudioParameterBool *chorusBypass = nullptr;
+  // Drive
+  juce::AudioParameterFloat *overdriveSaturation = nullptr;
+  juce::AudioParameterBool *overdriveBypass = nullptr;
+  // Ladder Filter
+  juce::AudioParameterChoice *ladderFilterMode = nullptr;
+  juce::AudioParameterFloat *ladderFilterCutoff = nullptr;
+  juce::AudioParameterFloat *ladderFilterResonance = nullptr;
+  juce::AudioParameterFloat *ladderFilterDrive = nullptr;
+  juce::AudioParameterBool *ladderFilterBypass = nullptr;
+  // Filter
+  juce::AudioParameterChoice *filterMode = nullptr;
+  juce::AudioParameterFloat *filterFreq = nullptr;
+  juce::AudioParameterFloat *filterQuality = nullptr;
+  juce::AudioParameterFloat *filterGain = nullptr;
+  juce::AudioParameterBool *filterBypass = nullptr;
+  // Input Gain
+  juce::AudioParameterFloat *inputGain = nullptr;
+  // Output Gain
+  juce::AudioParameterFloat *outputGain = nullptr;
+
+  // SMOOTHED VALUES
+  //============================================================================
+  // Phaser
+  juce::SmoothedValue<float> phaserRateSmoother;
+  juce::SmoothedValue<float> phaserDepthSmoother;
+  juce::SmoothedValue<float> phaserCenterFreqSmoother;
+  juce::SmoothedValue<float> phaserFeedbackSmoother;
+  juce::SmoothedValue<float> phaserMixSmoother;
+  // Chorus
+  juce::SmoothedValue<float> chorusRateSmoother;
+  juce::SmoothedValue<float> chorusDepthSmoother;
+  juce::SmoothedValue<float> chorusCenterDelaySmoother;
+  juce::SmoothedValue<float> chorusFeedbackSmoother;
+  juce::SmoothedValue<float> chorusMixSmoother;
+  // Drive
+  juce::SmoothedValue<float> overdriveSaturationSmoother;
+  // Ladder Filter
+  juce::SmoothedValue<float> ladderFilterCutoffSmoother;
+  juce::SmoothedValue<float> ladderFilterResonanceSmoother;
+  juce::SmoothedValue<float> ladderFilterDriveSmoother;
+  // Filter
+  juce::SmoothedValue<float> filterFreqSmoother;
+  juce::SmoothedValue<float> filterQualitySmoother;
+  juce::SmoothedValue<float> filterGainSmoother;
+
+  // PARAMETER MANAGEMENT
+  //============================================================================
+  void prepareToPlay(double sampleRate);
+  enum class SmootherUpdateMode { initialize, updateExisting };
+  void updateSmoothers(int samplesToSkip, SmootherUpdateMode smootherMode);
+
+  static juce::AudioProcessorValueTreeState::ParameterLayout
+  createParameterLayout();
+
+private:
+  // PARAMETER INITIALIZATION
+  //============================================================================
+  struct FloatParamInitializer {
+    juce::AudioParameterFloat **paramPtr;
+    const char *paramName;
+  };
+
+  struct ChoiceParamInitializer {
+    juce::AudioParameterChoice **paramPtr;
+    const Parameter &param;
+  };
+
+  struct BoolParamInitializer {
+    juce::AudioParameterBool **paramPtr;
+    const Parameter &param;
+  };
+
+  template <typename ParamType, typename InitStruct>
+  void initCachedParams(const std::vector<InitStruct> &paramInitializers) {
+    for (const auto &initializer : paramInitializers) {
+      *initializer.paramPtr =
+          dynamic_cast<ParamType>(apvts.getParameter(initializer.paramName));
+      jassert(*initializer.paramPtr != nullptr);
+    }
+  }
+
+  void initCachedChoiceParams(
+      const std::vector<ChoiceParamInitializer> &paramInitializers);
+  void initCachedBoolParams(
+      const std::vector<BoolParamInitializer> &paramInitializers);
+
+  // PARAMETER SMOOTHING
+  //============================================================================
+  struct ParamSmootherPair {
+    juce::AudioParameterFloat *param;
+    juce::SmoothedValue<float> *smoother;
+  };
+  std::vector<ParamSmootherPair> paramSmootherPairs;
 };

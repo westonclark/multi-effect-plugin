@@ -1,26 +1,25 @@
 #pragma once
 
-#include "../../../Processor/Parameters.h"
-#include "../../../Processor/PluginProcessor.h"
+#include "../../../Processor/Parameters/Parameters.h"
+#include "../../../Processor/PluginProcessor/PluginProcessor.h"
 #include "../../../Utils/Listeners/Listeners.h"
 #include <JuceHeader.h>
 
 // BYPASS PARAMETER LOOKUP
 //==============================================================================
-inline const Parameter &
-getBypassParam(MultieffectpluginAudioProcessor::DspOption option) {
+inline const Parameter &getBypassParam(DspOption option) {
   switch (option) {
-  case MultieffectpluginAudioProcessor::DspOption::Phase:
+  case DspOption::Phase:
     return Parameters::Phaser::bypass;
-  case MultieffectpluginAudioProcessor::DspOption::Chorus:
+  case DspOption::Chorus:
     return Parameters::Chorus::bypass;
-  case MultieffectpluginAudioProcessor::DspOption::OverDrive:
+  case DspOption::OverDrive:
     return Parameters::Overdrive::bypass;
-  case MultieffectpluginAudioProcessor::DspOption::LadderFilter:
+  case DspOption::LadderFilter:
     return Parameters::LadderFilter::bypass;
-  case MultieffectpluginAudioProcessor::DspOption::Filter:
+  case DspOption::Filter:
     return Parameters::Filter::bypass;
-  case MultieffectpluginAudioProcessor::DspOption::END_OF_LIST:
+  case DspOption::END_OF_LIST:
     break;
   }
   return Parameters::Phaser::bypass;
@@ -49,7 +48,7 @@ private:
 struct ExtendedTabBarButton : juce::TabBarButton {
   ExtendedTabBarButton(const juce::String &name, juce::TabbedButtonBar &owner,
                        juce::AudioProcessorValueTreeState *apvts,
-                       MultieffectpluginAudioProcessor::DspOption dspOption);
+                       DspOption dspOption);
 
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
@@ -58,7 +57,7 @@ struct ExtendedTabBarButton : juce::TabBarButton {
 
   void setButtonEventListener(TabButtonEventListener *l) { listener = l; }
 
-  MultieffectpluginAudioProcessor::DspOption dspOption;
+  DspOption dspOption;
 
 private:
   juce::ComponentDragger dragger;
@@ -74,8 +73,7 @@ private:
 struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, TabButtonEventListener {
   ExtendedTabbedButtonBar(juce::AudioProcessorValueTreeState &apvts);
 
-  void addTab(MultieffectpluginAudioProcessor::DspOption option,
-              int insertIndex = -1);
+  void addTab(DspOption option, int insertIndex = -1);
 
   juce::TabBarButton *createTabButton(const juce::String &tabName,
                                       int tabIndex) override;

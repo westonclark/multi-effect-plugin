@@ -6,11 +6,20 @@
   <MAINGROUP id="xur83W" name="multi-effect-plugin">
     <GROUP id="{A712A71E-8B0B-96AD-0A1D-17D55AEF44C7}" name="Source">
       <GROUP id="{PROC3SS0R-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="Processor">
-        <FILE id="fdOwzz" name="Parameters.h" compile="0" resource="0" file="Source/Processor/Parameters.h"/>
-        <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
-              file="Source/Processor/PluginProcessor.cpp"/>
-        <FILE id="d8q84h" name="PluginProcessor.h" compile="0" resource="0"
-              file="Source/Processor/PluginProcessor.h"/>
+        <GROUP id="{PARAM3T3RS-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="Parameters">
+          <FILE id="param1" name="Parameters.cpp" compile="1" resource="0" file="Source/Processor/Parameters/Parameters.cpp"/>
+          <FILE id="param2" name="Parameters.h" compile="0" resource="0" file="Source/Processor/Parameters/Parameters.h"/>
+        </GROUP>
+        <GROUP id="{DSP000000-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="DSP">
+          <FILE id="dspcpp" name="DSP.cpp" compile="1" resource="0" file="Source/Processor/DSP/DSP.cpp"/>
+          <FILE id="dsphdr" name="DSP.h" compile="0" resource="0" file="Source/Processor/DSP/DSP.h"/>
+        </GROUP>
+        <GROUP id="{PLUGPROC-F0LD-3R1D-NEWG-R0UP1D3NT1F13R}" name="PluginProcessor">
+          <FILE id="Zue1aQ" name="PluginProcessor.cpp" compile="1" resource="0"
+                file="Source/Processor/PluginProcessor/PluginProcessor.cpp"/>
+          <FILE id="d8q84h" name="PluginProcessor.h" compile="0" resource="0"
+                file="Source/Processor/PluginProcessor/PluginProcessor.h"/>
+        </GROUP>
       </GROUP>
       <GROUP id="{63E3FF49-1B4E-1947-4A0A-4CF10CA7C9C6}" name="GUI">
         <FILE id="YKKxNL" name="LookAndFeel.h" compile="0" resource="0" file="Source/GUI/LookAndFeel.h"/>
