@@ -159,8 +159,8 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
       layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
     return false;
 
-  // This checks if the input layout matches the output layout
 #if !JucePlugin_IsSynth
+  // This checks if the input layout matches the output layout
   if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
     return false;
 #endif

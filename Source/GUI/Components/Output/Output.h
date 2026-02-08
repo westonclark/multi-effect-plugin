@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../../../Utils/Fifos/OutputLevelFifo.h"
+#include "../../../Utils/Fifos/InputOutputLevelFifo.h"
 #include "../ParameterControls/ParameterComponent.h"
+#include "../AudioMeter/AudioMeter.h"
 #include <JuceHeader.h>
 
-class Output : public juce::Component, juce::Timer {
+class Output : public juce::Component {
 public:
   Output(juce::AudioProcessorValueTreeState &apvts,
-         OutputLevelFifo<std::vector<float>> &outputLevelFifo);
+         InputOutputLevelFifo<std::vector<float>> &outputLevelFifo);
   void paint(juce::Graphics &g) override;
   void resized() override;
 
@@ -15,8 +16,5 @@ private:
   juce::AudioProcessorValueTreeState &apvts;
   std::vector<std::unique_ptr<ParameterComponent>> controls;
 
-  OutputLevelFifo<std::vector<float>> &outputLevelFifo;
-  std::vector<float> outputLevel = {0.0f, 0.0f};
-
-  void timerCallback() override;
+	AudioMeter outputMeter;
 };

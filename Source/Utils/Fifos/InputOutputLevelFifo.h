@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-template <typename T> class OutputLevelFifo {
+template <typename T> class InputOutputLevelFifo {
 public:
   // Push a new value. Returns false only if FIFO is full (8 pending updates).
   bool push(const T &value) {

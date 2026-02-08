@@ -61,6 +61,11 @@
             <FILE id="KjtpL3" name="Input.cpp" compile="1" resource="0" file="Source/GUI/Components/Input/Input.cpp"/>
             <FILE id="WefEiB" name="Input.h" compile="0" resource="0" file="Source/GUI/Components/Input/Input.h"/>
           </GROUP>
+          <GROUP id="{A7D8E9F0-1B2C-4D5E-8F9A-3C6D7E0F1A2B}" name="AudioMeter">
+            <FILE id="audMtr01" name="AudioMeter.cpp" compile="1" resource="0"
+                  file="Source/GUI/Components/AudioMeter/AudioMeter.cpp"/>
+            <FILE id="audMtr02" name="AudioMeter.h" compile="0" resource="0" file="Source/GUI/Components/AudioMeter/AudioMeter.h"/>
+          </GROUP>
           <GROUP id="{53FD49A0-FF20-6123-B19F-CD6147E3C719}" name="SpectrumAnalyzer">
             <FILE id="rY6Mv8" name="SpectrumAnalyzer.cpp" compile="1" resource="0"
                   file="Source/GUI/Components/SpectrumAnalyzer/SpectrumAnalyzer.cpp"/>
@@ -99,7 +104,11 @@
         </GROUP>
       </GROUP>
       <GROUP id="{CA67A969-AB50-51B3-E954-CB5A5DFB4DAA}" name="Utils">
-        <FILE id="lXYWh3" name="Fifo.h" compile="0" resource="0" file="Source/Utils/Fifo.h"/>
+        <GROUP id="{D6E42570-8390-5B6E-32F9-EACC040E3FDC}" name="Fifos">
+          <FILE id="UzprK2" name="DspOrderFifo.h" compile="0" resource="0" file="Source/Utils/Fifos/DspOrderFifo.h"/>
+          <FILE id="HWeNhI" name="InputOutputLevelFifo.h" compile="0" resource="0"
+                file="Source/Utils/Fifos/InputOutputLevelFifo.h"/>
+        </GROUP>
         <GROUP id="{23504FCB-9BA9-D41F-BB30-58541E699517}" name="Listeners">
           <FILE id="jlZTFu" name="Listeners.h" compile="0" resource="0" file="Source/Utils/Listeners/Listeners.h"/>
         </GROUP>
