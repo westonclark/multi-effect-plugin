@@ -14,7 +14,6 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState &apvts;
-  std::vector<std::unique_ptr<ParameterComponent>> controls;
-
+  std::unique_ptr<ParameterComponent>inputSlider;
   AudioMeter inputMeter;
 };

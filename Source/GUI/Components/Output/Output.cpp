@@ -3,16 +3,15 @@
 Output::Output(juce::AudioProcessorValueTreeState &apvts,
                InputOutputLevelFifo<std::vector<float>> &outputLevelFifo)
     : apvts(apvts), outputMeter(outputLevelFifo) {
-  for (const auto &param : Parameters::Output::params) {
-    if (param.type == ParameterType::Bool)
-      continue;
-    controls.push_back(ParameterComponent::create(param, apvts, this));
-  }
+  outputSlider =
+      ParameterComponent::create(Parameters::Output::gain, apvts, this);
+  addAndMakeVisible(outputMeter);
 }
 
 void Output::paint(juce::Graphics &g) { addAndMakeVisible(outputMeter); }
 
 void Output::resized() {
-  ParameterComponent::layoutHorizontally(getLocalBounds(), controls);
-  outputMeter.setBounds(getLocalBounds().removeFromTop(80));
+  auto bounds = getLocalBounds();
+  outputSlider->setBounds(bounds.removeFromBottom(150));
+  outputMeter.setBounds(bounds);
 }

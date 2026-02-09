@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../../Utils/Fifos/InputOutputLevelFifo.h"
-#include "../ParameterControls/ParameterComponent.h"
 #include "../AudioMeter/AudioMeter.h"
+#include "../ParameterControls/ParameterComponent.h"
 #include <JuceHeader.h>
 
 class Output : public juce::Component {
@@ -14,7 +14,7 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState &apvts;
-  std::vector<std::unique_ptr<ParameterComponent>> controls;
 
-	AudioMeter outputMeter;
+  std::unique_ptr<ParameterComponent> outputSlider;
+  AudioMeter outputMeter;
 };
