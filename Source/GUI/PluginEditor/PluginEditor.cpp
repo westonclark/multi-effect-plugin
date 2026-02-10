@@ -3,8 +3,8 @@
 
 // EDITOR
 //==============================================================================
-MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
-    MultieffectpluginAudioProcessor &p)
+PluginEditor::PluginEditor(
+    PluginProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.parameters.apvts),
       phaserPanel(p.parameters.apvts), chorusPanel(p.parameters.apvts),
       drivePanel(p.parameters.apvts), ladderFilterPanel(p.parameters.apvts),
@@ -50,25 +50,25 @@ MultieffectpluginAudioProcessorEditor::MultieffectpluginAudioProcessorEditor(
   setSize(800, 450);
 }
 
-MultieffectpluginAudioProcessorEditor::
-    ~MultieffectpluginAudioProcessorEditor() {
+PluginEditor::
+    ~PluginEditor() {
   tabBar.removeTabOrderListener(this);
   tabBar.removeTabSelectionListener(this);
   setLookAndFeel(nullptr);
 }
 
-void MultieffectpluginAudioProcessorEditor::tabOrderChanged(DspOrder newOrder) {
+void PluginEditor::tabOrderChanged(DspOrder newOrder) {
   audioProcessor.saveDspOrderToState(newOrder);
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
-void MultieffectpluginAudioProcessorEditor::tabSelectionChanged(
+void PluginEditor::tabSelectionChanged(
     int newSelectionIndex, DspOption dspOption) {
   showDspPanel(dspOption);
   audioProcessor.saveSelectedTabToState(dspOption);
 }
 
-void MultieffectpluginAudioProcessorEditor::showDspPanel(DspOption dspOption) {
+void PluginEditor::showDspPanel(DspOption dspOption) {
   phaserPanel.setVisible(dspOption == DspOption::Phase);
   chorusPanel.setVisible(dspOption == DspOption::Chorus);
   drivePanel.setVisible(dspOption == DspOption::OverDrive);
@@ -76,12 +76,12 @@ void MultieffectpluginAudioProcessorEditor::showDspPanel(DspOption dspOption) {
   filterPanel.setVisible(dspOption == DspOption::Filter);
 }
 
-void MultieffectpluginAudioProcessorEditor::paint(juce::Graphics &g) {
+void PluginEditor::paint(juce::Graphics &g) {
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
-void MultieffectpluginAudioProcessorEditor::resized() {
+void PluginEditor::resized() {
   auto bounds = getLocalBounds().reduced(10);
   input.setBounds(bounds.removeFromLeft(80));
   output.setBounds(bounds.removeFromRight(80));

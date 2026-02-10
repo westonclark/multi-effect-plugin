@@ -92,7 +92,7 @@ void ExtendedTabbedButtonBar::addTab(DspOption option, int insertIndex) {
   auto tabColour =
       findColour(juce::ResizableWindow::backgroundColourId).brighter(0.1f);
   juce::TabbedButtonBar::addTab(
-      MultieffectpluginAudioProcessor::getDspNameFromOption(option), tabColour,
+      PluginProcessor::getDspNameFromOption(option), tabColour,
       insertIndex);
 }
 
@@ -100,7 +100,7 @@ juce::TabBarButton *
 ExtendedTabbedButtonBar::createTabButton(const juce::String &tabName,
                                          int tabIndex) {
   auto dspOption =
-      MultieffectpluginAudioProcessor::getDspOptionFromName(tabName);
+      PluginProcessor::getDspOptionFromName(tabName);
   auto *button = new ExtendedTabBarButton(tabName, *this, &apvts, dspOption);
   button->setButtonEventListener(this);
   return button;

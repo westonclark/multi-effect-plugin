@@ -10,7 +10,7 @@ static const std::map<DspOption, juce::String> DspOptionNamesMap = {
 };
 
 juce::String
-MultieffectpluginAudioProcessor::getDspNameFromOption(DspOption dspOption) {
+PluginProcessor::getDspNameFromOption(DspOption dspOption) {
   for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (option == dspOption) {
       return optionName;
@@ -19,7 +19,7 @@ MultieffectpluginAudioProcessor::getDspNameFromOption(DspOption dspOption) {
   return "None Selected";
 }
 
-DspOption MultieffectpluginAudioProcessor::getDspOptionFromName(
+DspOption PluginProcessor::getDspOptionFromName(
     const juce::String &name) {
   for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (optionName == name) {
@@ -31,7 +31,7 @@ DspOption MultieffectpluginAudioProcessor::getDspOptionFromName(
 
 // AUDIO PROCESSOR
 //==============================================================================
-MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
+PluginProcessor::PluginProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(
           BusesProperties()
@@ -63,15 +63,15 @@ MultieffectpluginAudioProcessor::MultieffectpluginAudioProcessor()
   }
 }
 
-MultieffectpluginAudioProcessor::~MultieffectpluginAudioProcessor() {}
+PluginProcessor::~PluginProcessor() {}
 
 // PLUGIN INFO
 //==============================================================================
-const juce::String MultieffectpluginAudioProcessor::getName() const {
+const juce::String PluginProcessor::getName() const {
   return JucePlugin_Name;
 }
 
-bool MultieffectpluginAudioProcessor::acceptsMidi() const {
+bool PluginProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
   return true;
 #else
@@ -79,7 +79,7 @@ bool MultieffectpluginAudioProcessor::acceptsMidi() const {
 #endif
 }
 
-bool MultieffectpluginAudioProcessor::producesMidi() const {
+bool PluginProcessor::producesMidi() const {
 #if JucePlugin_ProducesMidiOutput
   return true;
 #else
@@ -87,7 +87,7 @@ bool MultieffectpluginAudioProcessor::producesMidi() const {
 #endif
 }
 
-bool MultieffectpluginAudioProcessor::isMidiEffect() const {
+bool PluginProcessor::isMidiEffect() const {
 #if JucePlugin_IsMidiEffect
   return true;
 #else
@@ -95,32 +95,32 @@ bool MultieffectpluginAudioProcessor::isMidiEffect() const {
 #endif
 }
 
-double MultieffectpluginAudioProcessor::getTailLengthSeconds() const {
+double PluginProcessor::getTailLengthSeconds() const {
   return 0.0;
 }
 
 // PROGRAMS
 //==============================================================================
-int MultieffectpluginAudioProcessor::getNumPrograms() {
+int PluginProcessor::getNumPrograms() {
   return 1; // NB: some hosts don't cope very well if you tell them there are
             // 0 programs, so this should be at least 1, even if you're not
             // really implementing programs.
 }
 
-int MultieffectpluginAudioProcessor::getCurrentProgram() { return 0; }
+int PluginProcessor::getCurrentProgram() { return 0; }
 
-void MultieffectpluginAudioProcessor::setCurrentProgram(int index) {}
+void PluginProcessor::setCurrentProgram(int index) {}
 
-const juce::String MultieffectpluginAudioProcessor::getProgramName(int index) {
+const juce::String PluginProcessor::getProgramName(int index) {
   return {};
 }
 
-void MultieffectpluginAudioProcessor::changeProgramName(
+void PluginProcessor::changeProgramName(
     int index, const juce::String &newName) {}
 
 // PREPARE / RELEASE CONFIG
 //==============================================================================
-void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
+void PluginProcessor::prepareToPlay(double sampleRate,
                                                     int samplesPerBlock) {
 
   juce::dsp::ProcessSpec spec;
@@ -139,13 +139,13 @@ void MultieffectpluginAudioProcessor::prepareToPlay(double sampleRate,
   parameters.prepareToPlay(sampleRate);
 }
 
-void MultieffectpluginAudioProcessor::releaseResources() {
+void PluginProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
+bool PluginProcessor::isBusesLayoutSupported(
     const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
   juce::ignoreUnused(layouts);
@@ -170,7 +170,7 @@ bool MultieffectpluginAudioProcessor::isBusesLayoutSupported(
 }
 #endif
 
-void MultieffectpluginAudioProcessor::processBlock(
+void PluginProcessor::processBlock(
     juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
@@ -208,18 +208,18 @@ void MultieffectpluginAudioProcessor::processBlock(
 
 // EDITOR
 //==============================================================================
-bool MultieffectpluginAudioProcessor::hasEditor() const {
+bool PluginProcessor::hasEditor() const {
   return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor *MultieffectpluginAudioProcessor::createEditor() {
-  return new MultieffectpluginAudioProcessorEditor(*this);
+juce::AudioProcessorEditor *PluginProcessor::createEditor() {
+  return new PluginEditor(*this);
   // return new juce::GenericAudioProcessorEditor(*this);
 }
 
 // STATE SAVING METHODS
 //==============================================================================
-void MultieffectpluginAudioProcessor::saveDspOrderToState(
+void PluginProcessor::saveDspOrderToState(
     const DspOrder &order) {
   auto dspOrderTree = parameters.apvts.state.getChildWithName("DspOrder");
   if (!dspOrderTree.isValid()) {
@@ -233,7 +233,7 @@ void MultieffectpluginAudioProcessor::saveDspOrderToState(
   }
 }
 
-DspOrder MultieffectpluginAudioProcessor::getDspOrderFromState() const {
+DspOrder PluginProcessor::getDspOrderFromState() const {
   DspOrder order;
   auto dspOrderTree = parameters.apvts.state.getChildWithName("DspOrder");
 
@@ -252,13 +252,13 @@ DspOrder MultieffectpluginAudioProcessor::getDspOrderFromState() const {
   return order;
 }
 
-void MultieffectpluginAudioProcessor::saveSelectedTabToState(
+void PluginProcessor::saveSelectedTabToState(
     const DspOption &selectedTab) {
   parameters.apvts.state.setProperty(
       "SelectedTab", getDspNameFromOption(selectedTab), nullptr);
 }
 
-DspOption MultieffectpluginAudioProcessor::getSelectedTabFromState() const {
+DspOption PluginProcessor::getSelectedTabFromState() const {
   auto tabName = parameters.apvts.state.getProperty("SelectedTab", "");
   auto option = getDspOptionFromName(tabName);
 
@@ -271,13 +271,13 @@ DspOption MultieffectpluginAudioProcessor::getSelectedTabFromState() const {
 
 // STATE MANAGEMENT
 //==============================================================================
-void MultieffectpluginAudioProcessor::getStateInformation(
+void PluginProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
   juce::MemoryOutputStream memoryStream(destData, false);
   parameters.apvts.state.writeToStream(memoryStream);
 }
 
-void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
+void PluginProcessor::setStateInformation(const void *data,
                                                           int sizeInBytes) {
   auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
   if (tree.isValid()) {
@@ -292,5 +292,5 @@ void MultieffectpluginAudioProcessor::setStateInformation(const void *data,
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {
-  return new MultieffectpluginAudioProcessor();
+  return new PluginProcessor();
 }

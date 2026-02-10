@@ -4,7 +4,7 @@
 #include <JuceHeader.h>
 
 // Forward declaration
-class MultieffectpluginAudioProcessor;
+class PluginProcessor;
 
 enum class DspOption {
   Phase,

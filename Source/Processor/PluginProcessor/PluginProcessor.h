@@ -8,7 +8,7 @@
 
 // AUDIO PROCESSOR
 //==============================================================================
-class MultieffectpluginAudioProcessor : public juce::AudioProcessor
+class PluginProcessor : public juce::AudioProcessor
 #if JucePlugin_Enable_ARA
     ,
                                         public juce::AudioProcessorARAExtension
@@ -17,8 +17,8 @@ class MultieffectpluginAudioProcessor : public juce::AudioProcessor
 public:
   // LIFECYCLE
   //==============================================================================
-  MultieffectpluginAudioProcessor();
-  ~MultieffectpluginAudioProcessor() override;
+  PluginProcessor();
+  ~PluginProcessor() override;
 
   // AUDIO PROCESSING
   //==============================================================================
@@ -87,5 +87,5 @@ private:
   DspOrder dspOrder;
 
   //==============================================================================
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MultieffectpluginAudioProcessor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

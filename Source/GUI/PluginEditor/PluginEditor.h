@@ -14,12 +14,12 @@
 
 // EDITOR
 //==============================================================================
-class MultieffectpluginAudioProcessorEditor : public juce::AudioProcessorEditor,
+class PluginEditor : public juce::AudioProcessorEditor,
                                               public TabOrderListener,
                                               public TabSelectionListener {
 public:
-  MultieffectpluginAudioProcessorEditor(MultieffectpluginAudioProcessor &);
-  ~MultieffectpluginAudioProcessorEditor() override;
+  PluginEditor(PluginProcessor &);
+  ~PluginEditor() override;
 
   void paint(juce::Graphics &) override;
   void resized() override;
@@ -29,7 +29,7 @@ public:
 
 private:
   LookAndFeel lookAndFeel;
-  MultieffectpluginAudioProcessor &audioProcessor;
+  PluginProcessor &audioProcessor;
 
   void showDspPanel(DspOption dspOption);
 
@@ -45,5 +45,5 @@ private:
   Output output;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
-      MultieffectpluginAudioProcessorEditor)
+      PluginEditor)
 };
