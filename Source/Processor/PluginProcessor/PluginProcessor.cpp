@@ -9,8 +9,7 @@ static const std::map<DspOption, juce::String> DspOptionNamesMap = {
     {DspOption::Filter, "Filter"},
 };
 
-juce::String
-PluginProcessor::getDspNameFromOption(DspOption dspOption) {
+juce::String PluginProcessor::getDspNameFromOption(DspOption dspOption) {
   for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (option == dspOption) {
       return optionName;
@@ -19,8 +18,7 @@ PluginProcessor::getDspNameFromOption(DspOption dspOption) {
   return "None Selected";
 }
 
-DspOption PluginProcessor::getDspOptionFromName(
-    const juce::String &name) {
+DspOption PluginProcessor::getDspOptionFromName(const juce::String &name) {
   for (const auto &[option, optionName] : DspOptionNamesMap) {
     if (optionName == name) {
       return option;
@@ -67,9 +65,7 @@ PluginProcessor::~PluginProcessor() {}
 
 // PLUGIN INFO
 //==============================================================================
-const juce::String PluginProcessor::getName() const {
-  return JucePlugin_Name;
-}
+const juce::String PluginProcessor::getName() const { return JucePlugin_Name; }
 
 bool PluginProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
@@ -95,9 +91,7 @@ bool PluginProcessor::isMidiEffect() const {
 #endif
 }
 
-double PluginProcessor::getTailLengthSeconds() const {
-  return 0.0;
-}
+double PluginProcessor::getTailLengthSeconds() const { return 0.0; }
 
 // PROGRAMS
 //==============================================================================
@@ -111,17 +105,14 @@ int PluginProcessor::getCurrentProgram() { return 0; }
 
 void PluginProcessor::setCurrentProgram(int index) {}
 
-const juce::String PluginProcessor::getProgramName(int index) {
-  return {};
-}
+const juce::String PluginProcessor::getProgramName(int index) { return {}; }
 
-void PluginProcessor::changeProgramName(
-    int index, const juce::String &newName) {}
+void PluginProcessor::changeProgramName(int index,
+                                        const juce::String &newName) {}
 
 // PREPARE / RELEASE CONFIG
 //==============================================================================
-void PluginProcessor::prepareToPlay(double sampleRate,
-                                                    int samplesPerBlock) {
+void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 
   juce::dsp::ProcessSpec spec;
   spec.sampleRate = sampleRate;
@@ -145,8 +136,7 @@ void PluginProcessor::releaseResources() {
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool PluginProcessor::isBusesLayoutSupported(
-    const BusesLayout &layouts) const {
+bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
   juce::ignoreUnused(layouts);
   return true;
@@ -170,8 +160,8 @@ bool PluginProcessor::isBusesLayoutSupported(
 }
 #endif
 
-void PluginProcessor::processBlock(
-    juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
+void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
+                                   juce::MidiBuffer &midiMessages) {
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -219,8 +209,7 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor() {
 
 // STATE SAVING METHODS
 //==============================================================================
-void PluginProcessor::saveDspOrderToState(
-    const DspOrder &order) {
+void PluginProcessor::saveDspOrderToState(const DspOrder &order) {
   auto dspOrderTree = parameters.apvts.state.getChildWithName("DspOrder");
   if (!dspOrderTree.isValid()) {
     dspOrderTree = juce::ValueTree("DspOrder");
@@ -252,8 +241,7 @@ DspOrder PluginProcessor::getDspOrderFromState() const {
   return order;
 }
 
-void PluginProcessor::saveSelectedTabToState(
-    const DspOption &selectedTab) {
+void PluginProcessor::saveSelectedTabToState(const DspOption &selectedTab) {
   parameters.apvts.state.setProperty(
       "SelectedTab", getDspNameFromOption(selectedTab), nullptr);
 }
@@ -271,14 +259,12 @@ DspOption PluginProcessor::getSelectedTabFromState() const {
 
 // STATE MANAGEMENT
 //==============================================================================
-void PluginProcessor::getStateInformation(
-    juce::MemoryBlock &destData) {
+void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
   juce::MemoryOutputStream memoryStream(destData, false);
   parameters.apvts.state.writeToStream(memoryStream);
 }
 
-void PluginProcessor::setStateInformation(const void *data,
-                                                          int sizeInBytes) {
+void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
   auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
   if (tree.isValid()) {
     parameters.apvts.replaceState(tree);

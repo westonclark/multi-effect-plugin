@@ -3,8 +3,7 @@
 
 // EDITOR
 //==============================================================================
-PluginEditor::PluginEditor(
-    PluginProcessor &p)
+PluginEditor::PluginEditor(PluginProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.parameters.apvts),
       phaserPanel(p.parameters.apvts), chorusPanel(p.parameters.apvts),
       drivePanel(p.parameters.apvts), ladderFilterPanel(p.parameters.apvts),
@@ -50,8 +49,7 @@ PluginEditor::PluginEditor(
   setSize(800, 450);
 }
 
-PluginEditor::
-    ~PluginEditor() {
+PluginEditor::~PluginEditor() {
   tabBar.removeTabOrderListener(this);
   tabBar.removeTabSelectionListener(this);
   setLookAndFeel(nullptr);
@@ -62,8 +60,8 @@ void PluginEditor::tabOrderChanged(DspOrder newOrder) {
   audioProcessor.dspOrderFifo.push(newOrder);
 }
 
-void PluginEditor::tabSelectionChanged(
-    int newSelectionIndex, DspOption dspOption) {
+void PluginEditor::tabSelectionChanged(int newSelectionIndex,
+                                       DspOption dspOption) {
   showDspPanel(dspOption);
   audioProcessor.saveSelectedTabToState(dspOption);
 }

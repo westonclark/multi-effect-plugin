@@ -15,8 +15,8 @@
 // EDITOR
 //==============================================================================
 class PluginEditor : public juce::AudioProcessorEditor,
-                                              public TabOrderListener,
-                                              public TabSelectionListener {
+                     public TabOrderListener,
+                     public TabSelectionListener {
 public:
   PluginEditor(PluginProcessor &);
   ~PluginEditor() override;
@@ -44,6 +44,5 @@ private:
   Input input;
   Output output;
 
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
-      PluginEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };
