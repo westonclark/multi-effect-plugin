@@ -8,7 +8,7 @@ Output::Output(juce::AudioProcessorValueTreeState &apvts,
   addAndMakeVisible(outputMeter);
 }
 
-void Output::paint(juce::Graphics &g) { addAndMakeVisible(outputMeter); }
+void Output::paint(juce::Graphics &g) {}
 
 void Output::resized() {
   auto bounds = getLocalBounds();
