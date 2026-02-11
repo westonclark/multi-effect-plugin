@@ -29,6 +29,11 @@ public:
                     juce::dsp::AudioBlock<float> rightBlock,
                     const DspOrder &dspOrder);
 
+  juce::ReferenceCountedObjectPtr<juce::dsp::IIR::Coefficients<float>>
+  getFilterCoefficients() const {
+    return leftChannel.filter.dsp.coefficients;
+  }
+
 private:
   // HELPER TYPES
   //==============================================================================

@@ -4,10 +4,10 @@
 // EDITOR
 //==============================================================================
 PluginEditor::PluginEditor(PluginProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p), tabBar(p.parameters.apvts),
-      phaserPanel(p.parameters.apvts), chorusPanel(p.parameters.apvts),
-      drivePanel(p.parameters.apvts), ladderFilterPanel(p.parameters.apvts),
-      filterPanel(p.parameters.apvts),
+    : AudioProcessorEditor(&p), audioProcessor(p), spectrumAnalyzer(p),
+      tabBar(p.parameters.apvts), phaserPanel(p.parameters.apvts),
+      chorusPanel(p.parameters.apvts), drivePanel(p.parameters.apvts),
+      ladderFilterPanel(p.parameters.apvts), filterPanel(p.parameters.apvts),
       input(p.parameters.apvts, p.inputLevelFifo),
       output(p.parameters.apvts, p.outputLevelFifo) {
 
