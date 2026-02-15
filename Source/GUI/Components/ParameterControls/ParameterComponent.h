@@ -10,7 +10,7 @@ public:
 
   static std::unique_ptr<ParameterComponent>
   create(const Parameter &parameter, juce::AudioProcessorValueTreeState &apvts,
-         juce::Component *component);
+         juce::Component *component, bool showLabel = true);
 
   static void layoutHorizontally(
       juce::Rectangle<int> bounds,

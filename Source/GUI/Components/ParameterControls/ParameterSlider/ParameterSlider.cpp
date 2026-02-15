@@ -2,8 +2,9 @@
 
 ParameterSlider::ParameterSlider(const Parameter &parameter,
                                  juce::AudioProcessorValueTreeState &apvts,
-                                 juce::Component *component)
-    : parameter(parameter), component(component) {
+                                 juce::Component *component,
+                                 bool showLabel)
+    : parameter(parameter), component(component), showLabel(showLabel) {
 
   if (juce::String(parameter.suffix) == "%") {
     slider = std::make_unique<PercentSlider>();
@@ -24,15 +25,19 @@ ParameterSlider::ParameterSlider(const Parameter &parameter,
   slider->updateText();
   component->addAndMakeVisible(*slider);
 
-  label = std::make_unique<juce::Label>();
-  label->setText(parameter.displayName, juce::dontSendNotification);
-  label->setJustificationType(juce::Justification::centred);
-  component->addAndMakeVisible(*label);
+  if (showLabel) {
+    label = std::make_unique<juce::Label>();
+    label->setText(parameter.displayName, juce::dontSendNotification);
+    label->setJustificationType(juce::Justification::centred);
+    component->addAndMakeVisible(*label);
+  }
 }
 
 void ParameterSlider::setBounds(juce::Rectangle<int> bounds) {
   bounds.removeFromTop(10);
   bounds.removeFromBottom(10);
-  label->setBounds(bounds.removeFromTop(20));
+  if (showLabel && label) {
+    label->setBounds(bounds.removeFromTop(20));
+  }
   slider->setBounds(bounds);
 }

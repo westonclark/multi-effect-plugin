@@ -2,6 +2,7 @@
 
 #include "../../../Utils/Fifos/InputOutputLevelFifo.h"
 #include <JuceHeader.h>
+#include <array>
 
 class AudioMeter : public juce::Component, juce::Timer {
 public:
@@ -22,4 +23,6 @@ private:
 
   static constexpr float ATTACK = 0.9f;
   static constexpr float RELEASE = 0.92f;
+
+  std::array<std::array<juce::Rectangle<float>, NUM_SEGMENTS>, 2> segments;
 };

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-
-// Forward declaration
 class PluginProcessor;
 
 class SpectrumAnalyzer : public juce::Component, public juce::Timer {

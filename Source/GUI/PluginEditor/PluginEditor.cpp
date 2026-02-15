@@ -77,16 +77,38 @@ void PluginEditor::showDspPanel(DspOption dspOption) {
 void PluginEditor::paint(juce::Graphics &g) {
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+
+  // Draw border around DSP panel area (tabs + effect controls)
+  if (!dspPanelBounds.isEmpty()) {
+    LookAndFeel::drawBorder(g, getLookAndFeel(), dspPanelBounds);
+  }
 }
 
 void PluginEditor::resized() {
   auto bounds = getLocalBounds().reduced(10);
-  input.setBounds(bounds.removeFromLeft(80));
-  output.setBounds(bounds.removeFromRight(80));
 
-  spectrumAnalyzer.setBounds(bounds.removeFromTop(275));
-  tabBar.setBounds(bounds.removeFromTop(25));
+  // I/O sections with slightly more width
+  input.setBounds(bounds.removeFromLeft(85));
+  bounds.removeFromLeft(5);  // Gap
+  output.setBounds(bounds.removeFromRight(85));
+  bounds.removeFromRight(5);  // Gap
 
+  // Spectrum analyzer - reduced height to give more space to effect panels
+  spectrumAnalyzer.setBounds(bounds.removeFromTop(260));
+
+  // Small gap before tabs
+  bounds.removeFromTop(3);
+
+  // Store the DSP panel bounds (tabs + effects) for border drawing
+  dspPanelBounds = bounds;
+
+  // Tab bar with more height for better look
+  tabBar.setBounds(bounds.removeFromTop(28));
+
+  // No gap after tabs - they should join with the panel
+  // bounds.removeFromTop(2);
+
+  // Effect panels - now have more vertical space for larger knobs
   phaserPanel.setBounds(bounds);
   chorusPanel.setBounds(bounds);
   drivePanel.setBounds(bounds);

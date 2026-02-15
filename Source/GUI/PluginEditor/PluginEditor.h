@@ -44,5 +44,7 @@ private:
   Input input;
   Output output;
 
+  juce::Rectangle<int> dspPanelBounds;  // Track DSP panel area for border
+
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../Utils/Fifos/InputOutputLevelFifo.h"
+#include "../../LookAndFeel.h"
 #include "../AudioMeter/AudioMeter.h"
 #include "../ParameterControls/ParameterComponent.h"
 #include <JuceHeader.h>
@@ -14,6 +15,7 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState &apvts;
-  std::unique_ptr<ParameterComponent>inputSlider;
+  std::unique_ptr<ParameterComponent> inputSlider;
   AudioMeter inputMeter;
+  juce::Label label;
 };

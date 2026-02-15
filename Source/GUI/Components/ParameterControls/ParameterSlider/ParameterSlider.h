@@ -20,13 +20,15 @@ class ParameterSlider : public ParameterComponent {
 public:
   ParameterSlider(const Parameter &parameter,
                   juce::AudioProcessorValueTreeState &apvts,
-                  juce::Component *component);
+                  juce::Component *component,
+                  bool showLabel = true);
 
   void setBounds(juce::Rectangle<int> bounds) override;
 
 private:
   Parameter parameter;
   juce::Component *component;
+  bool showLabel;
 
   std::unique_ptr<juce::Slider> slider;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>

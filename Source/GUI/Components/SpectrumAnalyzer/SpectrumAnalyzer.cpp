@@ -8,7 +8,13 @@ SpectrumAnalyzer::SpectrumAnalyzer(PluginProcessor &audioProcessor)
 };
 
 void SpectrumAnalyzer::paint(juce::Graphics &g) {
-  SpectrumAnalyzer::drawFilterCurve(g, getLocalBounds());
+  auto bounds = getLocalBounds();
+
+  // Border
+  LookAndFeel::drawBorder(g, getLookAndFeel(), bounds);
+
+  // Filter Curve
+  SpectrumAnalyzer::drawFilterCurve(g, bounds);
 }
 
 void SpectrumAnalyzer::resized() { repaint(); };

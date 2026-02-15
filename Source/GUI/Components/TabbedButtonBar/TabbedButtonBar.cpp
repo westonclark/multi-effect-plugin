@@ -48,7 +48,8 @@ ExtendedTabBarButton::ExtendedTabBarButton(
       std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
           *apvts, bypassParam.id, *powerButton);
 
-  setExtraComponent(powerButton, juce::TabBarButton::beforeText);
+  auto *paddedButton = new PaddedPowerButton(powerButton);
+  setExtraComponent(paddedButton, juce::TabBarButton::beforeText);
 }
 
 void ExtendedTabBarButton::mouseDown(const juce::MouseEvent &e) {
@@ -90,7 +91,7 @@ ExtendedTabbedButtonBar::ExtendedTabbedButtonBar(
 
 void ExtendedTabbedButtonBar::addTab(DspOption option, int insertIndex) {
   auto tabColour =
-      findColour(juce::ResizableWindow::backgroundColourId).brighter(0.1f);
+      findColour(juce::ResizableWindow::backgroundColourId);
   juce::TabbedButtonBar::addTab(
       PluginProcessor::getDspNameFromOption(option), tabColour,
       insertIndex);
@@ -157,10 +158,12 @@ void ExtendedTabbedButtonBar::tabDragEnded(ExtendedTabBarButton *button) {
 void ExtendedTabbedButtonBar::currentTabChanged(int newSelectionIndex,
                                                 const juce::String &dspName) {
   // Update background colors for all tabs based on selection state
+  // Selected tab matches the main background (joined look)
   auto baseColour = findColour(juce::ResizableWindow::backgroundColourId);
-  auto unselectedColour = baseColour.brighter(0.05f);
+  auto selectedColour = baseColour;  // Same as panel background
+  auto unselectedColour = baseColour.brighter(0.06f);
   for (int i = 0; i < getNumTabs(); ++i) {
-    setTabBackgroundColour(i, i == newSelectionIndex ? baseColour
+    setTabBackgroundColour(i, i == newSelectionIndex ? selectedColour
                                                      : unselectedColour);
   }
 

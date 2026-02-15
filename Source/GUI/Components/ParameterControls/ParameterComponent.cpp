@@ -6,10 +6,11 @@
 std::unique_ptr<ParameterComponent>
 ParameterComponent::create(const Parameter &parameter,
                            juce::AudioProcessorValueTreeState &apvts,
-                           juce::Component *component) {
+                           juce::Component *component,
+                           bool showLabel) {
   switch (parameter.type) {
   case ParameterType::Float:
-    return std::make_unique<ParameterSlider>(parameter, apvts, component);
+    return std::make_unique<ParameterSlider>(parameter, apvts, component, showLabel);
   case ParameterType::Choice:
     return std::make_unique<ParameterComboBox>(parameter, apvts, component);
   case ParameterType::Bool:
