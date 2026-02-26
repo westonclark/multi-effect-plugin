@@ -1,7 +1,7 @@
 #include "Input.h"
 
 Input::Input(juce::AudioProcessorValueTreeState &apvts,
-             InputOutputLevelFifo<std::vector<float>> &inputLevelFifo)
+             AudioMeterFifo<std::vector<float>> &inputLevelFifo)
     : apvts(apvts), inputMeter(inputLevelFifo) {
   inputSlider =
       ParameterComponent::create(Parameters::Input::gain, apvts, this, false);

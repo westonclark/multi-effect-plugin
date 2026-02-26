@@ -127,6 +127,8 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   inputGain.setRampDurationSeconds(0.05);
   outputGain.setRampDurationSeconds(0.05);
 
+  samplesForAnalyzer.resize(samplesPerBlock);
+
   parameters.prepareToPlay(sampleRate);
 }
 
@@ -165,35 +167,48 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
+  auto block = juce::dsp::AudioBlock<float>(buffer);
 
-  // Update DSP order from the Fifo
+  // Update DSP order
   DspOrder newDspOrder;
   while (dspOrderFifo.pull(newDspOrder)) {
     dspOrder = newDspOrder;
   }
 
-  auto block = juce::dsp::AudioBlock<float>(buffer);
-
+  // Input Gain
   inputGain.setGainDecibels(parameters.inputGain->get());
   inputGain.process(juce::dsp::ProcessContextReplacing<float>(block));
 
+  // Input Meter
   float inputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
   float inputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
   inputLevelFifo.push({inputRmsLeft, inputRmsRight});
 
+  // Update Smoothers
   parameters.updateSmoothers(buffer.getNumSamples(),
                              Parameters::SmootherUpdateMode::updateExisting);
 
+  // Process
   auto leftBlock = block.getSingleChannelBlock(0);
   auto rightBlock = block.getSingleChannelBlock(1);
   dsp.processBlock(leftBlock, rightBlock, dspOrder);
 
+  // Output Gain
   outputGain.setGainDecibels(parameters.outputGain->get());
   outputGain.process(juce::dsp::ProcessContextReplacing<float>(block));
 
+  // Output Meter
   float outputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
   float outputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
   outputLevelFifo.push({outputRmsLeft, outputRmsRight});
+
+  // Spectrum Analyzer
+  int numSamples = buffer.getNumSamples();
+  for (int i = 0; i < numSamples; ++i) {
+    samplesForAnalyzer[i] =
+        (buffer.getSample(0, i) + buffer.getSample(1, i)) * 0.5f;
+  }
+  analyzerFifo.push(samplesForAnalyzer);
 }
 
 // EDITOR

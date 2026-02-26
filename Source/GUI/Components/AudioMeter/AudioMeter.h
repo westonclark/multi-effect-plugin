@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../../../Utils/Fifos/InputOutputLevelFifo.h"
+#include "../../../Utils/Fifos/AudioMeterFifo.h"
 #include <JuceHeader.h>
 #include <array>
 
 class AudioMeter : public juce::Component, juce::Timer {
 public:
-  AudioMeter(InputOutputLevelFifo<std::vector<float>> &inputOutputLevelFifo);
+  AudioMeter(AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo);
   void paint(juce::Graphics &g) override;
   void resized() override;
 
 private:
-  InputOutputLevelFifo<std::vector<float>> &inputOutputLevelFifo;
+  AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo;
   std::vector<float> rawLevel = {0.0f, 0.0f};
   std::vector<float> smoothedLevel = {0.0f, 0.0f};
 

@@ -2,7 +2,7 @@
 #include "../../LookAndFeel.h"
 
 AudioMeter::AudioMeter(
-    InputOutputLevelFifo<std::vector<float>> &inputOutputLevelFifo)
+    AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo)
     : inputOutputLevelFifo(inputOutputLevelFifo) {
   startTimerHz(60);
 }

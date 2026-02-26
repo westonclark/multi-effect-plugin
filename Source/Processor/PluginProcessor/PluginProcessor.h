@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../Utils/Fifos/DspOrderFifo.h"
-#include "../../Utils/Fifos/InputOutputLevelFifo.h"
+#include "../../Utils/Fifos/AudioMeterFifo.h"
+#include "../../Utils/Fifos/SpectrumAnalyzerFifo.h"
 #include "../DSP/DSP.h"
 #include "../Parameters/Parameters.h"
 #include <JuceHeader.h>
@@ -64,8 +65,9 @@ public:
   static DspOption getDspOptionFromName(const juce::String &name);
 
   DSPOrderFifo<DspOrder> dspOrderFifo;
-  InputOutputLevelFifo<std::vector<float>> inputLevelFifo;
-  InputOutputLevelFifo<std::vector<float>> outputLevelFifo;
+  AudioMeterFifo<std::vector<float>> inputLevelFifo;
+  AudioMeterFifo<std::vector<float>> outputLevelFifo;
+  SpectrumAnalyzerFifo<std::vector<float>> analyzerFifo;
 
   juce::dsp::Gain<float> inputGain;
   juce::dsp::Gain<float> outputGain;
@@ -85,6 +87,10 @@ private:
   // DSP ORDER STATE
   //==============================================================================
   DspOrder dspOrder;
+
+  // FFT DATA BUFFER
+  //==============================================================================
+  std::vector<float> samplesForAnalyzer;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)

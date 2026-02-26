@@ -1,7 +1,7 @@
 #include "Output.h"
 
 Output::Output(juce::AudioProcessorValueTreeState &apvts,
-               InputOutputLevelFifo<std::vector<float>> &outputLevelFifo)
+               AudioMeterFifo<std::vector<float>> &outputLevelFifo)
     : apvts(apvts), outputMeter(outputLevelFifo) {
   outputSlider =
       ParameterComponent::create(Parameters::Output::gain, apvts, this, false);

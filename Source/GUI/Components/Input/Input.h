@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../../Utils/Fifos/InputOutputLevelFifo.h"
+#include "../../../Utils/Fifos/AudioMeterFifo.h"
+#include "../../../Utils/Fifos/SpectrumAnalyzerFifo.h"
 #include "../../LookAndFeel.h"
 #include "../AudioMeter/AudioMeter.h"
 #include "../ParameterControls/ParameterComponent.h"
@@ -9,7 +10,7 @@
 class Input : public juce::Component {
 public:
   Input(juce::AudioProcessorValueTreeState &apvts,
-        InputOutputLevelFifo<std::vector<float>> &inputLevelFifo);
+        AudioMeterFifo<std::vector<float>> &inputLevelFifo);
   void paint(juce::Graphics &g) override;
   void resized() override;
 
