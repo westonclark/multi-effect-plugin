@@ -4,15 +4,14 @@
 
 class LookAndFeel : public juce::LookAndFeel_V4 {
 public:
-  static constexpr juce::uint32 BACKGROUND = 0xff09090b;  // zinc-950
-  static constexpr juce::uint32 TEXT = 0xfffef3c7;        // amber-50
-  static constexpr juce::uint32 HIGHLIGHT = 0xffd97757;   // orange accent
-                                                          //
-  static constexpr juce::uint32 METER_GREEN = 0xff22c55e; // green-500
+  static constexpr juce::uint32 BACKGROUND = 0xff111110;  // warmBlack
+  static constexpr juce::uint32 TEXT = 0xfff0ede6;        // creamWhite
+  static constexpr juce::uint32 HIGHLIGHT = 0xffbf9e59;   // mutedGold
+  static constexpr juce::uint32 METER_GREEN = 0xff1f6b47; // forestGreen
   static constexpr juce::uint32 METER_RED =
       0xffef4444; // red-500 (clip indicator)
   static constexpr juce::uint32 METER_OFF =
-      0xff141418; // Dimmed background for meter segments
+      0xff1e1e1c; // darkCharcoal
 
   LookAndFeel() {
     auto scheme = LookAndFeel_V4::ColourScheme(
