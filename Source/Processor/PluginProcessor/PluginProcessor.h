@@ -7,6 +7,7 @@
 #include "../Parameters/Parameters.h"
 #include <JuceHeader.h>
 
+#include "../../GUI/Components/AudioMeter/AudioMeter.h"
 #include "../../GUI/Components/SpectrumAnalyzer/SpectrumAnalyzer.h"
 
 // AUDIO PROCESSOR
