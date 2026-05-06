@@ -1,16 +1,18 @@
 #include "AudioMeter.h"
 #include "../../LookAndFeel.h"
+#include "../../../Processor/PluginProcessor/PluginProcessor.h"
 
 AudioMeter::AudioMeter(
-    AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo)
+    AudioMeterFifo<MeterLevel> &inputOutputLevelFifo)
     : inputOutputLevelFifo(inputOutputLevelFifo) {
   startTimerHz(60);
 }
 
 void AudioMeter::paint(juce::Graphics &g) {
+  float levels[2] = {smoothedLevel.left, smoothedLevel.right};
   for (int channel = 0; channel < 2; ++channel) {
     const float levelDb =
-        juce::Decibels::gainToDecibels(smoothedLevel[channel], MIN_DB);
+        juce::Decibels::gainToDecibels(levels[channel], MIN_DB);
     const float normalizedLevel =
         juce::jmap(levelDb, MIN_DB, MAX_DB, 0.0f, 1.0f);
 
@@ -25,7 +27,7 @@ void AudioMeter::paint(juce::Graphics &g) {
     }
 
     // Clip indicator
-    if (smoothedLevel[channel] > 0.99f) {
+    if (levels[channel] > 0.99f) {
       g.setColour(juce::Colour(LookAndFeel::METER_RED));
     } else {
       g.setColour(juce::Colour(LookAndFeel::METER_OFF));
@@ -69,20 +71,26 @@ void AudioMeter::resized() {
 }
 
 void AudioMeter::timerCallback() {
-  std::vector<float> newLevel;
+  MeterLevel newLevel;
   while (inputOutputLevelFifo.pull(newLevel)) {
     rawLevel = newLevel;
   }
 
   // Attack/release smoothing
-  for (int channel = 0; channel < 2; ++channel) {
-    if (rawLevel[channel] > smoothedLevel[channel]) {
-      smoothedLevel[channel] =
-          rawLevel[channel] * ATTACK + smoothedLevel[channel] * (1.0f - ATTACK);
-    } else {
-      smoothedLevel[channel] = rawLevel[channel] * (1.0f - RELEASE) +
-                               smoothedLevel[channel] * RELEASE;
-    }
+  if (rawLevel.left > smoothedLevel.left) {
+    smoothedLevel.left =
+        rawLevel.left * ATTACK + smoothedLevel.left * (1.0f - ATTACK);
+  } else {
+    smoothedLevel.left = rawLevel.left * (1.0f - RELEASE) +
+                         smoothedLevel.left * RELEASE;
+  }
+
+  if (rawLevel.right > smoothedLevel.right) {
+    smoothedLevel.right =
+        rawLevel.right * ATTACK + smoothedLevel.right * (1.0f - ATTACK);
+  } else {
+    smoothedLevel.right = rawLevel.right * (1.0f - RELEASE) +
+                          smoothedLevel.right * RELEASE;
   }
 
   repaint();

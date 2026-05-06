@@ -127,8 +127,6 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   inputGain.setRampDurationSeconds(0.05);
   outputGain.setRampDurationSeconds(0.05);
 
-  samplesForAnalyzer.resize(samplesPerBlock);
-
   parameters.prepareToPlay(sampleRate);
 }
 
@@ -182,7 +180,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Input Meter
   float inputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
   float inputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
-  inputLevelFifo.push({inputRmsLeft, inputRmsRight});
+  inputLevelFifo.push(MeterLevel{inputRmsLeft, inputRmsRight});
 
   // Update Smoothers
   parameters.updateSmoothers(buffer.getNumSamples(),
@@ -200,15 +198,16 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Output Meter
   float outputRmsLeft = buffer.getRMSLevel(0, 0, buffer.getNumSamples());
   float outputRmsRight = buffer.getRMSLevel(1, 0, buffer.getNumSamples());
-  outputLevelFifo.push({outputRmsLeft, outputRmsRight});
+  outputLevelFifo.push(MeterLevel{outputRmsLeft, outputRmsRight});
 
   // Spectrum Analyzer
-  int numSamples = buffer.getNumSamples();
-  for (int i = 0; i < numSamples; ++i) {
-    samplesForAnalyzer[i] =
+  AnalyzerBuffer analyzerBuffer;
+  analyzerBuffer.numSamples = buffer.getNumSamples();
+  for (int i = 0; i < analyzerBuffer.numSamples; ++i) {
+    analyzerBuffer.samples[i] =
         (buffer.getSample(0, i) + buffer.getSample(1, i)) * 0.5f;
   }
-  analyzerFifo.push(samplesForAnalyzer);
+  analyzerFifo.push(analyzerBuffer);
 }
 
 // EDITOR

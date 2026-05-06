@@ -2,7 +2,15 @@
 
 #include "../../../Utils/Fifos/SpectrumAnalyzerFifo.h"
 #include <JuceHeader.h>
+#include <array>
+
 class PluginProcessor;
+
+struct AnalyzerBuffer {
+  static constexpr int MAX_SAMPLES = 4096;
+  std::array<float, MAX_SAMPLES> samples = {};
+  int numSamples = 0;
+};
 
 class SpectrumAnalyzer : public juce::Component, public juce::Timer {
 
@@ -39,8 +47,7 @@ private:
   static constexpr float RELEASE = 0.95f;
   static constexpr float TILT = 30.0f; // 3db per octave
 
-  SpectrumAnalyzerFifo<std::vector<float>> &analyzerFifo;
-  std::vector<float> analyzerSamples;
+  SpectrumAnalyzerFifo<AnalyzerBuffer> &analyzerFifo;
 
   void timerCallback() override;
   void drawFilterCurve(juce::Graphics &g, juce::Rectangle<int> bounds);

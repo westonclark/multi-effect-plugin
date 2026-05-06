@@ -2,18 +2,22 @@
 
 #include "../../../Utils/Fifos/AudioMeterFifo.h"
 #include <JuceHeader.h>
-#include <array>
+
+struct MeterLevel {
+  float left = 0.0f;
+  float right = 0.0f;
+};
 
 class AudioMeter : public juce::Component, juce::Timer {
 public:
-  AudioMeter(AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo);
+  AudioMeter(AudioMeterFifo<MeterLevel> &inputOutputLevelFifo);
   void paint(juce::Graphics &g) override;
   void resized() override;
 
 private:
-  AudioMeterFifo<std::vector<float>> &inputOutputLevelFifo;
-  std::vector<float> rawLevel = {0.0f, 0.0f};
-  std::vector<float> smoothedLevel = {0.0f, 0.0f};
+  AudioMeterFifo<MeterLevel> &inputOutputLevelFifo;
+  MeterLevel rawLevel = {0.0f, 0.0f};
+  MeterLevel smoothedLevel = {0.0f, 0.0f};
 
   void timerCallback() override;
 

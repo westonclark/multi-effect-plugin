@@ -7,6 +7,8 @@
 #include "../Parameters/Parameters.h"
 #include <JuceHeader.h>
 
+#include "../../GUI/Components/SpectrumAnalyzer/SpectrumAnalyzer.h"
+
 // AUDIO PROCESSOR
 //==============================================================================
 class PluginProcessor : public juce::AudioProcessor
@@ -65,9 +67,9 @@ public:
   static DspOption getDspOptionFromName(const juce::String &name);
 
   DSPOrderFifo<DspOrder> dspOrderFifo;
-  AudioMeterFifo<std::vector<float>> inputLevelFifo;
-  AudioMeterFifo<std::vector<float>> outputLevelFifo;
-  SpectrumAnalyzerFifo<std::vector<float>> analyzerFifo;
+  AudioMeterFifo<MeterLevel> inputLevelFifo;
+  AudioMeterFifo<MeterLevel> outputLevelFifo;
+  SpectrumAnalyzerFifo<AnalyzerBuffer> analyzerFifo;
 
   juce::dsp::Gain<float> inputGain;
   juce::dsp::Gain<float> outputGain;
@@ -87,10 +89,6 @@ private:
   // DSP ORDER STATE
   //==============================================================================
   DspOrder dspOrder;
-
-  // FFT DATA BUFFER
-  //==============================================================================
-  std::vector<float> samplesForAnalyzer;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)

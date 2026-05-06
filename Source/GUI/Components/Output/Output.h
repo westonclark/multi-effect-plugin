@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../Utils/Fifos/AudioMeterFifo.h"
 #include "../../LookAndFeel.h"
 #include "../AudioMeter/AudioMeter.h"
 #include "../ParameterControls/ParameterComponent.h"
@@ -9,7 +8,7 @@
 class Output : public juce::Component {
 public:
   Output(juce::AudioProcessorValueTreeState &apvts,
-         AudioMeterFifo<std::vector<float>> &outputLevelFifo);
+         AudioMeterFifo<MeterLevel> &outputLevelFifo);
   void paint(juce::Graphics &g) override;
   void resized() override;
 

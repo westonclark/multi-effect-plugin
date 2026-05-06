@@ -11,7 +11,7 @@ SpectrumAnalyzer::SpectrumAnalyzer(PluginProcessor &audioProcessor)
   scopeData.resize(fftSize / 2, 0.0f);
   smoothedData.resize(fftSize / 2, -100.0f);
   startTimerHz(60);
-};
+}
 
 void SpectrumAnalyzer::paint(juce::Graphics &g) {
   auto bounds = getLocalBounds();
@@ -63,9 +63,10 @@ void SpectrumAnalyzer::drawFilterCurve(juce::Graphics &g,
 
 void SpectrumAnalyzer::timerCallback() {
   // Drain FIFO and accumulate samples into fifoBuffer
-  while (analyzerFifo.pull(analyzerSamples)) {
-    for (float sample : analyzerSamples) {
-      fifoBuffer[currentFifoIndex] = sample;
+  AnalyzerBuffer buffer;
+  while (analyzerFifo.pull(buffer)) {
+    for (int i = 0; i < buffer.numSamples; ++i) {
+      fifoBuffer[currentFifoIndex] = buffer.samples[i];
 
       // Once Buffer is full, perform FFT
       if (currentFifoIndex + 1 == fftSize) {
