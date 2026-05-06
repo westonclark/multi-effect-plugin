@@ -123,47 +123,53 @@ void DSP::DspChannel::update() {
   }
 }
 
-void DSP::DspChannel::process(juce::dsp::AudioBlock<float> block,
-                              const DspOrder &dspOrder) {
-  // Convert dspOrder into pointers
-  DspPointers dspPointers;
-  dspPointers.fill({});
+void DSP::DspChannel::updateDspPointers(const DspOrder &dspOrder) {
+  cachedDspPointers.fill({});
 
-  for (size_t i = 0; i < dspPointers.size(); ++i) {
+  for (size_t i = 0; i < cachedDspPointers.size(); ++i) {
     switch (dspOrder[i]) {
     case DspOption::Phase:
-      dspPointers[i].processor = &phaser;
-      dspPointers[i].bypassed = parameters.phaserBypass->get();
+      cachedDspPointers[i].processor = &phaser;
+      cachedDspPointers[i].bypassed = parameters.phaserBypass->get();
       break;
     case DspOption::Chorus:
-      dspPointers[i].processor = &chorus;
-      dspPointers[i].bypassed = parameters.chorusBypass->get();
+      cachedDspPointers[i].processor = &chorus;
+      cachedDspPointers[i].bypassed = parameters.chorusBypass->get();
       break;
     case DspOption::OverDrive:
-      dspPointers[i].processor = &overdrive;
-      dspPointers[i].bypassed = parameters.overdriveBypass->get();
+      cachedDspPointers[i].processor = &overdrive;
+      cachedDspPointers[i].bypassed = parameters.overdriveBypass->get();
       break;
     case DspOption::LadderFilter:
-      dspPointers[i].processor = &ladderFilter;
-      dspPointers[i].bypassed = parameters.ladderFilterBypass->get();
+      cachedDspPointers[i].processor = &ladderFilter;
+      cachedDspPointers[i].bypassed = parameters.ladderFilterBypass->get();
       break;
     case DspOption::Filter:
-      dspPointers[i].processor = &filter;
-      dspPointers[i].bypassed = parameters.filterBypass->get();
+      cachedDspPointers[i].processor = &filter;
+      cachedDspPointers[i].bypassed = parameters.filterBypass->get();
       break;
     case DspOption::END_OF_LIST:
       jassertfalse;
       break;
     }
   }
+}
+
+void DSP::DspChannel::process(juce::dsp::AudioBlock<float> block,
+                              const DspOrder &dspOrder) {
+  if (cachedDspOrder != dspOrder) {
+    cachedDspOrder = dspOrder;
+    updateDspPointers(dspOrder);
+  }
 
   // Process
   auto context = juce::dsp::ProcessContextReplacing<float>(block);
-  for (size_t i = 0; i < dspPointers.size(); ++i) {
-    if (dspPointers[i].processor != nullptr && !dspPointers[i].bypassed) {
+  for (size_t i = 0; i < cachedDspPointers.size(); ++i) {
+    if (cachedDspPointers[i].processor != nullptr &&
+        !cachedDspPointers[i].bypassed) {
       juce::ScopedValueSetter<bool> svs(context.isBypassed,
-                                        dspPointers[i].bypassed);
-      dspPointers[i].processor->process(context);
+                                        cachedDspPointers[i].bypassed);
+      cachedDspPointers[i].processor->process(context);
     }
   }
 }

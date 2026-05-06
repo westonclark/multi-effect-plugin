@@ -78,6 +78,10 @@ private:
     FilterMode cachedFilterMode = FilterMode::END_OF_LIST;
     float cachedFilterFreq = 0.f, cachedFilterQuality = 0.f,
           cachedFilterGain = -100.f;
+    DspOrder cachedDspOrder = {};
+    DspPointers cachedDspPointers = {};
+
+    void updateDspPointers(const DspOrder &dspOrder);
   };
 
   DspChannel leftChannel;
