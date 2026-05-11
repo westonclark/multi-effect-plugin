@@ -167,8 +167,6 @@ void DSP::DspChannel::process(juce::dsp::AudioBlock<float> block,
   for (size_t i = 0; i < cachedDspPointers.size(); ++i) {
     if (cachedDspPointers[i].processor != nullptr &&
         !cachedDspPointers[i].bypassed) {
-      juce::ScopedValueSetter<bool> svs(context.isBypassed,
-                                        cachedDspPointers[i].bypassed);
       cachedDspPointers[i].processor->process(context);
     }
   }
