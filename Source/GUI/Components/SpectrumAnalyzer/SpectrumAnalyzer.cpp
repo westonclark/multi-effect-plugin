@@ -65,9 +65,9 @@ void SpectrumAnalyzer::drawFilterCurve(juce::Graphics &g,
 
   if (filterUpdated) {
     filterUpdated = false;
-    auto filterFreq = audioProcessor.parameters.filterFreqSmoother.getCurrentValue();
-    auto filterQuality = audioProcessor.parameters.filterQualitySmoother.getCurrentValue();
-    auto filterGain = audioProcessor.parameters.filterGainSmoother.getCurrentValue();
+    auto filterFreq = audioProcessor.parameters.filterFreq->get();
+    auto filterQuality = audioProcessor.parameters.filterQuality->get();
+    auto filterGain = audioProcessor.parameters.filterGain->get();
     auto filterMode = audioProcessor.parameters.filterMode->getIndex();
 
     cachedCoefficients =
