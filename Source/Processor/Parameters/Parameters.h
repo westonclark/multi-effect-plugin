@@ -82,6 +82,7 @@ public:
                                         .suffix = "%",
                                         .type = ParameterType ::Float,
                                         .defaultValue = 0.05f};
+
     static constexpr Parameter centerDelay = {.id = "Chorus Center Delay",
                                               .displayName = "Delay",
                                               .suffix = " ms",
@@ -345,37 +346,6 @@ public:
   createParameterLayout();
 
 private:
-  // PARAMETER INITIALIZATION
-  //============================================================================
-  struct FloatParamInitializer {
-    juce::AudioParameterFloat **paramPtr;
-    const char *paramName;
-  };
-
-  struct ChoiceParamInitializer {
-    juce::AudioParameterChoice **paramPtr;
-    const Parameter &param;
-  };
-
-  struct BoolParamInitializer {
-    juce::AudioParameterBool **paramPtr;
-    const Parameter &param;
-  };
-
-  template <typename ParamType, typename InitStruct>
-  void initCachedParams(const std::vector<InitStruct> &paramInitializers) {
-    for (const auto &initializer : paramInitializers) {
-      *initializer.paramPtr =
-          dynamic_cast<ParamType>(apvts.getParameter(initializer.paramName));
-      jassert(*initializer.paramPtr != nullptr);
-    }
-  }
-
-  void initCachedChoiceParams(
-      const std::vector<ChoiceParamInitializer> &paramInitializers);
-  void initCachedBoolParams(
-      const std::vector<BoolParamInitializer> &paramInitializers);
-
   // PARAMETER SMOOTHING
   //============================================================================
   struct ParamSmootherPair {

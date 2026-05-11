@@ -3,83 +3,78 @@
 Parameters::Parameters(juce::AudioProcessor &processor)
     : apvts(processor, nullptr, "Parameters", createParameterLayout()) {
 
-  // Initialize parameters from Value Tree
-  auto floatParamInitializers = std::vector<FloatParamInitializer>{
-      {&phaserRate, Phaser::rate.id},
-      {&phaserCenterFreq, Phaser::centerFreq.id},
-      {&phaserDepth, Phaser::depth.id},
-      {&phaserFeedback, Phaser::feedback.id},
-      {&phaserMix, Phaser::mix.id},
-      {&chorusRate, Chorus::rate.id},
-      {&chorusDepth, Chorus::depth.id},
-      {&chorusCenterDelay, Chorus::centerDelay.id},
-      {&chorusFeedback, Chorus::feedback.id},
-      {&chorusMix, Chorus::mix.id},
-      {&overdriveSaturation, Overdrive::saturation.id},
-      {&ladderFilterCutoff, LadderFilter::cutoff.id},
-      {&ladderFilterResonance, LadderFilter::resonance.id},
-      {&ladderFilterDrive, LadderFilter::drive.id},
-      {&filterFreq, Filter::freq.id},
-      {&filterQuality, Filter::quality.id},
-      {&filterGain, Filter::gain.id},
-      {&inputGain, Input::gain.id},
-      {&outputGain, Output::gain.id},
+  // Float parameters
+  struct FloatParameter {
+    const char *id;
+    juce::AudioParameterFloat **ptr;
+    juce::SmoothedValue<float> *smoother;
   };
 
-  auto choiceParamInitializers = std::vector<ChoiceParamInitializer>{
-      {&ladderFilterMode, LadderFilter::mode},
-      {&filterMode, Filter::mode},
+  const FloatParameter floatParameters[] = {
+      {Phaser::rate.id, &phaserRate, &phaserRateSmoother},
+      {Phaser::depth.id, &phaserDepth, &phaserDepthSmoother},
+      {Phaser::centerFreq.id, &phaserCenterFreq, &phaserCenterFreqSmoother},
+      {Phaser::feedback.id, &phaserFeedback, &phaserFeedbackSmoother},
+      {Phaser::mix.id, &phaserMix, &phaserMixSmoother},
+      {Chorus::rate.id, &chorusRate, &chorusRateSmoother},
+      {Chorus::depth.id, &chorusDepth, &chorusDepthSmoother},
+      {Chorus::centerDelay.id, &chorusCenterDelay, &chorusCenterDelaySmoother},
+      {Chorus::feedback.id, &chorusFeedback, &chorusFeedbackSmoother},
+      {Chorus::mix.id, &chorusMix, &chorusMixSmoother},
+      {Overdrive::saturation.id, &overdriveSaturation,
+       &overdriveSaturationSmoother},
+      {LadderFilter::cutoff.id, &ladderFilterCutoff,
+       &ladderFilterCutoffSmoother},
+      {LadderFilter::resonance.id, &ladderFilterResonance,
+       &ladderFilterResonanceSmoother},
+      {LadderFilter::drive.id, &ladderFilterDrive, &ladderFilterDriveSmoother},
+      {Filter::freq.id, &filterFreq, &filterFreqSmoother},
+      {Filter::quality.id, &filterQuality, &filterQualitySmoother},
+      {Filter::gain.id, &filterGain, &filterGainSmoother},
+      {Input::gain.id, &inputGain, nullptr},
+      {Output::gain.id, &outputGain, nullptr},
   };
-
-  auto boolParamInitializers = std::vector<BoolParamInitializer>{
-      {&phaserBypass, Phaser::bypass},
-      {&chorusBypass, Chorus::bypass},
-      {&overdriveBypass, Overdrive::bypass},
-      {&ladderFilterBypass, LadderFilter::bypass},
-      {&filterBypass, Filter::bypass},
-  };
-
-  initCachedParams<juce::AudioParameterFloat *>(floatParamInitializers);
-  initCachedChoiceParams(choiceParamInitializers);
-  initCachedBoolParams(boolParamInitializers);
-
-  // Initialize parameter smoothers
-  paramSmootherPairs = {
-      {phaserRate, &phaserRateSmoother},
-      {phaserDepth, &phaserDepthSmoother},
-      {phaserCenterFreq, &phaserCenterFreqSmoother},
-      {phaserFeedback, &phaserFeedbackSmoother},
-      {phaserMix, &phaserMixSmoother},
-      {chorusRate, &chorusRateSmoother},
-      {chorusDepth, &chorusDepthSmoother},
-      {chorusCenterDelay, &chorusCenterDelaySmoother},
-      {chorusFeedback, &chorusFeedbackSmoother},
-      {chorusMix, &chorusMixSmoother},
-      {overdriveSaturation, &overdriveSaturationSmoother},
-      {ladderFilterCutoff, &ladderFilterCutoffSmoother},
-      {ladderFilterResonance, &ladderFilterResonanceSmoother},
-      {ladderFilterDrive, &ladderFilterDriveSmoother},
-      {filterFreq, &filterFreqSmoother},
-      {filterQuality, &filterQualitySmoother},
-      {filterGain, &filterGainSmoother},
-  };
-}
-
-void Parameters::initCachedChoiceParams(
-    const std::vector<ChoiceParamInitializer> &paramInitializers) {
-  for (const auto &initializer : paramInitializers) {
-    *initializer.paramPtr = dynamic_cast<juce::AudioParameterChoice *>(
-        apvts.getParameter(initializer.param.id));
-    jassert(*initializer.paramPtr != nullptr);
+  for (auto &p : floatParameters) {
+    *p.ptr =
+        dynamic_cast<juce::AudioParameterFloat *>(apvts.getParameter(p.id));
+    jassert(*p.ptr != nullptr);
+    if (p.smoother)
+      paramSmootherPairs.push_back({*p.ptr, p.smoother});
   }
-}
 
-void Parameters::initCachedBoolParams(
-    const std::vector<BoolParamInitializer> &paramInitializers) {
-  for (const auto &initializer : paramInitializers) {
-    *initializer.paramPtr = dynamic_cast<juce::AudioParameterBool *>(
-        apvts.getParameter(initializer.param.id));
-    jassert(*initializer.paramPtr != nullptr);
+  // Choice parameters
+  struct ChoiceParameter {
+    const Parameter &def;
+    juce::AudioParameterChoice **ptr;
+  };
+
+  const ChoiceParameter choiceParameters[] = {
+      {LadderFilter::mode, &ladderFilterMode},
+      {Filter::mode, &filterMode},
+  };
+  for (auto &p : choiceParameters) {
+    *p.ptr = dynamic_cast<juce::AudioParameterChoice *>(
+        apvts.getParameter(p.def.id));
+    jassert(*p.ptr != nullptr);
+  }
+
+  // Bool parameters
+  struct BoolParameter {
+    const Parameter &def;
+    juce::AudioParameterBool **ptr;
+  };
+
+  const BoolParameter boolParameters[] = {
+      {Phaser::bypass, &phaserBypass},
+      {Chorus::bypass, &chorusBypass},
+      {Overdrive::bypass, &overdriveBypass},
+      {LadderFilter::bypass, &ladderFilterBypass},
+      {Filter::bypass, &filterBypass},
+  };
+  for (auto &p : boolParameters) {
+    *p.ptr =
+        dynamic_cast<juce::AudioParameterBool *>(apvts.getParameter(p.def.id));
+    jassert(*p.ptr != nullptr);
   }
 }
 
