@@ -175,6 +175,8 @@ public:
   };
 
   struct Filter {
+    enum class Mode { Peak, Bandpass, Notch, Allpass, END_OF_LIST };
+
     static inline const juce::StringArray modes{"Peak", "Bandpass", "Notch",
                                                 "Allpass"};
 

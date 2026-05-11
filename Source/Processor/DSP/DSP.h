@@ -15,8 +15,6 @@ enum class DspOption {
   END_OF_LIST
 };
 
-enum FilterMode { Peak, Bandpass, Notch, Allpass, END_OF_LIST };
-
 using DspOrder =
     std::array<DspOption, static_cast<size_t>(DspOption::END_OF_LIST)>;
 
@@ -70,7 +68,7 @@ private:
   private:
     Parameters &parameters;
     juce::AudioProcessor &processor;
-    FilterMode cachedFilterMode = FilterMode::END_OF_LIST;
+    Parameters::Filter::Mode cachedFilterMode = Parameters::Filter::Mode::END_OF_LIST;
     float cachedFilterFreq = 0.f, cachedFilterQuality = 0.f,
           cachedFilterGain = -100.f;
     DspOrder cachedDspOrder = {};

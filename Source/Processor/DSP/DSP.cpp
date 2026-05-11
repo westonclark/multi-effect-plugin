@@ -75,13 +75,13 @@ void DSP::DspChannel::update() {
   auto currentFilterMode = parameters.filterMode->getIndex();
 
   // Only update filter coefficients if mode changes or if values are changing
-  bool modeChanged = (currentFilterMode != cachedFilterMode);
+  bool modeChanged = (static_cast<Parameters::Filter::Mode>(currentFilterMode) != cachedFilterMode);
   bool paramsChanging = (currentFilterFreq != cachedFilterFreq) ||
                         (currentFilterQuality != cachedFilterQuality) ||
                         (currentFilterGain != cachedFilterGain);
 
   if (modeChanged || paramsChanging) {
-    cachedFilterMode = static_cast<FilterMode>(currentFilterMode);
+    cachedFilterMode = static_cast<Parameters::Filter::Mode>(currentFilterMode);
     cachedFilterFreq = currentFilterFreq;
     cachedFilterQuality = currentFilterQuality;
     cachedFilterGain = currentFilterGain;
@@ -90,28 +90,28 @@ void DSP::DspChannel::update() {
     juce::dsp::IIR::Coefficients<float>::Ptr coefficients;
 
     switch (cachedFilterMode) {
-    case FilterMode::Peak: {
+    case Parameters::Filter::Mode::Peak: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
           sampleRate, cachedFilterFreq, cachedFilterQuality,
           juce::Decibels::decibelsToGain(cachedFilterGain));
       break;
     };
-    case FilterMode::Bandpass: {
+    case Parameters::Filter::Mode::Bandpass: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(
           sampleRate, cachedFilterFreq, cachedFilterQuality);
       break;
     }
-    case FilterMode::Notch: {
+    case Parameters::Filter::Mode::Notch: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeNotch(
           sampleRate, cachedFilterFreq, cachedFilterQuality);
       break;
     };
-    case FilterMode::Allpass: {
+    case Parameters::Filter::Mode::Allpass: {
       coefficients = juce::dsp::IIR::Coefficients<float>::makeAllPass(
           sampleRate, cachedFilterFreq, cachedFilterQuality);
       break;
     }
-    case FilterMode::END_OF_LIST: {
+    case Parameters::Filter::Mode::END_OF_LIST: {
       jassertfalse;
       break;
     }
