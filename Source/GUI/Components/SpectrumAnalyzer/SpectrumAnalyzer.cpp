@@ -11,6 +11,19 @@ SpectrumAnalyzer::SpectrumAnalyzer(PluginProcessor &audioProcessor)
   scopeData.resize(fftSize / 2, 0.0f);
   smoothedData.resize(fftSize / 2, -100.0f);
   startTimerHz(60);
+
+  filterListener = std::make_unique<FilterParameterListener>(*this);
+  audioProcessor.parameters.filterFreq->addListener(filterListener.get());
+  audioProcessor.parameters.filterMode->addListener(filterListener.get());
+  audioProcessor.parameters.filterQuality->addListener(filterListener.get());
+  audioProcessor.parameters.filterGain->addListener(filterListener.get());
+}
+
+SpectrumAnalyzer::~SpectrumAnalyzer() {
+  audioProcessor.parameters.filterFreq->removeListener(filterListener.get());
+  audioProcessor.parameters.filterMode->removeListener(filterListener.get());
+  audioProcessor.parameters.filterQuality->removeListener(filterListener.get());
+  audioProcessor.parameters.filterGain->removeListener(filterListener.get());
 }
 
 void SpectrumAnalyzer::paint(juce::Graphics &g) {
@@ -24,12 +37,45 @@ void SpectrumAnalyzer::paint(juce::Graphics &g) {
 
 void SpectrumAnalyzer::resized() { repaint(); };
 
+juce::dsp::IIR::Coefficients<float>::Ptr SpectrumAnalyzer::computeFilterCoefficients(
+    int mode, float freq, float quality, float gain, double sampleRate) {
+  switch (mode) {
+  case 0: // Peak
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+        sampleRate, freq, quality, juce::Decibels::decibelsToGain(gain));
+  case 1: // Bandpass
+    return juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, freq,
+                                                             quality);
+  case 2: // Notch
+    return juce::dsp::IIR::Coefficients<float>::makeNotch(sampleRate, freq,
+                                                          quality);
+  case 3: // Allpass
+    return juce::dsp::IIR::Coefficients<float>::makeAllPass(sampleRate, freq,
+                                                            quality);
+  default:
+    return nullptr;
+  }
+}
+
 void SpectrumAnalyzer::drawFilterCurve(juce::Graphics &g,
                                        juce::Rectangle<int> bounds) {
 
   auto sampleRate = audioProcessor.getSampleRate();
-  auto coefficients = audioProcessor.dsp.getFilterCoefficients();
   auto isBypassed = audioProcessor.parameters.filterBypass->get();
+
+  if (filterUpdated) {
+    filterUpdated = false;
+    auto filterFreq = audioProcessor.parameters.filterFreqSmoother.getCurrentValue();
+    auto filterQuality = audioProcessor.parameters.filterQualitySmoother.getCurrentValue();
+    auto filterGain = audioProcessor.parameters.filterGainSmoother.getCurrentValue();
+    auto filterMode = audioProcessor.parameters.filterMode->getIndex();
+
+    cachedCoefficients =
+        computeFilterCoefficients(filterMode, filterFreq, filterQuality, filterGain, sampleRate);
+  }
+
+  if (!cachedCoefficients)
+    return;
 
   juce::Path responseCurve;
   float width = bounds.getWidth();
@@ -40,7 +86,7 @@ void SpectrumAnalyzer::drawFilterCurve(juce::Graphics &g,
     auto currentFreq = MIN_FREQ * std::pow(MAX_FREQ / MIN_FREQ, normalizedX);
 
     auto magnitude =
-        coefficients->getMagnitudeForFrequency(currentFreq, sampleRate);
+        cachedCoefficients->getMagnitudeForFrequency(currentFreq, sampleRate);
     float magnitudeDb = juce::Decibels::gainToDecibels(magnitude);
 
     auto normalizedY = juce::jmap(magnitudeDb, MIN_DB, MAX_DB, 1.0f, 0.0f);

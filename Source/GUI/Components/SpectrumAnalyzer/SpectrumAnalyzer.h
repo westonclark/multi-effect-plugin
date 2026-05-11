@@ -16,6 +16,7 @@ class SpectrumAnalyzer : public juce::Component, public juce::Timer {
 
 public:
   SpectrumAnalyzer(PluginProcessor &p);
+  ~SpectrumAnalyzer();
 
   void resized() override;
   void paint(juce::Graphics &g) override;
@@ -49,8 +50,27 @@ private:
 
   SpectrumAnalyzerFifo<AnalyzerBuffer> &analyzerFifo;
 
+  bool filterUpdated = true;
+  juce::dsp::IIR::Coefficients<float>::Ptr cachedCoefficients;
+
+  class FilterParameterListener : public juce::AudioProcessorParameter::Listener {
+  public:
+    FilterParameterListener(SpectrumAnalyzer &parent) : parent(parent) {}
+    void parameterValueChanged(int, float) override {
+      parent.filterUpdated = true;
+    }
+    void parameterGestureChanged(int, bool) override {}
+
+  private:
+    SpectrumAnalyzer &parent;
+  };
+  std::unique_ptr<FilterParameterListener> filterListener;
+
   void timerCallback() override;
   void drawFilterCurve(juce::Graphics &g, juce::Rectangle<int> bounds);
   void drawSpectrum(juce::Graphics &g, juce::Rectangle<int> bounds);
   void drawFrequencyMarkers(juce::Graphics &g, juce::Rectangle<int> bounds);
+
+  juce::dsp::IIR::Coefficients<float>::Ptr computeFilterCoefficients(
+      int mode, float freq, float quality, float gain, double sampleRate);
 };
