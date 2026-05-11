@@ -24,11 +24,9 @@ PluginEditor::PluginEditor(PluginProcessor &p)
     tabBar.addTab(dspOption);
   }
 
-  // Register listeners
   tabBar.addTabOrderListener(this);
   tabBar.addTabSelectionListener(this);
 
-  // Set current tab
   auto savedTab = audioProcessor.getSelectedTabFromState();
   int savedTabIndex = 0;
   for (int i = 0; i < dspOrder.size(); ++i) {
@@ -87,28 +85,19 @@ void PluginEditor::paint(juce::Graphics &g) {
 void PluginEditor::resized() {
   auto bounds = getLocalBounds().reduced(10);
 
-  // I/O sections with slightly more width
   input.setBounds(bounds.removeFromLeft(85));
   bounds.removeFromLeft(5);  // Gap
   output.setBounds(bounds.removeFromRight(85));
   bounds.removeFromRight(5);  // Gap
 
-  // Spectrum analyzer - reduced height to give more space to effect panels
   spectrumAnalyzer.setBounds(bounds.removeFromTop(260));
 
-  // Small gap before tabs
   bounds.removeFromTop(3);
 
-  // Store the DSP panel bounds (tabs + effects) for border drawing
   dspPanelBounds = bounds;
 
-  // Tab bar with more height for better look
   tabBar.setBounds(bounds.removeFromTop(28));
 
-  // No gap after tabs - they should join with the panel
-  // bounds.removeFromTop(2);
-
-  // Effect panels - now have more vertical space for larger knobs
   phaserPanel.setBounds(bounds);
   chorusPanel.setBounds(bounds);
   drivePanel.setBounds(bounds);
